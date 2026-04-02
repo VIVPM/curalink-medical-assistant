@@ -1,9 +1,15 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "curalink-dev-secret";
+// Read at call time (after dotenv has loaded) with NO fallback. A missing secret
+// is a hard boot failure in index.js (SEC-2), so this is always set at runtime.
+function jwtSecret() {
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error("JWT_SECRET is not set");
+  return s;
+}
 
 export function signToken(userId) {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "1h" });
+  return jwt.sign({ userId }, jwtSecret(), { expiresIn: "1h" });
 }
 
 export function authMiddleware(req, res, next) {
@@ -14,7 +20,7 @@ export function authMiddleware(req, res, next) {
 
   try {
     const token = header.slice(7);
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, jwtSecret());
     req.userId = decoded.userId;
     next();
   } catch {
