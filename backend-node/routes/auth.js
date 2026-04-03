@@ -11,8 +11,8 @@ router.post("/signup", async (req, res) => {
   if (!name || !email || !password) {
     return res.status(400).json({ ok: false, error: "name, email, and password required" });
   }
-  if (password.length < 6) {
-    return res.status(400).json({ ok: false, error: "password must be at least 6 characters" });
+  if (password.length < 8) {
+    return res.status(400).json({ ok: false, error: "password must be at least 8 characters" });
   }
 
   const existing = await User.findOne({ email: email.toLowerCase() });
@@ -68,7 +68,7 @@ router.get("/me", async (req, res) => {
     const jwt = await import("jsonwebtoken");
     const decoded = jwt.default.verify(
       header.slice(7),
-      process.env.JWT_SECRET || "curalink-dev-secret"
+      process.env.JWT_SECRET
     );
     const user = await User.findById(decoded.userId).select("-password");
     if (!user) return res.status(401).json({ ok: false, error: "user not found" });
