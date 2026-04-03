@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true, minlength: 6 },
+    password: { type: String, required: true, minlength: 8 },
+    credits: { type: Number, default: () => Number(process.env.DEFAULT_CREDITS) || 3 }, // demo quota: 1 credit = 1 question
   },
   { timestamps: true }
 );
