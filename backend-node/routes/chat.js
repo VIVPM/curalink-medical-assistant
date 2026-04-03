@@ -1,22 +1,60 @@
 import crypto from "crypto";
 import { Router } from "express";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import Session from "../models/Session.js";
 import Message from "../models/Message.js";
-import Cache from "../models/Cache.js";
+import User from "../models/User.js";
+import { cacheGet, cacheSet } from "../cache.js";
 import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
 
 const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";  // overridden by env at deploy
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const MAX_MESSAGE_LENGTH = 4000; // cap the expensive path (SEC-6)
 
-function cacheKey(disease, intent, message) {
-  const normalized = `${(disease || "").trim().toLowerCase()}|${(intent || "").trim().toLowerCase()}|${message.trim().toLowerCase().replace(/\s+/g, " ")}`;
-  return crypto.createHash("sha256").update(normalized).digest("hex");
+// Per-user quota on the expensive pipeline (SEC-4). Keyed by user id (set by
+// authMiddleware) so one account can't spam costly LLM/retrieval runs.
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: Number(process.env.CHAT_RATE_MAX) || 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.userId || ipKeyGenerator(req.ip),
+  message: { ok: false, error: "rate limit exceeded, please slow down" },
+});
+
+// Conservative normalization: case, possessives, punctuation, whitespace. Lets
+// trivial re-typings share a cache entry (UX-3) — "Parkinson's?" == "parkinsons".
+// Deliberately does NOT strip stopwords (would collapse distinct questions into
+// one wrong answer) and does NOT resolve synonyms/abbreviations like "DBS" vs
+// "deep brain stimulation" — that needs a semantic cache, deferred to SCALE-1.
+function normKey(s) {
+  return (s || "")
+    .toLowerCase()
+    .replace(/['‘’]/g, "")   // possessive: parkinson's -> parkinsons
+    .replace(/[^\w\s]/g, " ")           // other punctuation -> space
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-// All chat routes require auth
+function cacheKey(disease, intent, message, history = []) {
+  const normalized = `${normKey(disease)}|${normKey(intent)}|${normKey(message)}`;
+  // The answer depends on prior conversation, so the key must too. Without this,
+  // the same follow-up text in two different chats collides on one cached answer
+  // (BUG-1). First turns have empty history, so cross-session hits still work.
+  const historyStr = history
+    .map((m) => `${m.role}:${normKey(m.content)}`)
+    .join("|");
+  return crypto
+    .createHash("sha256")
+    .update(`${normalized}||${historyStr}`)
+    .digest("hex");
+}
+
+// All chat routes require auth, then a per-user rate limit
 router.use(authMiddleware);
+router.use(chatLimiter);
 
 // POST /api/chat — send message, run pipeline, return structured response
 router.post("/chat", async (req, res) => {
@@ -28,11 +66,26 @@ router.post("/chat", async (req, res) => {
   if (!message || !message.trim()) {
     return res.status(400).json({ ok: false, error: "message is required" });
   }
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return res.status(400).json({ ok: false, error: "message too long" });
+  }
 
   // 1. Load session
-  const session = await Session.findById(sessionId);
+  const session = await Session.findOne({ _id: sessionId, userId: req.userId });
   if (!session) {
     return res.status(404).json({ ok: false, error: "session not found" });
+  }
+
+  // Demo quota: 1 credit = 1 question. Atomic check-and-decrement.
+  const quota = await User.findOneAndUpdate(
+    { _id: req.userId, credits: { $gt: 0 } },
+    { $inc: { credits: -1 } },
+    { new: true, projection: { credits: 1 } }
+  );
+  if (!quota) {
+    return res
+      .status(402)
+      .json({ ok: false, error: "You're out of questions (credits) for this demo." });
   }
 
   // 2. Load chat history
@@ -57,23 +110,24 @@ router.post("/chat", async (req, res) => {
   const ckey = cacheKey(
     session.staticContext.disease,
     session.staticContext.intent,
-    message
+    message,
+    recentMessages
   );
-  const cached = await Cache.findOne({ key: ckey }).lean();
-  if (cached && cached.response) {
+  const cachedResponse = await cacheGet(ckey);
+  if (cachedResponse) {
     const assistantMsg = await Message.create({
       sessionId,
       role: "assistant",
-      content: cached.response.overview || JSON.stringify(cached.response),
-      structuredResponse: cached.response,
-      pipelineMeta: cached.response.pipelineMeta || null,
+      content: cachedResponse.overview || JSON.stringify(cachedResponse),
+      structuredResponse: cachedResponse,
+      pipelineMeta: cachedResponse.pipelineMeta || null,
     });
     await Session.findByIdAndUpdate(sessionId, { $inc: { messageCount: 2 } });
     return res.json({
       ok: true,
       userMessage: userMsg,
       assistantMessage: assistantMsg,
-      response: cached.response,
+      response: cachedResponse,
       cached: true,
     });
   }
@@ -103,21 +157,15 @@ router.post("/chat", async (req, res) => {
     });
 
     if (!resp.ok) {
-      const err = await resp.text();
-      return res.status(502).json({
-        ok: false,
-        error: "pipeline failed",
-        detail: err,
-      });
+      const detail = await resp.text();
+      console.error(JSON.stringify({ id: req.id, level: "error", where: "pipeline_run", status: resp.status, detail }));
+      return res.status(502).json({ ok: false, error: "pipeline failed", requestId: req.id });
     }
 
     pipelineResult = await resp.json();
   } catch (err) {
-    return res.status(503).json({
-      ok: false,
-      error: "fastapi unreachable",
-      detail: err.message,
-    });
+    console.error(JSON.stringify({ id: req.id, level: "error", where: "pipeline_run", error: err.message }));
+    return res.status(503).json({ ok: false, error: "fastapi unreachable", requestId: req.id });
   }
 
   // 5. Save assistant message + pipeline meta
@@ -139,15 +187,7 @@ router.post("/chat", async (req, res) => {
 
   // 7. Cache the result (skip abstain responses — they signal no useful info)
   if (!pipelineResult.abstain_reason) {
-    await Cache.updateOne(
-      { key: ckey },
-      {
-        key: ckey,
-        response: pipelineResult,
-        expiresAt: new Date(Date.now() + CACHE_TTL_MS),
-      },
-      { upsert: true }
-    );
+    await cacheSet(ckey, pipelineResult, CACHE_TTL_MS);
   }
 
   // 8. Return response
@@ -169,10 +209,25 @@ router.post("/chat/stream", async (req, res) => {
   if (!message || !message.trim()) {
     return res.status(400).json({ ok: false, error: "message is required" });
   }
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return res.status(400).json({ ok: false, error: "message too long" });
+  }
 
-  const session = await Session.findById(sessionId);
+  const session = await Session.findOne({ _id: sessionId, userId: req.userId });
   if (!session) {
     return res.status(404).json({ ok: false, error: "session not found" });
+  }
+
+  // Demo quota: 1 credit = 1 question. Atomic check-and-decrement.
+  const quota = await User.findOneAndUpdate(
+    { _id: req.userId, credits: { $gt: 0 } },
+    { $inc: { credits: -1 } },
+    { new: true, projection: { credits: 1 } }
+  );
+  if (!quota) {
+    return res
+      .status(402)
+      .json({ ok: false, error: "You're out of questions (credits) for this demo." });
   }
 
   const history = await Message.find({ sessionId })
@@ -219,20 +274,21 @@ router.post("/chat/stream", async (req, res) => {
   const ckey = cacheKey(
     session.staticContext.disease,
     session.staticContext.intent,
-    message
+    message,
+    recentMessages
   );
-  const cached = await Cache.findOne({ key: ckey }).lean();
-  if (cached && cached.response) {
+  const cachedResponse = await cacheGet(ckey);
+  if (cachedResponse) {
     res.write(`event: status\ndata: {"stage":"cache_hit","message":"Served from cache"}\n\n`);
-    res.write(`event: metadata\ndata: ${JSON.stringify(cached.response)}\n\n`);
+    res.write(`event: metadata\ndata: ${JSON.stringify(cachedResponse)}\n\n`);
     res.write(`event: done\ndata: {}\n\n`);
 
     await Message.create({
       sessionId,
       role: "assistant",
-      content: cached.response.overview || JSON.stringify(cached.response),
-      structuredResponse: cached.response,
-      pipelineMeta: cached.response.pipelineMeta || null,
+      content: cachedResponse.overview || JSON.stringify(cachedResponse),
+      structuredResponse: cachedResponse,
+      pipelineMeta: cachedResponse.pipelineMeta || null,
     });
     await Session.findByIdAndUpdate(sessionId, { $inc: { messageCount: 2 } });
     return res.end();
@@ -300,19 +356,12 @@ router.post("/chat/stream", async (req, res) => {
       });
 
       if (!metadataJson.abstain_reason) {
-        await Cache.updateOne(
-          { key: ckey },
-          {
-            key: ckey,
-            response: metadataJson,
-            expiresAt: new Date(Date.now() + CACHE_TTL_MS),
-          },
-          { upsert: true }
-        );
+        await cacheSet(ckey, metadataJson, CACHE_TTL_MS);
       }
     }
   } catch (err) {
-    res.write(`event: error\ndata: {"error":"${err.message}"}\n\n`);
+    console.error(JSON.stringify({ id: req.id, level: "error", where: "pipeline_stream", error: err.message }));
+    res.write(`event: error\ndata: {"error":"stream failed"}\n\n`);
   }
 
   res.end();
