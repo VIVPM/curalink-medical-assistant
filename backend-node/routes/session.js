@@ -1,15 +1,26 @@
 import { Router } from "express";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import Session from "../models/Session.js";
 import Message from "../models/Message.js";
 import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
 
+// Per-user cap on session creation to prevent spam; reads stay unlimited (SEC-4).
+const createSessionLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: Number(process.env.SESSION_RATE_MAX) || 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.userId || ipKeyGenerator(req.ip),
+  message: { ok: false, error: "too many sessions created, try again later" },
+});
+
 // All session routes require auth
 router.use(authMiddleware);
 
 // POST /api/session — create new session (locks form)
-router.post("/session", async (req, res) => {
+router.post("/session", createSessionLimiter, async (req, res) => {
   const { disease, intent, location, patientName } = req.body;
 
   if (!disease || !disease.trim()) {
