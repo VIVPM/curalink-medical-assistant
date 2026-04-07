@@ -8,3 +8,7 @@ curl_cffi
 numpy
 rank_bm25
 huggingface_hub
+redis
+opentelemetry-sdk==1.44.0
+opentelemetry-exporter-otlp-proto-http==1.44.0
+opentelemetry-instrumentation-fastapi==0.65b0
