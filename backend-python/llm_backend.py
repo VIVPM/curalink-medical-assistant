@@ -15,6 +15,12 @@ from typing import AsyncIterator
 
 from huggingface_hub import InferenceClient
 
+# Bound concurrent LLM calls to the HF Inference API and retry transient errors
+# / 429s with backoff — this is the cost-driving, rate-limited hop.
+_LLM_CONCURRENCY = int(os.getenv("LLM_CONCURRENCY", "3"))
+_MAX_RETRIES = 3
+_RETRY_BACKOFF = 2.0  # seconds; doubles each retry
+
 
 class LLMBackend(ABC):
     """Abstract interface every LLM backend must satisfy."""
@@ -51,6 +57,22 @@ class HFBackend(LLMBackend):
         self.token = token
         self.model = model
         self.client = InferenceClient(model=model, token=token)
+        self._sem = asyncio.Semaphore(_LLM_CONCURRENCY)
+
+    async def _call(self, fn):
+        """Run a blocking HF call in a thread, bounded by a global concurrency
+        semaphore and retried with backoff (handles HF 429 / transient errors)."""
+        async with self._sem:
+            for attempt in range(1, _MAX_RETRIES + 1):
+                try:
+                    return await asyncio.to_thread(fn)
+                except Exception as e:
+                    if attempt == _MAX_RETRIES:
+                        raise
+                    wait = _RETRY_BACKOFF * (2 ** (attempt - 1))
+                    print(f"[llm] attempt {attempt}/{_MAX_RETRIES} failed: {e}. "
+                          f"Retrying in {wait:.1f}s...")
+                    await asyncio.sleep(wait)
 
     def _build_messages(self, prompt: str, system_prompt: str | None) -> list[dict]:
         msgs = []
@@ -74,13 +96,18 @@ class HFBackend(LLMBackend):
 
         messages = self._build_messages(prompt, sys)
 
-        resp = await asyncio.to_thread(
-            self.client.chat_completion,
-            messages=messages,
-            max_tokens=max_tokens,
-            temperature=max(temperature, 0.01),
-        )
-        return resp.choices[0].message.content or ""
+        import observability as obs
+        with obs.llm_generation(self.model, prompt) as span:
+            resp = await self._call(
+                lambda: self.client.chat_completion(
+                    messages=messages,
+                    max_tokens=max_tokens,
+                    temperature=max(temperature, 0.01),
+                )
+            )
+            text = resp.choices[0].message.content or ""
+            obs.set_generation_output(span, text)
+        return text
 
     async def generate_stream(
         self,
@@ -110,7 +137,10 @@ class HFBackend(LLMBackend):
                     tokens.append(delta)
             return tokens
 
-        tokens = await asyncio.to_thread(_stream)
+        import observability as obs
+        with obs.llm_generation(self.model, prompt) as span:
+            tokens = await self._call(_stream)
+            obs.set_generation_output(span, "".join(tokens))
         for token in tokens:
             yield token
 
