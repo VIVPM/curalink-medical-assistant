@@ -69,9 +69,47 @@ class Embedder:
         batch_size: int = 32,
     ) -> list[list[float]]:
         """
-        Embed a list of texts in batches. Returns list of L2-normalized vectors.
-        Sends each batch as a single HF API call (list of texts).
-        Failed batches fall back to per-text calls.
+        Cache-aware batch embed. Checks Redis (if configured) per text, embeds
+        only the misses via the HF API, caches the new vectors, and returns all
+        vectors in the original order. With no Redis this is a pass-through.
+        """
+        if not texts:
+            return []
+        try:
+            from redis_cache import get_embeddings, set_embeddings
+        except Exception:
+            get_embeddings = set_embeddings = None
+
+        cached = get_embeddings(self.model_name, texts) if get_embeddings else {}
+        if len(cached) == len(texts):
+            return [cached[i] for i in range(len(texts))]
+
+        miss_idx = [i for i in range(len(texts)) if i not in cached]
+        miss_texts = [texts[i] for i in miss_idx]
+        miss_vecs = self._embed_uncached(miss_texts, batch_size)
+
+        # Cache only successful (non-zero) vectors.
+        if set_embeddings:
+            good = [(t, v) for t, v in zip(miss_texts, miss_vecs) if any(v)]
+            if good:
+                set_embeddings(self.model_name, [t for t, _ in good], [v for _, v in good])
+
+        result: list[list[float]] = [None] * len(texts)  # type: ignore[list-item]
+        for i, v in cached.items():
+            result[i] = v
+        for i, v in zip(miss_idx, miss_vecs):
+            result[i] = v
+        return result
+
+    def _embed_uncached(
+        self,
+        texts: list[str],
+        batch_size: int = 32,
+    ) -> list[list[float]]:
+        """
+        Embed a list of texts in batches (no cache). Returns L2-normalized vectors.
+        Sends each batch as one HF API call; failed batches fall back to per-text
+        calls, and unrecoverable texts get a zero vector.
         """
         if not texts:
             return []
