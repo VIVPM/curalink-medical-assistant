@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from dotenv import load_dotenv
 
 from llm_backend import get_llm_backend
@@ -60,10 +60,18 @@ async def lifespan(app: FastAPI):
     # Start model loading in background — server accepts requests immediately
     asyncio.create_task(_load_models())
     yield
+    import observability
+    observability.flush()  # Render can freeze the instance — flush buffered spans first
     models.clear()
 
 
 app = FastAPI(title="Curalink Orchestrator", lifespan=lifespan)
+
+# Observability (SCALE-6) — all no-ops unless env is set (LANGFUSE_* / GRAFANA_OTLP_*):
+from observability import init_observability, init_http_tracing, init_metrics, record_message
+init_observability()    # LLM generation spans -> Langfuse + Grafana
+init_http_tracing(app)  # HTTP endpoint spans  -> Grafana
+init_metrics()          # chat_messages_total   -> Grafana
 
 
 class EmbedRequest(BaseModel):
@@ -86,7 +94,8 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"ok": True, "service": "fastapi"}
+    from redis_cache import status as redis_status
+    return {"ok": True, "service": "fastapi", "redis": redis_status()}
 
 
 @app.post("/embed")
@@ -351,10 +360,20 @@ async def debug_rank(
 # Also aliased as /debug/pipeline for direct testing.
 # ---------------------------------------------------------------------------
 
+MAX_USER_MESSAGE_LEN = 8000  # defense-in-depth cap (SEC-6); Express caps at 4000
+
+
 class PipelineRequest(BaseModel):
     static: dict = Field(..., description="Static form context: disease, intent, location, patientName")
     dynamic: dict = Field(default_factory=dict, description="Chat history and entities")
     current: dict = Field(..., description="Current user message: {userMessage}")
+
+    @field_validator("current")
+    @classmethod
+    def _cap_user_message(cls, v):
+        if len((v or {}).get("userMessage", "")) > MAX_USER_MESSAGE_LEN:
+            raise ValueError("userMessage too long")
+        return v
 
 
 @app.post("/pipeline/run")
@@ -374,6 +393,18 @@ async def pipeline_run(req: PipelineRequest):
     warnings: list[str] = []
     user_message = req.current.get("userMessage", "")
     chat_history = req.dynamic.get("recentMessages", [])
+
+    # Semantic cache (SCALE-1): first-turn only — later turns depend on history.
+    sem_emb = None
+    if not chat_history:
+        from semantic_cache import lookup
+        hit, sem_emb = lookup(
+            embedder, req.static.get("disease", ""), req.static.get("intent", ""), user_message
+        )
+        if hit is not None:
+            hit.setdefault("pipelineMeta", {})["semantic_cache"] = True
+            record_message("cache")
+            return hit
 
     t_pipeline = time.perf_counter()
 
@@ -474,6 +505,11 @@ async def pipeline_run(req: PipelineRequest):
     assembled.user_facing_json["pipelineMeta"]["stage_timings_ms"] = stage_timings
     assembled.user_facing_json["pipelineMeta"]["warnings"] = warnings + assembled.warnings
 
+    if sem_emb is not None and not assembled.user_facing_json.get("abstain_reason"):
+        from semantic_cache import store
+        store(req.static.get("disease", ""), req.static.get("intent", ""), sem_emb, assembled.user_facing_json)
+
+    record_message("ok")
     return assembled.user_facing_json
 
 
@@ -499,6 +535,21 @@ async def pipeline_stream(req: PipelineRequest):
         warnings: list[str] = []
         user_message = req.current.get("userMessage", "")
         chat_history = req.dynamic.get("recentMessages", [])
+
+        # Semantic cache (SCALE-1): first-turn only.
+        sem_emb = None
+        if not chat_history:
+            from semantic_cache import lookup
+            hit, sem_emb = lookup(
+                embedder, req.static.get("disease", ""), req.static.get("intent", ""), user_message
+            )
+            if hit is not None:
+                hit.setdefault("pipelineMeta", {})["semantic_cache"] = True
+                yield "event: status\ndata: {\"stage\":\"semantic_cache\",\"message\":\"Served from semantic cache\"}\n\n"
+                yield f"event: metadata\ndata: {_json.dumps(hit)}\n\n"
+                yield "event: done\ndata: {}\n\n"
+                record_message("cache")
+                return
 
         t_pipeline = time.perf_counter()
 
@@ -647,6 +698,12 @@ async def pipeline_stream(req: PipelineRequest):
         meta_json = _json.dumps(assembled.user_facing_json)
         yield f"event: metadata\ndata: {meta_json}\n\n"
         yield "event: done\ndata: {}\n\n"
+
+        if sem_emb is not None and not assembled.user_facing_json.get("abstain_reason"):
+            from semantic_cache import store
+            store(req.static.get("disease", ""), req.static.get("intent", ""), sem_emb, assembled.user_facing_json)
+
+        record_message("ok")
 
     return StreamingResponse(
         event_generator(),
