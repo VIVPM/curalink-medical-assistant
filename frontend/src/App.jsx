@@ -8,7 +8,7 @@ import ChatView from "./components/ChatView";
 import "./App.css";
 
 export default function App() {
-  const { user, loading: authLoading, error: authError, signup, login, logout } = useAuth();
+  const { user, loading: authLoading, error: authError, signup, login, logout, expire } = useAuth();
 
   const {
     sessions,
@@ -18,13 +18,15 @@ export default function App() {
     streamStatus,
     pipelineStage,
     retrievalCounts,
+    waking,
     fetchSessions,
     createSession,
     loadSession,
     sendMessage,
+    stopGeneration,
     setActiveSession,
     setMessages,
-  } = useChat();
+  } = useChat({ onAuthExpired: expire });
 
   const [showForm, setShowForm] = useState(
     () => !localStorage.getItem("activeSessionId")
@@ -110,7 +112,9 @@ export default function App() {
             streamStatus={streamStatus}
             pipelineStage={pipelineStage}
             retrievalCounts={retrievalCounts}
+            waking={waking}
             onSend={sendMessage}
+            onStop={stopGeneration}
             onBack={handleNewSession}
           />
         )}
