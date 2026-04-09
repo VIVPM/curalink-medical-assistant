@@ -62,11 +62,11 @@ export default function AuthPage({ onLogin, onSignup, error }) {
               <label>Password</label>
               <input
                 type="password"
-                placeholder="Min 6 characters"
+                placeholder="Min 8 characters"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
 
@@ -85,6 +85,11 @@ export default function AuthPage({ onLogin, onSignup, error }) {
       </div>
 
       <footer className="auth-footer">
+        <p className="auth-disclaimer">
+          Curalink provides research information, not medical advice. By creating
+          an account you agree to use it for informational purposes only and to
+          consult a qualified clinician for any medical decision.
+        </p>
         <span>&copy; {new Date().getFullYear()} Curalink. All rights reserved.</span>
       </footer>
     </div>

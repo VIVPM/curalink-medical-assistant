@@ -78,5 +78,15 @@ export default function useAuth() {
     setUser(null);
   }, []);
 
-  return { user, token, loading, error, signup, login, logout };
+  // Like logout, but for an expired session: routes back to the login screen
+  // with a reason shown, instead of a dead in-app request (UX-5).
+  const expire = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("activeSessionId");
+    setToken(null);
+    setUser(null);
+    setError("Your session expired. Please log in again.");
+  }, []);
+
+  return { user, token, loading, error, signup, login, logout, expire };
 }
