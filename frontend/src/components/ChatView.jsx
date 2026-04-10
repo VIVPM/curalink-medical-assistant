@@ -32,7 +32,9 @@ export default function ChatView({
   streamStatus,
   pipelineStage,
   retrievalCounts,
+  waking,
   onSend,
+  onStop,
   onBack,
 }) {
   const [input, setInput] = useState("");
@@ -123,6 +125,12 @@ export default function ChatView({
             );
           })}
 
+          {waking && (
+            <div className="cold-start-notice">
+              &#9203; Waking the research engine&hellip; the first request after a period of inactivity can take up to a minute (free-tier services sleep when idle). Hang tight.
+            </div>
+          )}
+
           {pipelineStage && <PipelineProgress stage={pipelineStage} retrievalCounts={retrievalCounts} />}
 
           <div ref={bottomRef} />
@@ -136,9 +144,15 @@ export default function ChatView({
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
           />
-          <button type="submit" disabled={loading || !input.trim()}>
-            Send
-          </button>
+          {loading ? (
+            <button type="button" className="stop-btn" onClick={onStop}>
+              Stop
+            </button>
+          ) : (
+            <button type="submit" disabled={!input.trim()}>
+              Send
+            </button>
+          )}
         </form>
 
         {showSuggestions && (
