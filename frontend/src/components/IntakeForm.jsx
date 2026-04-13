@@ -23,6 +23,13 @@ export default function IntakeForm({ onSubmit }) {
           Fill in the consultation details below. This context will be used
           throughout your session to provide personalized, research-backed answers.
         </p>
+        <div className="intake-disclaimer">
+          <strong>Not medical advice.</strong> Curalink surfaces published research
+          and clinical-trial listings for informational purposes only. It is not a
+          diagnosis, treatment recommendation, or a substitute for a qualified
+          clinician. Always consult a healthcare professional before making any
+          medical decision.
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Disease of Interest *</label>
