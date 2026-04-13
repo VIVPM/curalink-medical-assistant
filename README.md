@@ -17,7 +17,7 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **Multi-turn context awareness** — chat history and static form context are merged into every query expansion
 - **Clinical trial geo-filtering** — optional location input geocodes and filters trials within 100 miles via ClinicalTrials.gov geo API
 - **JWT authentication** — signup/login with session persistence across page refreshes
-- **ChatGPT-style session sidebar** — past sessions listed as read-only history
+- **ChatGPT-style session sidebar** — click any past session to reopen it and keep asking; new messages append to that session's history
 
 ## Architecture
 
@@ -188,6 +188,7 @@ cp backend-node/.env.example backend-node/.env
 | `MONGO_URI` | MongoDB Atlas connection string |
 | `FASTAPI_URL` | FastAPI orchestrator URL (default: `http://localhost:8000`) |
 | `JWT_SECRET` | Secret for signing JWT tokens |
+| `ALLOWED_ORIGINS` | Comma-separated CORS allow-list of frontend origins (default: deployed frontend + `localhost:5173`) |
 | `PORT` | Express server port (default: `4000`) |
 
 ### Running Locally
@@ -307,6 +308,8 @@ Deployed on Render (free tier) with zero monthly cost:
 - **Cite-or-abstain** — the system refuses to answer rather than hallucinate; abstain is a feature, not a failure
 - **Mongo query-result cache** — `SHA-256(disease|intent|message)` key with 24h TTL skips the entire pipeline on exact-match repeats
 
-## License
+## 📜 License
+
+MIT License
 
 This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
