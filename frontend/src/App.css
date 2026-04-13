@@ -93,6 +93,8 @@
 
 .auth-footer {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
   align-items: center;
   justify-content: center;
   padding: 14px 48px;
@@ -345,6 +347,27 @@
   font-size: 13px;
   line-height: 1.5;
   margin-bottom: 24px;
+}
+
+.intake-disclaimer {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #7a5c00;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.auth-disclaimer {
+  max-width: 520px;
+  margin: 0 auto;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #9a9ab0;
+  text-align: center;
 }
 
 .form-group {
@@ -630,6 +653,26 @@
   border: 1px solid #e8e8e8;
   border-radius: 12px;
   overflow: hidden;
+}
+
+.response-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 12px 0;
+}
+.response-action-btn {
+  padding: 4px 12px;
+  background: #f4f6f8;
+  color: #0f3460;
+  border: 1px solid #dfe4ea;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.response-action-btn:hover {
+  background: #e9edf1;
 }
 
 .section {
@@ -1306,6 +1349,12 @@
   background: #aaa;
   cursor: not-allowed;
 }
+.chat-input-form button.stop-btn {
+  background: #b23b3b;
+}
+.chat-input-form button.stop-btn:hover {
+  background: #9e3232;
+}
 
 /* ---------- Suggested Questions ---------- */
 .suggested-questions {
@@ -1423,4 +1472,17 @@
   text-align: center;
   line-height: 1.4;
   border-top: 1px solid #f0f0f0;
+}
+
+.cold-start-notice {
+  margin: 8px auto;
+  max-width: 560px;
+  padding: 10px 16px;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #8a6d3b;
+  text-align: center;
+  line-height: 1.5;
 }
