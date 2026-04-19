@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 
-const API = "/api";
+const API = `${import.meta.env.VITE_API_URL || ""}/api`;
 
 function getAuthHeaders() {
   const token = localStorage.getItem("token");

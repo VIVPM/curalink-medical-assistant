@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 
-const API = "/api/auth";
+const API = `${import.meta.env.VITE_API_URL || ""}/api/auth`;
 
 export default function useAuth() {
   const [user, setUser] = useState(null);
