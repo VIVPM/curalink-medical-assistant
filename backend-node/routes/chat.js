@@ -183,8 +183,9 @@ router.post("/chat/stream", async (req, res) => {
     }
 
     let metadataJson = null;
+    let sseBuffer = "";
+    let currentEvent = null;
 
-    // Pipe SSE from FastAPI to client
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
 
@@ -195,15 +196,22 @@ router.post("/chat/stream", async (req, res) => {
       const chunk = decoder.decode(value, { stream: true });
       res.write(chunk);
 
-      // Capture metadata event for Mongo persistence
-      if (chunk.includes("event: metadata")) {
-        const dataMatch = chunk.match(/event: metadata\ndata: (.+)\n/);
-        if (dataMatch) {
+      sseBuffer += chunk;
+      const lines = sseBuffer.split("\n");
+      sseBuffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (line.startsWith("event: ")) {
+          currentEvent = line.slice(7).trim();
+        } else if (line.startsWith("data: ") && currentEvent === "metadata") {
           try {
-            metadataJson = JSON.parse(dataMatch[1]);
+            metadataJson = JSON.parse(line.slice(6));
           } catch {
-            // ignore parse errors on partial chunks
+            // ignore — data may be across multiple lines in rare SSE flavors
           }
+          currentEvent = null;
+        } else if (line === "") {
+          currentEvent = null;
         }
       }
     }
