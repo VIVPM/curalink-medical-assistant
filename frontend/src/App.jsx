@@ -40,13 +40,13 @@ export default function App() {
   }, [user, fetchSessions]);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
       setRehydrating(false);
       return;
     }
     const lastId = localStorage.getItem("activeSessionId");
     if (!lastId) {
-      // Fresh login / signup — clear any stale chat state and show the form
       setActiveSession(null);
       setMessages([]);
       setShowForm(true);
@@ -57,9 +57,9 @@ export default function App() {
       .then(() => setShowForm(false))
       .catch(() => setShowForm(true))
       .finally(() => setRehydrating(false));
-  }, [user, loadSession, setActiveSession, setMessages]);
+  }, [authLoading, user, loadSession, setActiveSession, setMessages]);
 
-  if (authLoading) {
+  if (authLoading || (user && rehydrating)) {
     return (
       <div className="loading-screen">
         <div className="spinner" />
@@ -100,12 +100,7 @@ export default function App() {
         onLogout={logout}
       />
       <main className="main-content">
-        {rehydrating ? (
-          <div className="loading-screen">
-            <div className="spinner" />
-            <p>Loading your conversation...</p>
-          </div>
-        ) : showForm || !activeSession ? (
+        {showForm || !activeSession ? (
           <IntakeForm onSubmit={handleFormSubmit} />
         ) : (
           <ChatView

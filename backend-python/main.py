@@ -607,6 +607,7 @@ async def pipeline_stream(req: PipelineRequest, background_tasks: BackgroundTask
 
         # Stage 1
         yield f"event: status\ndata: {{\"stage\":\"query_expansion\",\"message\":\"Expanding query...\"}}\n\n"
+        await asyncio.sleep(0)
         t0 = time.perf_counter()
         expander_result = await expand_query(
             user_message=user_message,
@@ -623,6 +624,7 @@ async def pipeline_stream(req: PipelineRequest, background_tasks: BackgroundTask
 
         # Stage 2
         yield f"event: status\ndata: {{\"stage\":\"retrieval\",\"message\":\"Fetching from PubMed, OpenAlex, ClinicalTrials...\"}}\n\n"
+        await asyncio.sleep(0)
         t0 = time.perf_counter()
         disease = req.static.get("disease", "")
         location_str = req.static.get("location", "")
@@ -657,6 +659,7 @@ async def pipeline_stream(req: PipelineRequest, background_tasks: BackgroundTask
 
         # Send retrieval counts so frontend can show them during loading
         yield f"event: status\ndata: {{\"stage\":\"normalization\",\"message\":\"Normalizing {len(pubmed_raw)+len(openalex_raw)+len(trials_raw)} documents...\",\"retrieval_counts\":{{\"pubmed\":{len(pubmed_raw)},\"openalex\":{len(openalex_raw)},\"trials\":{len(trials_raw)}}}}}\n\n"
+        await asyncio.sleep(0)
         t0 = time.perf_counter()
         pubmed_docs = [normalize_pubmed(r) for r in pubmed_raw]
         openalex_docs = [normalize_openalex(r) for r in openalex_raw]
@@ -675,6 +678,7 @@ async def pipeline_stream(req: PipelineRequest, background_tasks: BackgroundTask
 
         # Stage 4
         yield f"event: status\ndata: {{\"stage\":\"ranking\",\"message\":\"BM25 filtering {len(complete)} docs → top 20 → embedding → RRF → MedCPT → source-balanced selection → top 10\"}}\n\n"
+        await asyncio.sleep(0)
         t0 = time.perf_counter()
         ranking_result = run_ranking(
             query=best_query, docs=complete,
@@ -685,6 +689,7 @@ async def pipeline_stream(req: PipelineRequest, background_tasks: BackgroundTask
 
         # Stage 5
         yield f"event: status\ndata: {{\"stage\":\"context_build\",\"message\":\"Building context for LLM...\"}}\n\n"
+        await asyncio.sleep(0)
         t0 = time.perf_counter()
         payload = build_context(
             top_docs=ranking_result.top_docs,
@@ -696,6 +701,7 @@ async def pipeline_stream(req: PipelineRequest, background_tasks: BackgroundTask
 
         # Stage 6 — stream LLM tokens
         yield f"event: status\ndata: {{\"stage\":\"llm\",\"message\":\"Generating response...\"}}\n\n"
+        await asyncio.sleep(0)
         t0 = time.perf_counter()
         full_text = ""
         try:
