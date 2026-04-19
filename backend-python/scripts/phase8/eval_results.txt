@@ -1,0 +1,1268 @@
+======================================================================
+CURALINK — 5-QUERY EVAL SET
+Date: 2026-04-19 11:15:14
+======================================================================
+
+======================================================================
+EVAL 1: Q1: Lung Cancer + Immunotherapy (New York)
+======================================================================
+  Disease: Lung Cancer
+  Intent: Immunotherapy
+  Location: New York, USA
+  Patient: Jane Doe
+  Session ID: 69e46becd21162c44440c239
+
+  --- Question 1: "How effective is immunotherapy for non-small cell lung cancer?" ---
+  Response time: 27.4s
+    OVERVIEW: Immunotherapy has shown promise in the treatment of non-small cell lung cancer, with various studies demonstrating its efficacy in different stages of the disease. The effectiveness of immunotherapy can vary depending on factors such as the type of immunotherapy used, the stage of the disease, and the presence of certain biomarkers. According to [doc1], a systematic review of 52 randomized controlled trials, immunotherapy has been shown to be effective in both early and advanced non-small cell lung cancer, with objective response rates and disease control rates used as evaluation indexes.
+    INSIGHTS (8):
+      1. Immunotherapy has been shown to be effective in both early and advanced non-small cell lung cancer
+         -> [pubmed 2022] Comparison between immunotherapy efficacy in early non-small cell lung cancer an
+            Snippet: "In terms of safety, both immunotherapy alone and its combination with chemotherapy were found to be safer in early lung ..."
+      2. Biomarkers such as programmed death ligand 1 (PD-L1) expression, tumor mutation burden, and tumor microenvironment have been proposed to predict the efficacy of immunotherapy
+         -> [pubmed 2024] Biomarkers of immunotherapy for non-small cell lung cancer.
+            Snippet: "Therefore, various biomarkers such as tumour mutation burden, tumour microenvironment, gut microbiome and T-cell recepto..."
+         -> [pubmed 2024] [Research Progress on Predictive Biomarkers of Immunotherapy Efficacy in Non-sma
+            Snippet: "With the development of molecular biology and genome sequencing technology in recent years, as well as the in-depth unde..."
+         -> [pubmed 2021] [Advances in Biomarkers for Immunotherapy of Non-small Cell Lung Cancer].
+            Snippet: "In particular, immune checkpoint inhibitors (ICIs) targeting programmed cell death 1 (PD-1)/programmed cell death ligand..."
+      3. Immunotherapy has been shown to improve overall survival and progression-free survival in patients with non-small cell lung cancer
+         -> [pubmed 2018] Immunotherapy in non-small-cell lung cancer: a bridge between research and clini
+            Snippet: "Lung cancer has been historically considered a poorly immunogenic disease because of the few evidence of immune response..."
+         -> [pubmed 2023] Immunotherapy for early-stage non-small cell lung cancer: A system review.
+            Snippet: "Immune checkpoint inhibitors have demonstrated significant efficacy in the treatment of non-small cell lung cancer (NSCL..."
+      4. The use of neoadjuvant immunotherapy in patients with early-stage non-small cell lung cancer is still debatable
+         -> [pubmed 2023] Immunotherapy for early-stage non-small cell lung cancer: A system review.
+            Snippet: "The use of adjuvant and neoadjuvant immunotherapy in patients with early-stage NSCLC, however, is still debatable. Immun..."
+      5. ACAT1 has been identified as a potential target for enhancing immunotherapy in non-small cell lung cancer
+         -> [pubmed 2025] ACAT1 regulates tertiary lymphoid structures: A target for enhancing immunothera
+            Snippet: "Non-small cell lung cancer (NSCLC), the most common type of lung cancer, remains a leading cause of cancer-related morta..."
+      6. Combining different biomarkers may provide a more accurate prediction of response to immunotherapy
+         -> [pubmed 2024] Biomarkers of immunotherapy for non-small cell lung cancer.
+            Snippet: "Additionally, combining different biomarkers may provide a more accurate prediction of response to immunotherapy. Theref..."
+         -> [pubmed 2024] [Research Progress on Predictive Biomarkers of Immunotherapy Efficacy in Non-sma
+            Snippet: "This review focuses on the predictive biomarkers of immunotherapy efficacy in NSCLC, in order to provide some guidance f..."
+      7. Nivolumab and pembrolizumab have been shown to be effective as neoadjuvant treatments in non-small cell lung cancer
+         -> [pubmed 2024] Comparative Efficacy and Safety of Neoadjuvant Immunotherapy with Nivolumab vs. 
+            Snippet: "This review aims to compare the efficacy and safety profiles of nivolumab and pembrolizumab when used as neoadjuvant tre..."
+      8. Immunotherapy has been shown to be safe and well-tolerated in patients with non-small cell lung cancer
+         -> [pubmed 2022] Comparison between immunotherapy efficacy in early non-small cell lung cancer an
+            Snippet: "In terms of safety, both immunotherapy alone and its combination with chemotherapy were found to be safer in early lung ..."
+         -> [pubmed 2024] Comparative Efficacy and Safety of Neoadjuvant Immunotherapy with Nivolumab vs. 
+            Snippet: "A systematic review was conducted across PubMed, Scopus, Wiley Online Library, ProQuest Dissertations and Theses Global,..."
+    TRIALS (6):
+      - NCT07288177 | RECRUITING | Study to Assess the Efficacy and Safety of Rina-S in Participants With
+        Location: Providence Medical Foundation (St. Joseph Heritage Healthcare), United States
+        Relevance: This trial is relevant as it evaluates the efficacy and safety of Rina-S in patients with non-small cell lung cancer
+      - NCT00660816 | COMPLETED | Pemetrexed or Docetaxel With or Without Erlotinib in Stage IIIB or Sta
+        Location: Wayne State University, United States
+        Relevance: This trial is relevant as it evaluates the efficacy of pemetrexed or docetaxel with or without erlotinib in patients with non-small cell lung cancer
+      - NCT05353257 | ACTIVE_NOT_RECRUITING | A Study to Evaluate the Efficacy and Safety of Serplulimab in Combinat
+        Location: OPN-Glendale, United States
+        Relevance: This trial is relevant as it evaluates the efficacy and safety of serplulimab in combination with chemotherapy and concurrent radiotherapy in patients with limited-stage small cell lung cancer
+      - NCT03767348 | ACTIVE_NOT_RECRUITING | Study of RP1 Monotherapy and RP1 in Combination With Nivolumab (IGNYTE
+        Location: University of Birmingham Alabama, United States
+        Relevance: This trial is relevant as it evaluates the safety and efficacy of RP1 monotherapy and RP1 in combination with nivolumab in patients with non-small cell lung cancer
+      - NCT06953089 | RECRUITING | DB-1311 in Combination With BNT327 or DB-1305 in Advanced/Metastatic S
+        Location: USA06-0, United States
+        Relevance: This trial is relevant as it evaluates the efficacy and safety of DB-1311 in combination with BNT327 or DB-1305 in patients with advanced or metastatic solid tumors, including non-small cell lung cancer
+      - NCT02917993 | COMPLETED | An Open-Label Phase 1/2 Study of Itacitinib in Combination With Osimer
+        Location: University of California San Diego, 3855 Health Sciences Drive, Mc 0987, United States
+        Relevance: This trial is relevant as it evaluates the safety and tolerability of itacitinib in combination with osimertinib in patients with non-small cell lung cancer
+    PIPELINE META:
+      Timings: {'query_expansion': 1155, 'retrieval': 4936, 'normalization': 65, 'ranking': 15125, 'context_build': 2, 'llm': 3504, 'assembly': 1, 'total': 24789}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 206, 'after_filter': 194, 'after_ranking': 14}
+      Citations: {'total': 19, 'verified': 19, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 19 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 2: "Which checkpoint inhibitors work best for this?" ---
+  Response time: 16.3s
+    OVERVIEW: Immunotherapy, particularly checkpoint inhibitors, has shown promise in the treatment of non-small cell lung cancer. The effectiveness of checkpoint inhibitors can vary depending on factors such as the type of inhibitor used and the presence of certain biomarkers. According to various studies, PD-1/PD-L1 inhibitors have demonstrated significant improvements in overall survival compared to chemotherapy alone.
+    INSIGHTS (8):
+      1. PD-1/PD-L1 inhibitors have shown significant improvements in overall survival compared to chemotherapy alone
+         -> [pubmed 2019] [Progress in Clinical Researches of PD-1/PD-L1 Checkpoint Inhibitor for Non-smal
+            Snippet: "Immunological checkpoint inhibitors targeting PD-1/PD-L1 are beneficial to patients, both in the first-line and second-l..."
+         -> [pubmed 2017] Immune Checkpoint Inhibitors in Non-Small Cell Lung Cancer.
+            Snippet: "In several large, randomized studies, PD-1/PD-L1 inhibitors have produced significant improvements in overall survival c..."
+      2. Nivolumab and pembrolizumab are two PD-1/PD-L1 inhibitors that have gained regulatory approval in the United States for the treatment of NSCLC
+         -> [pubmed 2017] Immune checkpoint inhibitors in lung cancer: current status and future direction
+            Snippet: "Recently, the immune checkpoint inhibitors that target programmed death 1 (PD-1)/programmed death ligand 1 (PD-L1) have ..."
+         -> [pubmed 2017] Immune Checkpoint Inhibitors in Non-Small Cell Lung Cancer.
+            Snippet: "Based on these encouraging results, multiple different PD-1/PD-L1 inhibitors have entered clinical development, and two ..."
+      3. Combination therapies of PD-1/PD-L1 inhibitors and chemotherapy have demonstrated improved outcomes for patients with NSCLC
+         -> [pubmed 2020] Immunotherapy in Advanced Non-Small Cell Lung Cancer.
+            Snippet: "Combination therapies of PD-1/PD-L1 inhibitors and chemotherapy or PD-1/PD-L1 and CTLA-4 checkpoint pathway inhibitors h..."
+         -> [pubmed 2020] What Is the Standard First-Line Treatment for Advanced Non-Small Cell Lung Cance
+            Snippet: "The initial treatment regimens for advanced non-small cell lung cancer (NSCLC) have drastically evolved over the last 15..."
+      4. The efficacy of checkpoint inhibitors can vary depending on the presence of certain biomarkers, such as PD-L1 status
+         -> [pubmed 2017] Immune-checkpoint inhibition in first-line treatment of advanced non-small cell 
+            Snippet: "However, some questions remain unanswered such as the best treatment strategy or the real upfront efficacy of these ther..."
+         -> [pubmed 2016] Immune Checkpoint Blockade: A New Era for Non-Small Cell Lung Cancer.
+            Snippet: "In this review, we present the data on immune checkpoint inhibitors for NSCLC, describing their mechanism of action, dat..."
+      5. CTLA-4 inhibitors are also being investigated as a potential treatment option for NSCLC
+         -> [pubmed 2017] Immune checkpoint inhibitors in lung cancer: current status and future direction
+            Snippet: "Recently, the immune checkpoint inhibitors that target programmed death 1 (PD-1)/programmed death ligand 1 (PD-L1) have ..."
+         -> [pubmed 2017] Immune Checkpoint Inhibitors in Non-Small Cell Lung Cancer.
+            Snippet: "Based on these encouraging results, multiple different PD-1/PD-L1 inhibitors have entered clinical development, and two ..."
+      6. Immunotherapy has become a standard of care for patients with NSCLC, particularly those without targetable mutations
+         -> [pubmed 2020] Immunotherapy in Advanced Non-Small Cell Lung Cancer.
+            Snippet: "The efficacy of immunotherapy has been established for patients with advanced lung cancer in clinical trials, and it has..."
+         -> [pubmed 2020] What Is the Standard First-Line Treatment for Advanced Non-Small Cell Lung Cance
+            Snippet: "Highly active oral kinase inhibitors are now approved for several molecularly defined subsets of NSCLC, including those ..."
+      7. The development of next-generation immunotherapy and the optimization of combination therapy are necessary to provide better treatment outcomes for lung cancer patients
+         -> [pubmed 2020] Precision Management of Advanced Non-Small Cell Lung Cancer.
+            Snippet: "Continued investigations of newly identified druggable genetic alterations, explorations of biomarkers of immune checkpo..."
+         -> [pubmed 2020] What Is the Standard First-Line Treatment for Advanced Non-Small Cell Lung Cance
+            Snippet: "The initial treatment regimens for advanced non-small cell lung cancer (NSCLC) have drastically evolved over the last 15..."
+      8. Immune checkpoint inhibitors have been shown to be effective in both early and advanced NSCLC
+         -> [pubmed 2019] [Progress in Clinical Researches of PD-1/PD-L1 Checkpoint Inhibitor for Non-smal
+            Snippet: "Immunological checkpoint inhibitors targeting PD-1/PD-L1 are beneficial to patients, both in the first-line and second-l..."
+         -> [pubmed 2016] Immune Checkpoint Blockade: A New Era for Non-Small Cell Lung Cancer.
+            Snippet: "In this review, we present the data on immune checkpoint inhibitors for NSCLC, describing their mechanism of action, dat..."
+    TRIALS (6):
+      - NCT07288177 | RECRUITING | Study to Assess the Efficacy and Safety of Rina-S in Participants With
+        Location: Providence Medical Foundation (St. Joseph Heritage Healthcare), United States
+        Relevance: This trial is investigating the efficacy and safety of Rina-S, a potential new treatment option for NSCLC
+      - NCT04625647 | ACTIVE_NOT_RECRUITING | Testing the Use of Targeted Treatment (AMG 510) for KRAS G12C Mutated 
+        Location: Veterans Administration Medical Center - Birmingham, United States
+        Relevance: This trial is investigating the efficacy of AMG 510, a targeted treatment for KRAS G12C mutated NSCLC
+      - NCT03645928 | RECRUITING | Study of Autologous Tumor Infiltrating Lymphocytes in Patients With So
+        Location: University of California, San Diego, United States
+        Relevance: This trial is investigating the efficacy of autologous tumor infiltrating lymphocytes in combination with immune checkpoint inhibitors for the treatment of NSCLC
+      - NCT00324805 | COMPLETED | Chemotherapy With or Without Bevacizumab in Treating Patients With Sta
+        Location: Northeast Alabama Regional Medical Center, United States
+        Relevance: This trial is investigating the efficacy of chemotherapy with or without bevacizumab in treating patients with early-stage NSCLC
+      - NCT00660816 | COMPLETED | Pemetrexed or Docetaxel With or Without Erlotinib in Stage IIIB or Sta
+        Location: Wayne State University, United States
+        Relevance: This trial is investigating the efficacy of pemetrexed or docetaxel with or without erlotinib in treating patients with advanced NSCLC
+      - NCT00002911 | COMPLETED | Marimastat in Treating Patients With Stage III Non-small Cell Lung Can
+        Location: Comprehensive Cancer Institute of Huntsville, United States
+        Relevance: This trial is investigating the efficacy of marimastat in treating patients with stage III NSCLC
+    PIPELINE META:
+      Timings: {'query_expansion': 1187, 'retrieval': 4779, 'normalization': 57, 'ranking': 5038, 'context_build': 0, 'llm': 3406, 'assembly': 3, 'total': 14471}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 209, 'after_filter': 192, 'after_ranking': 14}
+      Citations: {'total': 22, 'verified': 22, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 22 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 3: "What happens when immunotherapy is combined with radiation?" ---
+  Response time: 20.5s
+    OVERVIEW: Combining immunotherapy with radiation therapy has shown promise in the treatment of lung cancer, with studies demonstrating its efficacy in both small cell and non-small cell lung cancer. The optimal radiation dosage and fractionation scheme, target sites for radiation, and sequencing of radiation in relation to immunotherapy treatment are still unclear. Research suggests that the coordination of immunotherapy administration with radiation therapy may be a viable strategy for reducing tumor burden.
+    INSIGHTS (8):
+      1. The addition of immune checkpoint blockade therapy to standard chemotherapy has been shown to improve survival in patients with metastatic small cell lung cancer
+         -> [pubmed 2023] Combining radiation therapy with immune checkpoint blockade for the treatment of
+            Snippet: "The addition of immune checkpoint blockade (ICB) therapy to standard chemotherapy has been shown to improve survival in ..."
+      2. Combining radiation therapy with immune checkpoint blockade may enhance the effectiveness of immunotherapy in non-small cell lung cancer
+         -> [pubmed 2020] Combining Immunotherapy with Radiation Therapy in Non-Small Cell Lung Cancer.
+            Snippet: "This comprehensive review details the current roles of radiation therapy and immune checkpoint inhibitors in NSCLC, disc..."
+      3. The coordination of α-CTLA-4 administration in combination with whole-brain radiation therapy may reduce tumor burden in lung cancer brain metastasis
+         -> [pubmed, openalex 2024] Coordination of anti-CTLA-4 with whole-brain radiation therapy decreases tumor b
+            Snippet: "Herein, we examine the temporal coordination of α-CTLA-4 administration in combination with whole-brain radiation therap..."
+      4. Radiation therapy has been shown to be immunostimulatory, with the potential to enhance the efficacy of immunotherapy in non-small cell lung cancer
+         -> [pubmed 2020] Combining Immunotherapy with Radiation Therapy in Non-Small Cell Lung Cancer.
+            Snippet: "Radiation therapy has a well-established role in the treatment of NSCLC and has more recently been shown to be immunosti..."
+      5. The clinical effects of combining thoracic radiation therapy with immunotherapy in extensive-stage small-cell lung cancer have not yet been systematically explored
+         -> [pubmed 2022] Radiation therapy for extensive-stage small-cell lung cancer in the era of immun
+            Snippet: "For ES-SCLC, the clinical effects of combining TRT/BRT with immunotherapy have not yet been systematically explored. In ..."
+      6. Radiation therapy-induced abscopal responses have been observed in patients with advanced lung cancer, with the potential for systemic tumor regression
+         -> [pubmed 2021] Systemic Effects of Radiation Therapy-Induced Abscopal Responses in Patients wit
+            Snippet: "BACKGROUND: Out-of-field tumor regression effects of radiation therapy (abscopal response) have been sporadically observ..."
+      7. The use of radiation therapy among patients with extensive-stage small-cell lung cancer receiving immunotherapy is a topic of ongoing research, with Canadian consensus recommendations suggesting its potential benefit
+         -> [pubmed 2023] Use of radiation therapy among patients with Extensive-stage Small-cell lung can
+            Snippet: "OBJECTIVES: Thoracic radiation therapy (TRT) and prophylactic cranial irradiation (PCI) are commonly used in the managem..."
+      8. The combination of radiation therapy and immunotherapy may have synergistic effects in non-small cell lung cancer, with the potential for improved treatment outcomes
+         -> [pubmed 2018] Combining Radiotherapy and Immunotherapy in Lung Cancer: Can We Expect Limitatio
+            Snippet: "For example, immunotherapy approaches such as immune checkpoint blockade are currently increasingly being used in cancer..."
+    TRIALS (6):
+      - NCT06717243 | RECRUITING | Genomic and Methylation Markers in SCLC and LCNEC for Chemo-Immunother
+        Location: Icahn School of Medicine at Mount Sinai, United States
+        Relevance: This observational study aims to understand how genomic and epigenetic factors contribute to resistance against chemo-immunotherapy in adults diagnosed with extensive-stage small cell lung cancer or metastatic large cell neuroendocrine carcinoma
+      - NCT04879849 | COMPLETED | A Study of TAK-676 With Pembrolizumab After Radiation Therapy to Treat
+        Location: Cedars Sinai Medical Center, United States
+        Relevance: This study investigates the use of TAK-676 and pembrolizumab following radiotherapy in adults with non-small-cell lung cancer, triple-negative breast cancer, and squamous-cell carcinoma of the head and neck
+      - NCT04155034 | RECRUITING | S1827 (MAVERICK) Testing Whether the Use of Brain Scans Alone Instead 
+        Location: University of Alabama at Birmingham Cancer Center, United States
+        Relevance: This phase III trial studies magnetic resonance imaging surveillance and prophylactic cranial irradiation to see how well they work compared to MRI surveillance alone in treating patients with small cell lung cancer
+      - NCT03225664 | ACTIVE_NOT_RECRUITING | Trametinib and Pembrolizumab in Treating Patients With Recurrent Non-s
+        Location: Yale University, United States
+        Relevance: This phase Ib/II trial studies the side effects and best dose of trametinib when given together with pembrolizumab and to see how well they work in treating patients with non-small cell lung cancer
+      - NCT03743051 | COMPLETED | A Study to Evaluate the Efficacy and Safety of Anamorelin HCl for the 
+        Location: Chen, United States
+        Relevance: This clinical trial compares the efficacy and safety of anamorelin HCl to that of placebo in patients with advanced non-small cell lung cancer and cachexia
+      - NCT00579215 | COMPLETED | Lung Cancer Informational Study (LCIS)
+        Location: Memorial Sloan-Kettering Cancer Center, United States
+        Relevance: This study evaluates a new program to help patients and their caregivers make decisions about treatment for lung cancer
+    PIPELINE META:
+      Timings: {'query_expansion': 744, 'retrieval': 4857, 'normalization': 79, 'ranking': 5522, 'context_build': 0, 'llm': 7782, 'assembly': 4, 'total': 18990}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 209, 'after_filter': 188, 'after_ranking': 14}
+      Citations: {'total': 14, 'verified': 14, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 14 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 4: "Are there trials recruiting near New York?" ---
+  Response time: 19.3s
+    OVERVIEW: There are several clinical trials related to lung cancer and immunotherapy, with some recruiting near New York. These trials investigate various aspects of lung cancer treatment, including immunotherapy, radiation therapy, and combination therapies.
+    INSIGHTS (8):
+      1. Immunotherapy has shown promise in the treatment of non-small cell lung cancer, with various studies demonstrating its efficacy in different stages of the disease.
+         -> [pubmed 2024] Lung cancer research and treatment: global perspectives and strategic calls to a
+            Snippet: "CONCLUSIONS: Lung cancer is a major health burden worldwide, and its treatment has become increasingly complex over the ..."
+         -> [pubmed 2022] Immunotherapy in non-small cell lung cancer: Past, present, and future direction
+            Snippet: "In the last decade, immunotherapy has shown itself to be a viable therapeutic approach for non-small cell lung cancer (N..."
+      2. The effectiveness of checkpoint inhibitors can vary depending on factors such as the type of inhibitor used and the presence of certain biomarkers.
+         -> [pubmed 2022] Small cell lung cancer: Novel treatments beyond immunotherapy.
+            Snippet: "This led to the development of immune-checkpoint inhibitors as single agents or in combination with chemotherapy, which ..."
+         -> [pubmed 2023] Radiotherapy and Immunotherapy in Lung Cancer.
+            Snippet: "The emergence of immune checkpoint inhibitors (ICIs) as a pillar of cancer treatment has emphasized the immune system's ..."
+      3. Combining immunotherapy with radiation therapy has shown promise in the treatment of lung cancer, with studies demonstrating its efficacy in both small cell and non-small cell lung cancer.
+         -> [pubmed 2023] Radiotherapy and Immunotherapy in Lung Cancer.
+            Snippet: "This narrative review provides an overall view of the evolving integration and synergistic role of immunotherapy and rad..."
+         -> [pubmed 2021] The utilization of immunotherapy with radiation therapy in lung cancer: a narrat
+            Snippet: "This comprehensive review discusses the current clinical data and ongoing studies evaluating the combination of radiatio..."
+      4. The optimal radiation dosage and fractionation scheme, target sites for radiation, and sequencing of radiation in relation to immunotherapy treatment are still unclear.
+         -> [pubmed 2023] Radiotherapy and Immunotherapy in Lung Cancer.
+            Snippet: "To date, definitive concurrent chemoradiotherapy followed by consolidative durvalumab is the only National Comprehensive..."
+         -> [pubmed 2021] The utilization of immunotherapy with radiation therapy in lung cancer: a narrat
+            Snippet: "Past treatment paradigms have established the role of combining cytotoxic chemotherapy regimens and radiation therapy to..."
+      5. Research into innovative biomarkers and therapies is crucial for more personalized treatment of lung cancer.
+         -> [pubmed 2024] Lung cancer research and treatment: global perspectives and strategic calls to a
+            Snippet: "Research into innovative biomarkers and therapies is crucial for more personalized treatment. This article aims to revie..."
+         -> [pubmed 2022] Preoperative and Postoperative Systemic Therapy for Operable Non-Small-Cell Lung
+            Snippet: "We also discuss the unique barriers associated with clinical trials of early-stage lung cancer and the need for innovati..."
+      6. Immunotherapy has the potential to produce durable responses in several cancer types, including non-small cell lung cancer.
+         -> [pubmed 2022] Immunotherapy in non-small cell lung cancer: Past, present, and future direction
+            Snippet: "Many decades in the making, immunotherapy has demonstrated its ability to produce durable responses in several cancer ty..."
+         -> [pubmed 2021] A New Generation of Vaccines in the Age of Immunotherapy.
+            Snippet: "PURPOSE OF REVIEW: Cancer vaccines are one of the most extensively studied immunotherapy type in solid tumors. However, ..."
+      7. The future of immunotherapy in lung cancer continues to hold promise with the development of combination therapies, cytokine modulating therapies, and cellular therapies.
+         -> [pubmed 2022] Immunotherapy in non-small cell lung cancer: Past, present, and future direction
+            Snippet: "The future of immunotherapy in lung cancer continues to hold promise with the development of combination therapies, cyto..."
+         -> [pubmed 2025] Immune Checkpoint Inhibition in Patients with Brain Metastases from Non-Small-Ce
+            Snippet: "Brain metastases are a significant complication of non-small-cell lung cancer (NSCLC), contributing to high morbidity an..."
+      8. Brain metastases are a significant complication of non-small-cell lung cancer, and the introduction of immune checkpoint inhibitors has opened new therapeutic avenues for patients with brain metastases.
+         -> [pubmed 2025] Immune Checkpoint Inhibition in Patients with Brain Metastases from Non-Small-Ce
+            Snippet: "The introduction of immune checkpoint inhibitors (ICIs) has opened new therapeutic avenues for patients with NSCLC, incl..."
+    TRIALS (6):
+      - NCT06717243 | RECRUITING | Genomic and Methylation Markers in SCLC and LCNEC for Chemo-Immunother
+        Location: Icahn School of Medicine at Mount Sinai, United States
+        Relevance: This trial is relevant to patients with small cell lung cancer or large cell neuroendocrine carcinoma, as it aims to understand how genomic and epigenetic factors contribute to resistance against chemo-immunotherapy.
+      - NCT05353257 | ACTIVE_NOT_RECRUITING | A Study to Evaluate the Efficacy and Safety of Serplulimab in Combinat
+        Location: OPN-Glendale, United States
+        Relevance: This trial is relevant to patients with limited-stage small cell lung cancer, as it investigates the efficacy and safety of serplulimab in combination with chemotherapy and concurrent radiotherapy.
+      - NCT03743051 | COMPLETED | A Study to Evaluate the Efficacy and Safety of Anamorelin HCl for the 
+        Location: Chen, United States
+        Relevance: This trial is relevant to patients with advanced non-small cell lung cancer, as it investigates the efficacy and safety of anamorelin HCl for the treatment of malignancy-associated weight loss and anorexia.
+      - NCT00324805 | COMPLETED | Chemotherapy With or Without Bevacizumab in Treating Patients With Sta
+        Location: Northeast Alabama Regional Medical Center, United States
+        Relevance: This trial is relevant to patients with stage IB, II, or IIIA non-small cell lung cancer, as it investigates the efficacy of chemotherapy with or without bevacizumab in treating patients with resected non-small cell lung cancer.
+      - NCT01012401 | COMPLETED | Evaluating an Interactive Cancer Communication System (ICCS) in Lung C
+        Location: Harry Gray Cancer Center at Hartford Hospital, United States
+        Relevance: This trial is relevant to patients with advanced stage lung cancer, as it investigates the potential of an interactive cancer communication system to impact psychosocial outcomes and length of survival.
+      - NCT00579215 | COMPLETED | Lung Cancer Informational Study (LCIS)
+        Location: Memorial Sloan-Kettering Cancer Center, United States
+        Relevance: This trial is relevant to patients with lung cancer, as it aims to evaluate a new program to help patients and their caregivers make decisions about treatment for lung cancer.
+    PIPELINE META:
+      Timings: {'query_expansion': 1056, 'retrieval': 4522, 'normalization': 55, 'ranking': 8089, 'context_build': 0, 'llm': 3758, 'assembly': 2, 'total': 17482}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 209, 'after_filter': 192, 'after_ranking': 14}
+      Citations: {'total': 21, 'verified': 21, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 21 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 5: "What biomarkers predict a good response to immunotherapy?" ---
+  Response time: 20.3s
+    OVERVIEW: Biomarkers such as PD-L1 expression, tumor mutation burden, and tumor microenvironment signatures have been identified as potential predictors of response to immunotherapy in non-small cell lung cancer. However, their accuracy and robustness are not consistently reliable, and further research is needed to develop more effective biomarkers. Combining different biomarkers may provide a more accurate prediction of response to immunotherapy.
+    INSIGHTS (8):
+      1. PD-L1 expression is currently the only established biomarker for predicting ICI response, but its accuracy and robustness are not consistently reliable
+         -> [pubmed 2024] Biomarkers of immunotherapy for non-small cell lung cancer.
+            Snippet: "Programmed death ligand 1 expression is currently the only predictive biomarker for immune checkpoint inhibitors to guid..."
+         -> [pubmed 2023] Biomarkers for Immune Checkpoint Inhibitor Response in NSCLC: Current Developmen
+            Snippet: "Currently, programmed death-ligand 1 (PD-L1) expression is the only established biomarker for predicting ICI response. H..."
+      2. Tumor mutation burden, tumor microenvironment, gut microbiome, and T-cell receptor repertoire have been proposed as potential biomarkers to predict the efficacy of immunotherapy
+         -> [pubmed 2024] Biomarkers of immunotherapy for non-small cell lung cancer.
+            Snippet: "Therefore, various biomarkers such as tumour mutation burden, tumour microenvironment, gut microbiome and T-cell recepto..."
+         -> [pubmed 2019] Circulating biomarkers predictive of tumor response to cancer immunotherapy.
+            Snippet: "Expert opinion: The first biomarkers proposed to predict tumor response to immunotherapy were based on PD1/PDL1 expressi..."
+      3. Circulating tumor cells, cell-free DNA, and exosomes are promising tools for developing new biomarkers for immunotherapy response
+         -> [pubmed 2021] Immunotherapy in nonsmall-cell lung cancer: current status and future prospects 
+            Snippet: "Circulating tumor cells (CTCs), cell-free DNA (cfDNA) and exosomes are promising tools for developing new biomarkers. Cu..."
+         -> [openalex 2024] Predicting the tumor microenvironment composition and immunotherapy response in 
+            Snippet: "However, reliable biomarkers predictive of immunotherapy efficacy are limited. Furthermore, we find that HistoTME-predic..."
+      4. HistoTME, a novel weakly supervised deep learning approach, can accurately predict the expression of cell type-specific molecular signatures directly from histopathology images
+         -> [openalex 2024] Predicting the tumor microenvironment composition and immunotherapy response in 
+            Snippet: "Here, we introduce HistoTME, a novel weakly supervised deep learning approach to infer the tumor microenvironment (TME) ..."
+      5. Biomarkers such as PD-1/PD-L1 expression, tumor mutation burden, and tumor microenvironment signatures may be used to predict response to immunotherapy, but further research is needed to develop more effective biomarkers
+         -> [pubmed 2016] Immunotherapy with checkpoint inhibitors for lung cancer: novel agents, biomarke
+            Snippet: "As the target shifts from tumor cells to the tumor microenvironment, treatment paradigms are changing and several improv..."
+         -> [pubmed 2018] New strategies in immunotherapy for lung cancer: beyond PD-1/PD-L1.
+            Snippet: "In order to optimize our treatment approach utilizing immunotherapy, we must better understand the interaction between c..."
+      6. Liquid biopsy offers a noninvasive opportunity to monitor disease in patients with cancer and identify those who would benefit the most from immunotherapy
+         -> [pubmed 2021] Immunotherapy in nonsmall-cell lung cancer: current status and future prospects 
+            Snippet: "Liquid biopsy offers a noninvasive opportunity to monitor disease in patients with cancer and identify those who would b..."
+         -> [clinicaltrials 2025] Genomic and Methylation Markers in SCLC and LCNEC for Chemo-Immunotherapy Resist
+            Snippet: "By collecting and analyzing these biomarkers over time, researchers aim to identify patterns that distinguish patients w..."
+      7. Genomic and methylation markers may be used to predict chemo-immunotherapy resistance in small cell lung cancer and large cell neuroendocrine carcinoma
+         -> [clinicaltrials 2025] Genomic and Methylation Markers in SCLC and LCNEC for Chemo-Immunotherapy Resist
+            Snippet: "The goal of this observational study is to understand how genomic and epigenetic factors contribute to resistance agains..."
+      8. Combining different biomarkers may provide a more accurate prediction of response to immunotherapy
+         -> [pubmed 2024] Biomarkers of immunotherapy for non-small cell lung cancer.
+            Snippet: "Additionally, combining different biomarkers may provide a more accurate prediction of response to immunotherapy. Theref..."
+         -> [pubmed 2023] Biomarkers for Immune Checkpoint Inhibitor Response in NSCLC: Current Developmen
+            Snippet: "This review provides an overview of potential biomarkers currently under development or in the validation stage that hol..."
+    TRIALS (6):
+      - NCT06717243 | RECRUITING | Genomic and Methylation Markers in SCLC and LCNEC for Chemo-Immunother
+        Location: Icahn School of Medicine at Mount Sinai, United States
+        Relevance: This trial investigates genomic and methylation markers for predicting chemo-immunotherapy resistance in small cell lung cancer and large cell neuroendocrine carcinoma
+      - NCT06096844 | RECRUITING | Chemotherapy Combined With Immunotherapy Versus Immunotherapy Alone fo
+        Location: Highlands Oncology Group - Fayetteville, United States
+        Relevance: This trial compares the effect of adding chemotherapy to immunotherapy versus immunotherapy alone in treating patients with stage IIIB-IV lung cancer
+      - NCT07288177 | RECRUITING | Study to Assess the Efficacy and Safety of Rina-S in Participants With
+        Location: Providence Medical Foundation (St. Joseph Heritage Healthcare), United States
+        Relevance: This trial evaluates the efficacy and safety of Rina-S in patients with non-small cell lung cancer
+      - NCT03225664 | ACTIVE_NOT_RECRUITING | Trametinib and Pembrolizumab in Treating Patients With Recurrent Non-s
+        Location: Yale University, United States
+        Relevance: This trial studies the side effects and best dose of trametinib when given together with pembrolizumab in treating patients with recurrent non-small cell lung cancer
+      - NCT03743051 | COMPLETED | A Study to Evaluate the Efficacy and Safety of Anamorelin HCl for the 
+        Location: Chen, United States
+        Relevance: This trial evaluates the efficacy and safety of anamorelin HCl in patients with advanced non-small cell lung cancer and cachexia
+      - NCT00579215 | COMPLETED | Lung Cancer Informational Study (LCIS)
+        Location: Memorial Sloan-Kettering Cancer Center, United States
+        Relevance: This trial evaluates a new program to help patients and caregivers make decisions about treatment for lung cancer
+    PIPELINE META:
+      Timings: {'query_expansion': 1353, 'retrieval': 5921, 'normalization': 130, 'ranking': 5349, 'context_build': 0, 'llm': 4711, 'assembly': 4, 'total': 17470}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 207, 'after_filter': 194, 'after_ranking': 14}
+      Citations: {'total': 20, 'verified': 20, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 20 verified citations
+    PASS: disease mentioned in overview
+
+======================================================================
+EVAL 2: Q2: Heart Disease + Statin Therapy (Chicago, Illinois)
+======================================================================
+  Disease: Coronary Artery Disease
+  Intent: Statin therapy
+  Location: Chicago, Illinois, USA
+  Patient: Michael Johnson
+  Session ID: 69e46cafd21162c44440c244
+
+  --- Question 1: "How effective are statins at preventing heart attacks?" ---
+  Response time: 22.0s
+    OVERVIEW: Statin therapy has been shown to be effective in preventing heart attacks, particularly in patients with coronary artery disease. Studies have demonstrated that statins can reduce the risk of major adverse cardiac events, including myocardial infarction, by lowering LDL cholesterol levels [doc1, doc2]. The effectiveness of statins in preventing heart attacks has been consistently demonstrated across various patient populations, including those with stable coronary artery disease and those undergoing percutaneous coronary intervention [doc3, doc4].
+    INSIGHTS (8):
+      1. Statin therapy reduces the risk of major adverse cardiac events, including myocardial infarction, in patients with coronary artery disease
+         -> [openalex 2022] A Propensity Score Matched Analysis of Statin Effects on Major Adverse Cardiac E
+            Snippet: "The patients were followed up clinically for up to three years or until the occurrence of major adverse cardiac events (..."
+         -> [pubmed 2019] Statins in the Prevention and Treatment of Heart Failure: a Review of the Eviden
+            Snippet: "Statin therapy should probably be continued in patients with coronary artery disease developing heart failure, although ..."
+      2. Statin therapy is effective in preventing heart attacks in patients with stable coronary artery disease
+         -> [pubmed 2022] Evolocumab administration prior to Coronary Artery Bypass Grafting in patients w
+            Snippet: "The objective of this trial is to evaluate the cardioprotective effects of evolocumab in elective CABG patients with mul..."
+         -> [pubmed 2022] Design and rationale of the EVOCATION trial: A prospective, randomized, explorat
+            Snippet: "Percutaneous coronary intervention (PCI) is a standard treatment in patients with stable coronary artery disease (CAD); ..."
+      3. The benefits of statin therapy are similar at all levels of cardiovascular disease risk
+         -> [pubmed 2013] Benefits & risks of statin therapy for primary prevention of cardiovascular dise
+            Snippet: "More importantly, these benefits of statin therapy are similar at all levels of CVD risk, including subjects at low (<1%..."
+      4. Statin therapy can reduce the incidence of periprocedural myocardial infarction after percutaneous coronary intervention
+         -> [pubmed 2022] Design and rationale of the EVOCATION trial: A prospective, randomized, explorat
+            Snippet: "Percutaneous coronary intervention (PCI) is a standard treatment in patients with stable coronary artery disease (CAD); ..."
+      5. High-dose statin therapy can provide incremental benefits in reducing cardiovascular events compared to conventional-dose statin therapy
+         -> [pubmed 2007] Incremental benefit and cost-effectiveness of high-dose statin therapy in high-r
+            Snippet: "BACKGROUND: Recent clinical trials found that high-dose statin therapy, compared with conventional-dose statin therapy, ..."
+      6. Statin therapy is highly effective in delaying and avoiding expensive coronary artery revascularization procedures
+         -> [pubmed 2013] Benefits & risks of statin therapy for primary prevention of cardiovascular dise
+            Snippet: "The updated 2013 Cochrane review has put to rest all lingering doubts about the overwhelming benefits of long-term stati..."
+      7. The advantages of statin therapy become evident after at least one year of treatment
+         -> [pubmed 2019] Treatment with Statins in Elderly Patients.
+            Snippet: "The advantages of the treatment become evident after at least one year of treatment. The possible side effects of statin..."
+      8. Statin therapy is very effective as a secondary preventive measure in patients with peripheral arterial disease
+         -> [pubmed 2003] Clinical perspectives on the role of anti-platelet and statin therapy in patient
+            Snippet: "One recent study has demonstrated that statins are very effective as secondary preventive measures in patients with PAD ..."
+    TRIALS (6):
+      - NCT05360446 | ACTIVE_NOT_RECRUITING | Coronary Computed Tomography Study to Assess the Effect of Inclisiran 
+        Location: Heart Center Research Llc, United States
+        Relevance: This trial is relevant because it evaluates the effectiveness of inclisiran, a medication that can be used in addition to statin therapy, in reducing atherosclerotic plaque progression in patients with non-obstructive coronary artery disease
+      - NCT06909565 | RECRUITING | Inclisiran Versus Placebo for the Prevention of Major Adverse Cardiova
+        Location: Advanced Cardiovascular LLC, United States
+        Relevance: This trial is relevant because it evaluates the effectiveness of inclisiran in preventing major adverse cardiovascular and limb events in patients undergoing percutaneous coronary intervention or peripheral endovascular intervention
+      - NCT06959524 | RECRUITING | AGENT DCB STANCE: Safety and Effectiveness Study of AGENT Drug-Coated 
+        Location: Scripps Memorial Hospital, United States
+        Relevance: This trial is relevant because it evaluates the safety and effectiveness of a treatment strategy with the AGENT Drug-Coated Balloon compared to standard of care percutaneous coronary intervention treatment in patients with de novo coronary lesions
+      - NCT03089398 | COMPLETED | Hybrid Coronary Revascularization Trial
+        Location: Long Beach Memorial Medical Center, United States
+        Relevance: This trial is relevant because it compares the treatment options of hybrid coronary revascularization and percutaneous coronary intervention in patients with multi-vessel coronary artery disease
+      - NCT01114269 | ACTIVE_NOT_RECRUITING | PRE-DETERMINE Cohort Study
+        Location: Alaska Heart Institute, United States
+        Relevance: This trial is relevant because it aims to determine whether biologic markers and ECGs can be utilized to advance SCD risk prediction in patients with coronary artery disease and left ventricular dysfunction
+      - NCT00055510 | COMPLETED | A Blinded Study Conducted at Multiple Centers Evaluating Various Doses
+        Location: St. Luke's Medical Center, United States
+        Relevance: This trial is relevant because it evaluates the safety and effectiveness of an investigational agent in preventing post-angioplasty blood vessel re-closure in stented vessels
+    PIPELINE META:
+      Timings: {'query_expansion': 925, 'retrieval': 6857, 'normalization': 180, 'ranking': 8001, 'context_build': 1, 'llm': 3749, 'assembly': 2, 'total': 19715}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 210, 'after_filter': 197, 'after_ranking': 14}
+      Citations: {'total': 16, 'verified': 16, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 16 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 2: "What are the muscle-related side effects?" ---
+  Response time: 20.8s
+    OVERVIEW: Statin therapy has been associated with various muscle-related side effects, including myopathy, rhabdomyolysis, and muscle weakness. These side effects can be rare but potentially significant, and may be related to the dose and type of statin used. Studies have shown that muscle complaints due to statin therapy are often underappreciated and may affect a significant proportion of statin users who exercise.
+    INSIGHTS (6):
+      1. Statin-induced autoimmune necrotizing myositis is a rare side effect of statin therapy, characterized by muscle weakness and pain
+         -> [pubmed, openalex 2022] Statin-Induced Autoimmune Necrotizing Myositis: A Case Report.
+            Snippet: "Although myopathy is a common side effect, autoimmune-mediated necrotizing myositis is a rare side effect usually relate..."
+      2. Statin therapy can induce skeletal muscle damage in treated patients, despite their being asymptomatic and without increment of serum creatine kinase level
+         -> [pubmed 2009] Physical activity in statin-treated patients.
+            Snippet: "Statin therapy can induce skeletal muscle damage in treated patients, despite their being asymptomatic and without incre..."
+      3. Rhabdomyolysis is a rare but potentially significant side effect of statin therapy, particularly in patients with cirrhosis or those taking certain medications
+         -> [pubmed, openalex 2026] Rifaximin-Induced Rhabdomyolysis.
+            Snippet: "Although rifaximin is generally tolerated, rare cases of rhabdomyolysis have been reported, particularly in patients wit..."
+         -> [pubmed 2000] Simvastatin-induced rhabdomyolysis in an HIV-infected patient with coronary arte
+            Snippet: "This report emphasizes this rare, but potentially significant, side effect of statin anticholesterol agents. Furthermore..."
+      4. Muscle-related side effects of statin therapy can be affected by genetic factors, such as polymorphisms in the CYP3A5 gene
+         -> [pubmed 2018] Personalized rosuvastatin therapy in problem patients with partial statin intole
+            Snippet: "CONCLUSIONS: In a considerable proportion of ethnic Uzbek patients with CAD and simvastatin intolerance symptoms, seriou..."
+      5. Statin therapy can cause myopathy, which is a common side effect that can affect a large proportion of treated patients and have a significant influence on their quality of life
+         -> [pubmed 2013] Viewpoint: personalizing statin therapy.
+            Snippet: "Adverse effects of statin therapy, such as muscle pain, affect a large proportion of the treated patients and have a sig..."
+      6. Physical inactivity can increase the risk of muscle-related side effects of statin therapy, and regular exercise can help mitigate this risk
+         -> [pubmed 2009] Physical activity in statin-treated patients.
+            Snippet: "Such muscle effects are likely related to mitochondrial dysfunction and may well affect 25% of statin users who exercise..."
+    TRIALS (6):
+      - NCT00269048 | COMPLETED | SB-480848 In Subjects With Coronary Heart Disease
+        Location: GSK Investigational Site, United States
+        Relevance: This trial examines the effects of SB-480848 on plasma Lp-PLA2 activity and other biomarkers associated with cardiovascular risk in subjects with coronary heart disease
+      - NCT03089398 | COMPLETED | Hybrid Coronary Revascularization Trial
+        Location: Long Beach Memorial Medical Center, United States
+        Relevance: This trial compares the effectiveness of hybrid coronary revascularization and percutaneous coronary intervention in patients with multi-vessel coronary artery disease
+      - NCT05360446 | ACTIVE_NOT_RECRUITING | Coronary Computed Tomography Study to Assess the Effect of Inclisiran 
+        Location: Heart Center Research Llc, United States
+        Relevance: This trial evaluates the effect of inclisiran on atherosclerotic plaque progression in patients with non-obstructive coronary artery disease
+      - NCT06909565 | RECRUITING | Inclisiran Versus Placebo for the Prevention of Major Adverse Cardiova
+        Location: Advanced Cardiovascular LLC, United States
+        Relevance: This trial evaluates the effectiveness of inclisiran in preventing major adverse cardiovascular and limb events in patients undergoing percutaneous coronary or peripheral arterial revascularization
+      - NCT03351738 | COMPLETED | A Study to Evaluate the Safety, Pharmacokinetics, and Pharmacodynamic 
+        Location: Research Site, United States
+        Relevance: This trial evaluates the safety, pharmacokinetics, and pharmacodynamic effects of MEDI5884 in adults with stable coronary heart disease
+      - NCT00871260 | COMPLETED | Stress Testing and Cardiac Magnetic Resonance
+        Location: University of Chicago, United States
+        Relevance: This trial evaluates the role of comprehensive stress MRI in medical practice and patient health management in patients with suspected coronary artery disease
+    PIPELINE META:
+      Timings: {'query_expansion': 812, 'retrieval': 7578, 'normalization': 129, 'ranking': 5833, 'context_build': 1, 'llm': 3721, 'assembly': 2, 'total': 18076}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 208, 'after_filter': 189, 'after_ranking': 14}
+      Citations: {'total': 13, 'verified': 13, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 6 insights
+    PASS: 6 trials
+    PASS: 13 verified citations
+    WARN: disease not mentioned in overview
+
+  --- Question 3: "Is there a link between statins and cognitive decline?" ---
+  Response time: 22.2s
+    OVERVIEW: The relationship between statin therapy and cognitive decline is complex, with some studies suggesting a potential link, while others indicate no significant association. Statins have been shown to reduce the risk of major adverse cardiac events, including myocardial infarction, by lowering LDL cholesterol levels. However, concerns have been raised about the potential cognitive effects of statin therapy, particularly in older adults.
+    INSIGHTS (8):
+      1. Statin therapy may have a beneficial effect on cognitive function in patients with coronary artery disease and mild cognitive decline when combined with regular exercise
+         -> [pubmed 2017] A Pilot Study: The Beneficial Effects of Combined Statin-exercise Therapy on Cog
+            Snippet: "This pilot study investigated the effects of combining statins and regular exercise on cognitive function in coronary ar..."
+      2. The PROSPER study and similar trials demonstrated a 24% reduction in CAD mortality with statins, without notable cognitive or functional impairments
+         -> [pubmed, openalex 2026] Lipid-lowering therapy for cardiovascular risk management in the older patients:
+            Snippet: "The PROSPER study and similar trials demonstrated a 24% reduction in CAD mortality with statins, without notable cogniti..."
+      3. A review examining the complex bidirectional relationship between cardiovascular disease and dementia found that traditional cardiovascular risk factors, including hypertension and coronary artery disease, are strongly linked to the development of dementia
+         -> [pubmed, openalex 2024] Cardiovascular Disease and Dementia: Exploring Intersections, Risks, and Therape
+            Snippet: "Traditional cardiovascular risk factors such as hypertension, coronary artery disease, arrhythmia, and diabetes mellitus..."
+      4. A pilot study found that combined statin-exercise therapy significantly increased the median MMSE score in patients with CAD and mild cognitive decline
+         -> [pubmed 2017] A Pilot Study: The Beneficial Effects of Combined Statin-exercise Therapy on Cog
+            Snippet: "Results Low-density lipoprotein cholesterol levels were significantly decreased, and maximum exercise capacity (workload..."
+      5. The EWTOPIA 75 trial reported a 34% reduction in major cardiac events with ezetimibe, though benefits diminished in those aged >85 years
+         -> [pubmed, openalex 2026] Lipid-lowering therapy for cardiovascular risk management in the older patients:
+            Snippet: "Similarly, the EWTOPIA 75 trial reported a 34% reduction in major cardiac events with ezetimibe, though benefits diminis..."
+      6. A meta-analysis revealed a 26% reduction in major vascular events per 1 mmol/L decrease in low-density lipoprotein cholesterol in older adults, with no heightened risks of cancer, haemorrhagic stroke, or cognitive decline
+         -> [pubmed, openalex 2026] Lipid-lowering therapy for cardiovascular risk management in the older patients:
+            Snippet: "A meta-analysis revealed a 26% reduction in major vascular events per 1 mmol/L decrease in low-density lipoprotein chole..."
+      7. ω-3 ethyl esters have been shown to result in better cognitive function at 12 and 30 months than control in cognitively healthy subjects with coronary artery disease
+         -> [pubmed 2021] ω-3 Ethyl ester results in better cognitive function at 12 and 30 months than co
+            Snippet: "OBJECTIVES: Our aim was to determine if long-term, high-dose ω-3 ethyl esters, EPA (20:5n-3) and DHA (22:6n-3), prevent ..."
+      8. Statin-induced toxic rhabdomyolysis with hepatocellular jaundice has been reported in the elderly, highlighting the importance of monitoring for adverse effects
+         -> [openalex 2021] Statin-Induced Toxic Rhabdomyolysis with Hepatocellular Jaundice in the Elderly
+            Snippet: "We report a 75-year-old lady who developed jaundice and became bedbound due to statin-induced hepatitis and acute rhabdo..."
+    TRIALS (6):
+      - NCT05360446 | ACTIVE_NOT_RECRUITING | Coronary Computed Tomography Study to Assess the Effect of Inclisiran 
+        Location: Heart Center Research Llc, United States
+        Relevance: This trial is relevant as it investigates the effect of inclisiran, a medication that can be used in addition to statin therapy, on atherosclerotic plaque progression in patients with non-obstructive coronary artery disease
+      - NCT03089398 | COMPLETED | Hybrid Coronary Revascularization Trial
+        Location: Long Beach Memorial Medical Center, United States
+        Relevance: This trial compares hybrid coronary revascularization with percutaneous coronary intervention in patients with multi-vessel coronary artery disease
+      - NCT02344290 | COMPLETED | Evaluating the Use of Pitavastatin to Reduce the Risk of Cardiovascula
+        Location: Alabama CRS*, United States
+        Relevance: This trial evaluates the use of pitavastatin to reduce the risk of cardiovascular disease in adults with HIV on antiretroviral therapy
+      - NCT06909565 | RECRUITING | Inclisiran Versus Placebo for the Prevention of Major Adverse Cardiova
+        Location: Advanced Cardiovascular LLC, United States
+        Relevance: This trial investigates the effectiveness of inclisiran in preventing major cardiovascular and limb events in patients receiving percutaneous coronary or peripheral arterial revascularization
+      - NCT00543400 | COMPLETED | Evaluation of M118 in Percutaneous Coronary Intervention (EMINENCE)
+        Location: Central Arkansas Veterans Healthcare System, United States
+        Relevance: This trial evaluates the safety and feasibility of using M118 as an anticoagulant in patients with stable coronary artery disease undergoing percutaneous coronary intervention
+      - NCT00853827 | COMPLETED | Safety and Efficacy of Aliskiren on the Progression of Atherosclerosis
+        Location: Novartis Investigative Site, United States
+        Relevance: This trial assesses the change in coronary atherosclerotic disease for aliskiren compared to placebo when given in addition to standard therapy in patients with coronary artery disease
+    PIPELINE META:
+      Timings: {'query_expansion': 945, 'retrieval': 6339, 'normalization': 100, 'ranking': 7751, 'context_build': 0, 'llm': 4185, 'assembly': 3, 'total': 19322}
+      Retrieval: {'pubmed': 11, 'openalex': 80, 'trials': 50, 'after_dedupe': 139, 'after_filter': 129, 'after_ranking': 14}
+      Citations: {'total': 14, 'verified': 14, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 14 verified citations
+    WARN: disease not mentioned in overview
+
+  --- Question 4: "Are there trials near Chicago for newer cholesterol drugs?" ---
+  Response time: 21.4s
+    OVERVIEW: There are several clinical trials related to cholesterol management and coronary artery disease, including those focused on newer cholesterol drugs, that have been or are being conducted in the United States, with some near Chicago. These trials investigate various treatments, including statins, PCSK9 inhibitors, and other lipid-lowering therapies.
+    INSIGHTS (8):
+      1. Statin therapy has been associated with various muscle-related side effects, including myopathy, rhabdomyolysis, and muscle weakness.
+         -> [openalex 2024] Enhancing the Bioavailability of Resveratrol: Combine It, Derivatize It, or Enca
+            Snippet: "Resveratrol, despite its well-reported therapeutic benefits, is not metabolically stable and thus has not been utilized ..."
+         -> [openalex 2023] Contemporary Homozygous Familial Hypercholesterolemia in the United States: Insi
+            Snippet: "Methods and Results Data were analyzed from 67 children and adults with clinically diagnosed HoFH from the CASCADE (Casc..."
+      2. The relationship between statin therapy and cognitive decline is complex, with some studies suggesting a potential link, while others indicate no significant association.
+         -> [openalex 2021] HDL in the 21st Century: A Multifunctional Roadmap for Future HDL Research
+            Snippet: "Mendelian randomization analyses that have found no evidence of a causal relationship between HDL-C levels and cardiovas..."
+         -> [openalex 2020] Association of Arachidonic Acid-derived Lipid Mediators with Subsequent Onset of
+            Snippet: "Accordingly, serum specific oxylipins levels are increased and associated with the consequent onset of AMI, suggesting t..."
+      3. Proprotein convertase subtilisin kexin type 9 inhibitors (PCSK9i) lower LDL-cholesterol and slow atherosclerosis, preventing cardiovascular events.
+         -> [openalex 2021] Proprotein Convertase Subtilisin Kexin Type 9 Inhibitors Reduce Platelet Activat
+            Snippet: "<b>Background:</b> Proprotein convertase subtilisin kexin type 9 inhibitors (PCSK9i) lower LDL-cholesterol and slow athe..."
+      4. Long-term statin administration may increase insulin resistance, interfere with lipid metabolism, lead to inflammation and fibrosis, and ultimately fuel diabetic nephropathy progression in diabetic mice.
+         -> [openalex 2023] Long-term statins administration exacerbates diabetic nephropathy via ectopic fa
+            Snippet: "Here, we find that long-term statin administration may increase insulin resistance, interfere with lipid metabolism, lea..."
+      5. Probiotic supplementation has beneficial effects on metabolic endotoxemia and inflammation markers in coronary artery disease patients.
+         -> [openalex 2021] Effect of probiotic supplementation along with calorie restriction on metabolic 
+            Snippet: "These data provide preliminary evidence that probiotic supplementation has beneficial effects on metabolic endotoxemia, ..."
+      6. Ubiquinol ameliorates endothelial dysfunction in subjects with mild-to-moderate dyslipidemia.
+         -> [openalex 2020] Ubiquinol Ameliorates Endothelial Dysfunction in Subjects with Mild-to-Moderate 
+            Snippet: "Fifty-one subjects with low-density lipoprotein (LDL) cholesterol levels of 130-200 mg/dL, not taking statins or other l..."
+      7. Arachidonic acid-derived lipid mediators are associated with the subsequent onset of acute myocardial infarction in patients with coronary artery disease.
+         -> [openalex 2020] Association of Arachidonic Acid-derived Lipid Mediators with Subsequent Onset of
+            Snippet: "Among them, twenty-five consecutive patients with new onset of acute myocardial infarction (AMI) within 2-year follow-up..."
+      8. HDL in the 21st century has a multifunctional roadmap for future HDL research, including its role in atherogenic dyslipidemia and cardiovascular risk.
+         -> [openalex 2021] HDL in the 21st Century: A Multifunctional Roadmap for Future HDL Research
+            Snippet: "Low high-density lipoprotein cholesterol (HDL-C) characterizes an atherogenic dyslipidemia that reflects adverse lifesty..."
+    TRIALS (6):
+      - NCT03089398 | COMPLETED | Hybrid Coronary Revascularization Trial
+        Location: Long Beach Memorial Medical Center, United States
+        Relevance: This trial compares hybrid coronary revascularization with percutaneous coronary intervention for patients with multi-vessel coronary artery disease.
+      - NCT00626379 | COMPLETED | Examining How Heart Disease Risk Factors Affect Healthy Aging (The Chi
+        Location: Preventive Medicine Research Clinic, United States
+        Relevance: This completed trial examined how risk factors for heart disease in young and middle-aged people affect health as they grow older, with a focus on the Chicago area.
+      - NCT05360446 | ACTIVE_NOT_RECRUITING | Coronary Computed Tomography Study to Assess the Effect of Inclisiran 
+        Location: Heart Center Research Llc, United States
+        Relevance: This active but not recruiting trial assesses the effect of inclisiran on atherosclerotic plaque progression in participants with non-obstructive coronary artery disease.
+      - NCT06959524 | RECRUITING | AGENT DCB STANCE: Safety and Effectiveness Study of AGENT Drug-Coated 
+        Location: Scripps Memorial Hospital, United States
+        Relevance: This recruiting trial compares the safety and effectiveness of the AGENT Drug-Coated Balloon with standard of care percutaneous coronary intervention treatment for de novo coronary lesions.
+      - NCT00091949 | COMPLETED | Insulin Resistance Intervention After Stroke Trial
+        Location: University of Alabama, United States
+        Relevance: This completed trial aimed to determine if pioglitazone is effective in preventing future strokes or heart attacks among non-diabetic persons who have had a recent ischemic stroke.
+      - NCT00353522 | COMPLETED | A Study of RO4607381 in Patients With Coronary Heart Disease (CHD) or 
+        Location: None, United States
+        Relevance: This completed trial investigated the efficacy and safety of RO4607381 in patients with coronary heart disease or a CHD risk equivalent.
+    PIPELINE META:
+      Timings: {'query_expansion': 1205, 'retrieval': 7859, 'normalization': 76, 'ranking': 6289, 'context_build': 0, 'llm': 3703, 'assembly': 3, 'total': 19135}
+      Retrieval: {'pubmed': 0, 'openalex': 80, 'trials': 50, 'after_dedupe': 130, 'after_filter': 123, 'after_ranking': 14}
+      Citations: {'total': 16, 'verified': 16, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 16 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 5: "What role does diet play alongside statin treatment?" ---
+  Response time: 22.5s
+    OVERVIEW: Diet plays a crucial role in managing coronary artery disease, particularly when used in conjunction with statin treatment. A heart-healthy diet can help reduce the risk of cardiovascular events and improve overall health. Studies have shown that dietary patterns and statin therapy can interact to differentially alter gene expression, with diet-statin interactions affecting colon transcriptome.
+    INSIGHTS (6):
+      1. Dietary patterns and statin therapy can interact to differentially alter gene expression
+         -> [pubmed, openalex 2021] Colon transcriptome is modified by a dietary pattern/atorvastatin interaction in
+            Snippet: "Gene differential expression and enrichment analyses indicated that dietary patterns and atorvastatin therapy differenti..."
+      2. A heart-healthy diet is recommended for patients with coronary artery disease, and can be used in conjunction with statin treatment
+         -> [pubmed, openalex 2022] Cardiovascular Disease Prevention: Risk Assessment.
+            Snippet: "A 10-year ASCVD risk estimate of 20% or higher is considered high, and patients having this level of risk should be offe..."
+         -> [pubmed 2008] [Management of the patient with chronic coronary artery disease].
+            Snippet: "ACE inhibitors are indicated in patients with left ventricular dysfunction, hypertension or diabetes and should also be ..."
+      3. Diet therapy should be directed at modifying dietary factors known to adversely influence blood cholesterol, such as saturated fats and cholesterol
+         -> [pubmed 1996] Lipid management: current diet and drug treatment options.
+            Snippet: "Diet therapy should be directed at modifying dietary factors known to adversely influence blood cholesterol-saturated fa..."
+      4. The Mediterranean diet, which is high in fruit, vegetables, fish, and poultry, is recommended for patients with coronary artery disease
+         -> [pubmed 2008] [Management of the patient with chronic coronary artery disease].
+            Snippet: "All patients with suspected angina need rapidly further cardiological examinations to check the diagnosis and fix the pr..."
+      5. Lifestyle changes, including diet and exercise, are mandatory for secondary prevention of coronary artery disease
+         -> [pubmed 2008] [Management of the patient with chronic coronary artery disease].
+            Snippet: "Lifestyle changes are mandatory and are fully part of secondary prevention: cigarette smoking withdrawal, mediterranean ..."
+      6. The American Heart Association's Life's Simple 7 defines ideal cardiovascular health, which includes a healthy diet
+         -> [pubmed, openalex 2022] Cardiovascular Disease Prevention: Risk Assessment.
+            Snippet: "The AHA's Life's Simple 7 defines ideal cardiovascular health as no tobacco use; ideal blood pressure, blood glucose, an..."
+    TRIALS (6):
+      - NCT05360446 | ACTIVE_NOT_RECRUITING | Coronary Computed Tomography Study to Assess the Effect of Inclisiran 
+        Location: Heart Center Research Llc, United States
+        Relevance: This trial investigates the effect of inclisiran on atherosclerotic plaque progression in patients with non-obstructive coronary artery disease, and may provide insight into the role of diet alongside statin treatment
+      - NCT03089398 | COMPLETED | Hybrid Coronary Revascularization Trial
+        Location: Long Beach Memorial Medical Center, United States
+        Relevance: This trial compares hybrid coronary revascularization with percutaneous coronary intervention, and may provide insight into the role of diet and lifestyle changes in managing coronary artery disease
+      - NCT02344290 | COMPLETED | Evaluating the Use of Pitavastatin to Reduce the Risk of Cardiovascula
+        Location: Alabama CRS*, United States
+        Relevance: This trial investigates the use of pitavastatin to reduce the risk of cardiovascular disease in HIV-infected adults, and may provide insight into the role of diet and statin treatment in this population
+      - NCT06909565 | RECRUITING | Inclisiran Versus Placebo for the Prevention of Major Adverse Cardiova
+        Location: Advanced Cardiovascular LLC, United States
+        Relevance: This trial investigates the effect of inclisiran on major adverse cardiovascular and limb events in patients undergoing percutaneous coronary intervention or peripheral endovascular intervention, and may provide insight into the role of diet alongside statin treatment
+      - NCT00853827 | COMPLETED | Safety and Efficacy of Aliskiren on the Progression of Atherosclerosis
+        Location: Novartis Investigative Site, United States
+        Relevance: This trial investigates the safety and efficacy of aliskiren on the progression of atherosclerosis in coronary artery disease patients, and may provide insight into the role of diet and lifestyle changes in managing coronary artery disease
+      - NCT00543400 | COMPLETED | Evaluation of M118 in Percutaneous Coronary Intervention (EMINENCE)
+        Location: Central Arkansas Veterans Healthcare System, United States
+        Relevance: This trial evaluates the safety and feasibility of using M118 as an anticoagulant in patients with stable coronary artery disease undergoing percutaneous coronary intervention, and may provide insight into the role of diet and lifestyle changes in managing coronary artery disease
+    PIPELINE META:
+      Timings: {'query_expansion': 928, 'retrieval': 8774, 'normalization': 201, 'ranking': 5859, 'context_build': 1, 'llm': 3483, 'assembly': 3, 'total': 19249}
+      Retrieval: {'pubmed': 79, 'openalex': 80, 'trials': 50, 'after_dedupe': 206, 'after_filter': 195, 'after_ranking': 14}
+      Citations: {'total': 13, 'verified': 13, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 6 insights
+    PASS: 6 trials
+    PASS: 13 verified citations
+    PASS: disease mentioned in overview
+
+======================================================================
+EVAL 3: Q3: Parkinson's + DBS (Boston, Massachusetts)
+======================================================================
+  Disease: Parkinson's disease
+  Intent: Deep Brain Stimulation
+  Location: Boston, Massachusetts, USA
+  Patient: John Smith
+  Session ID: 69e46d77d21162c44440c24f
+
+  --- Question 1: "What are the latest advances in DBS for Parkinson's?" ---
+  Response time: 21.2s
+    OVERVIEW: Deep Brain Stimulation (DBS) is a treatment for Parkinson's disease that has seen recent advances in technology and techniques. The latest developments include improvements in device profiles, such as the Percept PC deep brain stimulation system, and the use of directional DBS. Additionally, there is ongoing research into the use of DBS for other movement disorders, such as cervical dystonia. Studies have shown promising outcomes in the treatment of PD symptoms, but more research is needed to fully understand the benefits and limitations of DBS.
+    INSIGHTS (8):
+      1. The Percept PC platform enables brain sensing and has unique sensing and diary functions to refine therapeutic stimulation and track symptoms.
+         -> [pubmed 2021] Device profile of the percept PC deep brain stimulation system for the treatment
+            Snippet: "The development of the preceding Activa™ PC+S research platform, an investigational device to simultaneously sense brain..."
+      2. Directional DBS has shown significant improvement in dystonia severity, pain, disability, and quality of life in patients with cervical dystonia.
+         -> [openalex 2024] Directional deep brain stimulation for cervical dystonia: Outcomes, challenges a
+            Snippet: "<h3>Results</h3> Directional DBS significantly improved dystonia severity, pain, disability, and quality of life (p < 0...."
+      3. Non-invasive brain stimulation may offer a complementary approach to treat advanced PD by personalized stimulation, although it is not as effective as levodopa.
+         -> [pubmed 2021] Non-invasive brain stimulation for Parkinson's disease: Clinical evidence, lates
+            Snippet: "The non-invasive brain stimulation (NIBS) may offer a complementary approach to treat advanced PD by personalized stimul..."
+      4. Advances in molecular biology and biochemistry have improved the treatment of Parkinson's disease, including the use of DBS, levodopa, and dopamine agonists.
+         -> [pubmed 2022] Acupuncture for Parkinson's disease: From theory to practice.
+            Snippet: "Advances in molecular biology and biochemistry have improved the treatment of Parkinson's disease (PD). There has been e..."
+      5. Personalized medicine is becoming increasingly important in the treatment of Parkinson's disease, as current interventions do not work for all patients and response to treatment varies greatly.
+         -> [pubmed 2026] Advancing personalized medicine for Parkinson's disease: transforming treatment 
+            Snippet: "Nonetheless, these therapeutics cannot work in all patients with great success, and the response of the patients to them..."
+      6. Technological advances in implantable electronic devices have improved treatments for neurological disorders, including Parkinson's disease, with the development of biocompatible flexible electrodes and closed-loop DBS.
+         -> [pubmed 2025] Technological Advances and Medical Applications of Implantable Electronic Device
+            Snippet: "In the field of brain-neural interfaces, biocompatible flexible electrodes and closed-loop deep brain stimulation have i..."
+      7. Gene therapy and optogenetics are being explored as potential new treatments for Parkinson's disease, although more research is needed to translate these methodologies from the laboratory to the clinic.
+         -> [pubmed 2020] Neurons under genetic control: What are the next steps towards the treatment of 
+            Snippet: "The focus of the current review is on Parkinson's disease and Huntington's disease as they are the most investigated hyp..."
+      8. DBS has become a mainstream concept in functional neurosurgery for Parkinson's disease, with emerging advances focusing on the timing of surgery and new targets, technologies, and equipment.
+         -> [pubmed 2015] Advances in functional neurosurgery for Parkinson's disease.
+            Snippet: "In DBS, emerging advances have focused on the timing of surgery relative to disease duration and severity, and new targe..."
+    TRIALS (6):
+      - NCT06804668 | RECRUITING | Safety and Feasibility of Tele-supervised Home-based Transcranial Dire
+        Location: Center for Brain Circuit Therapeutics, Department of Neurology, Brigham & Women's Hospital, United States
+        Relevance: This trial is relevant as it explores the safety and feasibility of home-based transcranial direct current stimulation for Parkinson's disease.
+      - NCT02071134 | RECRUITING | Registry of Deep Brain Stimulation With the VERCISE™ System: Vercise D
+        Location: Neurology and Pain Specialty, United States
+        Relevance: This trial is relevant as it evaluates the outcomes of deep brain stimulation with the Vercise system for Parkinson's disease.
+      - NCT04750226 | ACTIVE_NOT_RECRUITING | Study To Assess Adverse Events and Change in Disease Activity Of 24-ho
+        Location: University of Alabama at Birmingham - Main /ID# 217814, United States
+        Relevance: This trial is relevant as it assesses the safety and efficacy of a new treatment for advanced Parkinson's disease.
+      - NCT04380142 | COMPLETED | Study Comparing Continuous Subcutaneous Infusion Of ABBV-951 With Oral
+        Location: University of Alabama at Birmingham - Main /ID# 216595, United States
+        Relevance: This trial is relevant as it compares the efficacy of a new treatment with standard oral medication for advanced Parkinson's disease.
+      - NCT00552474 | COMPLETED | Deep Brain Stimulation to Treat Symptoms of Parkinson's Disease
+        Location: Loma Linda University School of Medicine, United States
+        Relevance: This trial is relevant as it evaluates the safety and efficacy of deep brain stimulation for Parkinson's disease.
+      - NCT06676995 | COMPLETED | Effects of Transcranial Pulse Stimulation in Parkinson's Disease
+        Location: Spaulding Rehabilitation Hospital, United States
+        Relevance: This trial is relevant as it explores the effects of transcranial pulse stimulation on various symptoms of Parkinson's disease.
+    PIPELINE META:
+      Timings: {'query_expansion': 1223, 'retrieval': 7870, 'normalization': 427, 'ranking': 4923, 'context_build': 1, 'llm': 4547, 'assembly': 3, 'total': 18994}
+      Retrieval: {'pubmed': 25, 'openalex': 80, 'trials': 50, 'after_dedupe': 155, 'after_filter': 152, 'after_ranking': 14}
+      Citations: {'total': 14, 'verified': 14, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 14 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 2: "Can I take Vitamin D alongside DBS treatment?" ---
+  Response time: 21.3s
+    OVERVIEW: Research suggests that vitamin D supplementation may have a positive impact on physical performance and inflammation status in patients with Parkinson's disease, particularly those undergoing deep brain stimulation (DBS) treatment. However, it is essential to consult with a healthcare provider before taking any supplements alongside DBS treatment. A clinical trial is recruiting participants to study the safety and feasibility of tele-supervised home-based transcranial direct current stimulation in Parkinson's disease, which may be relevant to patients in the Boston area.
+    INSIGHTS (6):
+      1. Vitamin D supplementation increased serum 25(OH)D3 concentration to the recommended level and improved functional test performance in PD patients with DBS
+         -> [pubmed, openalex 2023] Effect of 12-Week BMI-Based Vitamin D
+            Snippet: "The serum 25(OH)D3 concentration increased to the recommended level of 30 ng/mL in the VitD group, and a significant ele..."
+      2. Vitamin D deficiency may be connected with a higher risk of falls in PD patients, and supplementation may reduce this risk
+         -> [pubmed, openalex 2023] Effect of 12-Week BMI-Based Vitamin D
+            Snippet: "PD patients often manifest vitamin D deficiency, which may be connected with a higher risk of falls. We administered a 1..."
+      3. Non-pharmacological treatments, including vitamin D supplementation, aim to slow disease progression and prevent complications in PD
+         -> [pubmed 2024] A Comprehensive Approach to Parkinson's Disease: Addressing Its Molecular, Clini
+            Snippet: "Non-pharmacological treatments, such as exercise, a calcium-rich diet, and adequate vitamin D supplementation, aim to sl..."
+      4. Vitamin D regulates gene expression via the vitamin D receptor, which may have implications for PD pathology
+         -> [openalex 2022] The Role of Vitamin D in Alzheimer’s Disease: A Transcriptional Regulator of Amy
+            Snippet: "Vitamin D regulates gene expression via the vitamin D receptor, a nuclear ligand-dependent transcription factor. In addi..."
+      5. Vitamin D deficiency in the early stage of AD resulted in earlier memory impairment, which may be relevant to PD patients with cognitive decline
+         -> [openalex 2022] The Role of Vitamin D in Alzheimer’s Disease: A Transcriptional Regulator of Amy
+            Snippet: "Interestingly, vitamin D deficiency in the early stage of AD resulted in earlier memory impairment. In addition, we admi..."
+      6. Probiotic supplementation facilitated recovery of 6-OHDA-induced motor deficit via improving mitochondrial function and energy metabolism in PD models
+         -> [openalex 2021] Probiotic Supplementation Facilitates Recovery of 6-OHDA-Induced Motor Deficit v
+            Snippet: "This restoring of mitochondrial function in the brain and muscles with improved energy metabolism might additionally be ..."
+    TRIALS (6):
+      - NCT06804668 | RECRUITING | Safety and Feasibility of Tele-supervised Home-based Transcranial Dire
+        Location: Center for Brain Circuit Therapeutics, Department of Neurology, Brigham & Women's Hospital, United States
+        Relevance: This trial is recruiting participants to study the safety and feasibility of tele-supervised home-based transcranial direct current stimulation in Parkinson's disease, which may be relevant to patients in the Boston area.
+      - NCT06098612 | RECRUITING | PET Imaging Evaluation of [11C]SY08
+        Location: MGH, United States
+        Relevance: This trial is evaluating the use of [11C]SY08 as a PET radiotracer for aggregated alpha synuclein in individuals with Parkinson's disease, which may provide insights into PD pathology.
+      - NCT04750226 | ACTIVE_NOT_RECRUITING | Study To Assess Adverse Events and Change in Disease Activity Of 24-ho
+        Location: University of Alabama at Birmingham - Main /ID# 217814, United States
+        Relevance: This trial is assessing the safety and efficacy of ABBV-951 in adult participants with advanced Parkinson's disease, which may be relevant to patients seeking alternative treatments.
+      - NCT02071134 | RECRUITING | Registry of Deep Brain Stimulation With the VERCISE™ System: Vercise D
+        Location: Neurology and Pain Specialty, United States
+        Relevance: This registry is compiling characteristics of worldwide outcomes for the use of the VERCISE DBS System in the treatment of Parkinson's disease, which may provide insights into the effectiveness of DBS treatment.
+      - NCT06676995 | COMPLETED | Effects of Transcranial Pulse Stimulation in Parkinson's Disease
+        Location: Spaulding Rehabilitation Hospital, United States
+        Relevance: This trial is studying the effects of transcranial pulse stimulation on various symptoms in Parkinson's disease, which may be relevant to patients seeking alternative treatments.
+      - NCT00552474 | COMPLETED | Deep Brain Stimulation to Treat Symptoms of Parkinson's Disease
+        Location: Loma Linda University School of Medicine, United States
+        Relevance: This trial is evaluating the safety and efficacy of bilateral stimulation of the subthalamic nucleus using the ANS Totally Implantable Deep Brain Stimulation System as an adjunctive treatment for reducing symptoms of Parkinson's disease.
+    PIPELINE META:
+      Timings: {'query_expansion': 1064, 'retrieval': 6161, 'normalization': 103, 'ranking': 7453, 'context_build': 1, 'llm': 3754, 'assembly': 2, 'total': 18539}
+      Retrieval: {'pubmed': 2, 'openalex': 80, 'trials': 50, 'after_dedupe': 131, 'after_filter': 122, 'after_ranking': 14}
+      Citations: {'total': 12, 'verified': 12, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 6 insights
+    PASS: 6 trials
+    PASS: 12 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 3: "How does adaptive DBS compare to conventional stimulation?" ---
+  Response time: 22.0s
+    OVERVIEW: Adaptive deep brain stimulation (aDBS) has shown promise in improving motor symptoms and quality of life in patients with Parkinson's disease compared to conventional deep brain stimulation (cDBS). Studies have demonstrated that aDBS can provide personalized therapy and reduce side effects. Researchers are continuing to explore the benefits and limitations of aDBS in various clinical trials.
+    INSIGHTS (8):
+      1. Adaptive DBS improved motor symptoms and quality of life compared to conventional DBS in a blinded randomized feasibility trial
+         -> [pubmed, openalex 2024] Chronic adaptive deep brain stimulation versus conventional stimulation in Parki
+            Snippet: "Here we present the results of a blinded randomized cross-over pilot trial aimed at determining the neural correlates of..."
+      2. Closed-loop adaptive deep brain stimulation of the subthalamic nucleus showed significant improvements in motor symptoms and reduced energy delivery to the brain compared to conventional DBS
+         -> [pubmed, openalex 2021] Eight-hours conventional versus adaptive deep brain stimulation of the subthalam
+            Snippet: "This study compares the effects on motor symptoms between conventional deep brain stimulation (cDBS) and closed-loop ada..."
+      3. At-home adaptive dual-target deep brain stimulation with proportional control demonstrated promising results in a prospective within-participant clinical trial
+         -> [openalex 2023] At home adaptive dual target deep brain stimulation in Parkinson’s disease with 
+            Snippet: "We combined bilateral DBS of both STN and globus pallidus (dual target DBS) in a prospective within-participant, clinica..."
+      4. Beta-triggered adaptive deep brain stimulation during reaching movement in Parkinson's disease showed no significant behavioral effects when using a shorter smoothing window
+         -> [openalex 2023] Beta-triggered adaptive deep brain stimulation during reaching movement in Parki
+            Snippet: "In this study, we addressed these two questions by evaluating the effectiveness of STN beta-triggered ADBS using a stand..."
+      5. Adaptive DBS algorithm for personalized therapy in Parkinson's disease is being evaluated in the ADAPT-PD clinical trial
+         -> [openalex 2024] Sensing data and methodology from the Adaptive DBS Algorithm for Personalized Th
+            Snippet: "Here we summarize sensing data and aDBS programming steps associated with the ongoing Adaptive DBS Algorithm for Persona..."
+      6. A new implantable closed-loop clinical neural interface has been developed and applied in patients with Parkinson's disease, demonstrating reliable artifact-free recordings and chronic long-term data management
+         -> [openalex 2021] A New Implantable Closed-Loop Clinical Neural Interface: First Application in Pa
+            Snippet: "Reliable artifact free-recordings, and chronic long-term data and neural signal management are in place. Deep brain stim..."
+      7. Globus pallidus internus deep brain stimulation evoked resonant neural activity in Parkinson's disease, which could be used as a potential intraoperative marker to optimize targeting and stimulation parameter selection
+         -> [openalex 2023] Globus pallidus internus deep brain stimulation evokes resonant neural activity 
+            Snippet: "In this study, we evaluated evoked resonant neural activity in the pallidum as a potential intraoperative marker to opti..."
+      8. Multi-night cortico-basal recordings revealed mechanisms of NREM slow wave suppression and spontaneous awakenings at high-temporal resolution in Parkinson's disease
+         -> [pubmed 2023] Multi-night cortico-basal recordings reveal mechanisms of NREM slow wave suppres
+            Snippet: "OBJECTIVES: We aimed to record naturalistic overnight cortico-basal neural activity in people with PD, in order to deter..."
+    TRIALS (6):
+      - NCT06804668 | RECRUITING | Safety and Feasibility of Tele-supervised Home-based Transcranial Dire
+        Location: Center for Brain Circuit Therapeutics, Department of Neurology, Brigham & Women's Hospital, United States
+        Relevance: This trial is relevant to patients with Parkinson's disease who are interested in non-invasive brain stimulation therapies
+      - NCT04380142 | COMPLETED | Study Comparing Continuous Subcutaneous Infusion Of ABBV-951 With Oral
+        Location: University of Alabama at Birmingham - Main /ID# 216595, United States
+        Relevance: This trial is relevant to patients with advanced Parkinson's disease who experience motor fluctuations
+      - NCT04750226 | ACTIVE_NOT_RECRUITING | Study To Assess Adverse Events and Change in Disease Activity Of 24-ho
+        Location: University of Alabama at Birmingham - Main /ID# 217814, United States
+        Relevance: This trial is relevant to patients with advanced Parkinson's disease who are interested in continuous subcutaneous infusion therapy
+      - NCT02071134 | RECRUITING | Registry of Deep Brain Stimulation With the VERCISE™ System: Vercise D
+        Location: Neurology and Pain Specialty, United States
+        Relevance: This trial is relevant to patients with Parkinson's disease who are interested in deep brain stimulation with the Vercise system
+      - NCT00552474 | COMPLETED | Deep Brain Stimulation to Treat Symptoms of Parkinson's Disease
+        Location: Loma Linda University School of Medicine, United States
+        Relevance: This trial is relevant to patients with Parkinson's disease who are interested in deep brain stimulation as a treatment option
+      - NCT06676995 | COMPLETED | Effects of Transcranial Pulse Stimulation in Parkinson's Disease
+        Location: Spaulding Rehabilitation Hospital, United States
+        Relevance: This trial is relevant to patients with Parkinson's disease who are interested in non-invasive brain stimulation therapies
+    PIPELINE META:
+      Timings: {'query_expansion': 1119, 'retrieval': 6370, 'normalization': 90, 'ranking': 7713, 'context_build': 0, 'llm': 4307, 'assembly': 3, 'total': 19603}
+      Retrieval: {'pubmed': 5, 'openalex': 80, 'trials': 50, 'after_dedupe': 133, 'after_filter': 125, 'after_ranking': 14}
+      Citations: {'total': 14, 'verified': 14, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 14 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 4: "Are there DBS trials near Boston?" ---
+  Response time: 20.6s
+    OVERVIEW: There are several clinical trials related to Deep Brain Stimulation (DBS) for Parkinson's disease, with some located near Boston, Massachusetts. These trials are investigating various aspects of DBS, including its safety, efficacy, and optimal programming. Patients in the Boston area may be eligible to participate in these trials, which could provide access to innovative treatments and contribute to the advancement of DBS research.
+    INSIGHTS (8):
+      1. DBS can have mixed effects on depressive symptomatology in Parkinson's disease
+         -> [pubmed 2014] Mixed effects of deep brain stimulation on depressive symptomatology in Parkinso
+            Snippet: "Here, we critically evaluate seven recent randomized clinical trials of the effectiveness of DBS in reducing depressive ..."
+      2. Adaptive DBS may improve motor symptoms and quality of life in patients with Parkinson's disease
+         -> [pubmed 2023] Participant perceptions of changes in psychosocial domains following participati
+            Snippet: "METHODS: A mixed-methods approach was used to examine the perspectives of patients who underwent DBS regarding changes t..."
+      3. The subthalamic nucleus and internal pallidum are main target sites for DBS in Parkinson's disease
+         -> [openalex 2021] Subthalamic and pallidal deep brain stimulation: are we modulating the same netw
+            Snippet: "The subthalamic nucleus and internal pallidum are main target sites for deep brain stimulation in Parkinson's disease. W..."
+      4. Cognitive outcomes of DBS depend on age and hippocampal connectivity in Parkinson's and Alzheimer's disease
+         -> [openalex 2025] Cognitive outcomes of deep brain stimulation depend on age and hippocampal conne
+            Snippet: "Our results support limiting enrollment to patients over 65 for Alzheimer's disease (AD) DBS, an emerging therapy curren..."
+      5. Automated DBS programming based on electrode location can be effective in controlling motor symptoms
+         -> [pubmed 2023] Automated deep brain stimulation programming based on electrode location: a rand
+            Snippet: "BACKGROUND: Deep brain stimulation (DBS) of the subthalamic nucleus (STN) is highly effective in controlling motor sympt..."
+      6. Photobiomodulation may be an effective treatment for Parkinson's disease
+         -> [pubmed 2020] Photobiomodulation for Parkinson's Disease in Animal Models: A Systematic Review
+            Snippet: "Photobiomodulation (PBM) might be an effective treatment for Parkinson's disease (PD) in human patients. PBM of the brai..."
+      7. Participant perceptions of changes in psychosocial domains following participation in an adaptive DBS trial are generally positive
+         -> [pubmed 2023] Participant perceptions of changes in psychosocial domains following participati
+            Snippet: "OBJECTIVE/HYPOTHESIS: Despite extensive debate in the theoretical literature, there remains a paucity of empirical data ..."
+      8. Publication rates and characteristics of clinical trials in deep brain and responsive neurostimulation are essential for ensuring the safety and efficacy of treatments
+         -> [pubmed 2023] Publication Rates and Characteristics of Clinical Trials in Deep Brain and Respo
+            Snippet: "INTRODUCTION: Prompt dissemination of clinical trial results is essential for ensuring the safety and efficacy of intrac..."
+    TRIALS (6):
+      - NCT02071134 | RECRUITING | Registry of Deep Brain Stimulation With the VERCISE™ System: Vercise D
+        Location: Neurology and Pain Specialty, United States
+        Relevance: This trial is compiling characteristics of worldwide outcomes for the use of the Vercise DBS System in the treatment of Parkinson's disease
+      - NCT06804668 | RECRUITING | Safety and Feasibility of Tele-supervised Home-based Transcranial Dire
+        Location: Center for Brain Circuit Therapeutics, Department of Neurology, Brigham & Women's Hospital, United States
+        Relevance: This trial is investigating the safety and feasibility of home-based transcranial direct current stimulation in Parkinson's disease
+      - NCT03329508 | COMPLETED | A Phase 3 Study With P2B001 in Subjects With Early Parkinson's
+        Location: P2B001/003 Site Scottsdale, United States
+        Relevance: This trial is assessing the safety and efficacy of P2B001 in subjects with early Parkinson's disease
+      - NCT01968031 | COMPLETED | A 12-week Randomized Study to Evaluate Oral Istradefylline in Subjects
+        Location: Kyowa PD Site, United States
+        Relevance: This trial is evaluating the efficacy and safety of oral Istradefylline in subjects with moderate to severe Parkinson's disease
+      - NCT06676995 | COMPLETED | Effects of Transcranial Pulse Stimulation in Parkinson's Disease
+        Location: Spaulding Rehabilitation Hospital, United States
+        Relevance: This trial is studying the effects of transcranial pulse stimulation in Parkinson's disease
+      - NCT04658186 | COMPLETED | A 18-month Study to Evaluate the Efficacy, Safety, Tolerability and Ph
+        Location: Pd0053 50140, United States
+        Relevance: This trial is evaluating the efficacy, safety, tolerability, and pharmacokinetics of oral UCB0599 in study participants with early-stage Parkinson's disease
+    PIPELINE META:
+      Timings: {'query_expansion': 976, 'retrieval': 6720, 'normalization': 91, 'ranking': 5542, 'context_build': 0, 'llm': 3987, 'assembly': 3, 'total': 17319}
+      Retrieval: {'pubmed': 21, 'openalex': 80, 'trials': 50, 'after_dedupe': 150, 'after_filter': 142, 'after_ranking': 14}
+      Citations: {'total': 14, 'verified': 14, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 14 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 5: "What are the long term outcomes after DBS surgery?" ---
+  Response time: 21.4s
+    OVERVIEW: Deep brain stimulation (DBS) surgery has been shown to have long-term benefits for patients with Parkinson's disease, including improved motor function and reduced medication requirements. Studies have demonstrated that DBS can provide sustained relief from motor complications and improve quality of life for up to 15 years after surgery. However, the efficacy of DBS can vary depending on factors such as age, disease duration, and individual patient characteristics.
+    INSIGHTS (6):
+      1. STN-DBS is effective beyond 15 years from the intervention, notably with significant improvement in motor complications and stable reduction of dopaminergic drugs
+         -> [pubmed, openalex 2021] Long-term Outcomes (15 Years) After Subthalamic Nucleus Deep Brain Stimulation i
+            Snippet: "CONCLUSIONS: STN-DBS is effective beyond 15 years from the intervention, notably with significant improvement in motor c..."
+      2. Long-term outcomes of STN-DBS in PD patients up to 10 years post-surgery show reduced time in the 'OFF' state and improved quality of life
+         -> [pubmed 2024] Long-term outcomes of subthalamic nucleus deep brain stimulation for Parkinson's
+            Snippet: "This study evaluates the long-term outcomes of STN-DBS in PD patients up to 10 years post-surgery in Singapore. STN-DBS ..."
+      3. GPi-DBS can provide improved motor outcomes, including reduced tremor and dyskinesia, for up to 5 years after surgery
+         -> [pubmed 2023] Long-term motor outcomes of deep brain stimulation of the globus pallidus intern
+            Snippet: "Compared to baseline, sub-scores for tremor, levodopa-induced dyskinesia (LID), and motor fluctuation indicated improved..."
+      4. The age and disease duration at the time of STN-DBS surgery can impact the efficacy of the treatment, with younger patients and those with longer disease duration tend to have better outcomes
+         -> [pubmed 2022] The effect of age and disease duration on the efficacy of subthalamic nuclei dee
+            Snippet: "Similarly, patients with an early time of surgery and disease onset and long-term disease duration showed better control..."
+      5. Morbidity milestones, such as falls and hallucinations, can occur 13 years after diagnosis and are associated with a decline in motor function, cognition, and quality of life
+         -> [pubmed 2023] Morbidity Milestones Demonstrate Long Disability-Free Survival in Parkinson's Di
+            Snippet: "As judged by morbidity milestones, morbidity remains compressed into the final 5 years of life in PD patients with STN-D..."
+      6. DBS can provide long-term motor outcomes, including improved tremor and bradykinesia, for patients with Parkinson's disease
+         -> [pubmed 2017] Deep brain stimulation for Parkinson's disease.
+            Snippet: "In this review, we summarize accumulated findings concerning patient selection, clinical outcomes, complications, target..."
+         -> [pubmed 2023] Long-term motor outcomes of deep brain stimulation of the globus pallidus intern
+            Snippet: "RESULTS: Forty PD patients with a mean age of 59.5 ± 7.9 years at DBS surgery (mean duration of PD: 11.4 ± 3.4 years) we..."
+    TRIALS (6):
+      - NCT06804668 | RECRUITING | Safety and Feasibility of Tele-supervised Home-based Transcranial Dire
+        Location: Center for Brain Circuit Therapeutics, Department of Neurology, Brigham & Women's Hospital, United States
+        Relevance: This trial is relevant to patients with Parkinson's disease who are interested in exploring alternative treatments for their condition
+      - NCT03329508 | COMPLETED | A Phase 3 Study With P2B001 in Subjects With Early Parkinson's
+        Location: P2B001/003 Site Scottsdale, United States
+        Relevance: This trial is relevant to patients with early Parkinson's disease who are looking for new treatment options
+      - NCT02071134 | RECRUITING | Registry of Deep Brain Stimulation With the VERCISE™ System: Vercise D
+        Location: Neurology and Pain Specialty, United States
+        Relevance: This trial is relevant to patients with Parkinson's disease who are interested in DBS treatment and want to contribute to the registry
+      - NCT01494532 | COMPLETED | A Fixed Dose Study of Ropinirole Prolonged Release as Adjunctive Treat
+        Location: GSK Investigational Site, United States
+        Relevance: This trial is relevant to patients with advanced Parkinson's disease who are looking for new treatment options
+      - NCT01968031 | COMPLETED | A 12-week Randomized Study to Evaluate Oral Istradefylline in Subjects
+        Location: Kyowa PD Site, United States
+        Relevance: This trial is relevant to patients with moderate to severe Parkinson's disease who are interested in exploring new treatment options
+      - NCT06680830 | RECRUITING | A Phase 2 Study and Open-Label Extension of NEU-411 in Companion Diagn
+        Location: Banner Sun Health Research Institute, United States
+        Relevance: This trial is relevant to patients with early Parkinson's disease who have a predicted elevation in the LRRK2 pathway
+    PIPELINE META:
+      Timings: {'query_expansion': 945, 'retrieval': 6813, 'normalization': 179, 'ranking': 6888, 'context_build': 1, 'llm': 3577, 'assembly': 2, 'total': 18405}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 208, 'after_filter': 201, 'after_ranking': 14}
+      Citations: {'total': 13, 'verified': 13, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 6 insights
+    PASS: 6 trials
+    PASS: 13 verified citations
+    PASS: disease mentioned in overview
+
+======================================================================
+EVAL 4: Q4: Alzheimer's + Early Diagnosis (Los Angeles, California)
+======================================================================
+  Disease: Alzheimer's disease
+  Intent: early diagnosis
+  Location: Los Angeles, California, USA
+  Patient: Robert Williams
+  Session ID: 69e46e3cd21162c44440c25a
+
+  --- Question 1: "What blood biomarkers can detect Alzheimer's before symptoms appear?" ---
+  Response time: 40.2s
+    OVERVIEW: Alzheimer's disease can be detected early through various blood biomarkers, including those related to immune system responses, amyloid beta, tau proteins, and neurodegeneration. Research has identified several promising biomarkers, such as the Aβ1-42/Aβ1-40 ratio, phosphorylated tau181, and neurofilament light chain, which may aid in early diagnosis. These biomarkers can be used to identify individuals at risk of developing Alzheimer's disease before symptoms appear, allowing for earlier intervention and potentially more effective treatment.
+    INSIGHTS (8):
+      1. Immune-based blood biomarkers may be a promising option for early diagnosis of Alzheimer's disease
+         -> [pubmed 2024] Towards early diagnosis of Alzheimer's disease: advances in immune-related blood
+            Snippet: "This review aims to provide an overview of the current state of immune-system related blood-based biomarkers and their p..."
+      2. The Aβ1-42/Aβ1-40 ratio, phosphorylated tau181, and neurofilament light chain are potential blood biomarkers for early diagnosis of Alzheimer's disease
+         -> [pubmed 2025] Circulating Biomarkers for the Early Diagnosis of Alzheimer's Disease.
+            Snippet: "Research supports the use of blood biomarkers, such as Aβ1-42/Aβ1-40 ratio, phosphorylated tau181, and p-tau217 for diag..."
+         -> [pubmed 2023] [How Helpful are Blood and Cerebrospinal Fluid Biomarkers for the Early Diagnosi
+            Snippet: "Among those blood-based ATN biomarkers, the plasma levels of Aβ42/40 ratio, p-tau, and neurofilament light chain (NfL) r..."
+      3. Blood plasma biomarkers, such as 2-aminoethyl dihydrogen phosphate and taurine, may distinguish between early-stage Alzheimer's disease patients and healthy controls
+         -> [pubmed, openalex 2022] A possible blood plasma biomarker for early-stage Alzheimer's disease.
+            Snippet: "We compared metabolites from blood plasma in early-stage Alzheimer's disease patients with blood plasma from healthy con..."
+      4. Non-invasive biomarkers, including those detected in blood, saliva, breath, and urine, are being explored for early detection of Alzheimer's disease
+         -> [pubmed 2024] Non-invasive Biomarkers for Early Detection of Alzheimer's Disease: a New-Age Pe
+            Snippet: "This review provides insight into the non-invasive biomarkers for early detection of AD that have been successfully stud..."
+      5. Proteomics and metabolomics have been used to identify candidate biomarkers in blood for Alzheimer's disease diagnosis
+         -> [pubmed 2024] The early diagnosis of Alzheimer's disease: Blood-based panel biomarker discover
+            Snippet: "Notably, proteomics and metabolomics have been used to identify candidate biomarkers in blood for AD diagnosis. Blood-ba..."
+      6. Multi-proteomic analyses have revealed new molecular signatures of early-stage Alzheimer's disease
+         -> [pubmed, openalex 2024] Multi-proteomic analyses of 5xFAD mice reveal new molecular signatures of early-
+            Snippet: "Therefore, this study aimed to identify molecular signatures including blood plasma extracellular vesicle biomarker prot..."
+      7. Blood-based biomarkers, such as Aβ42/40 ratio, p-tau, and neurofilament light chain, can be used to diagnose Alzheimer's disease in vivo
+         -> [pubmed 2023] [How Helpful are Blood and Cerebrospinal Fluid Biomarkers for the Early Diagnosi
+            Snippet: "Among those blood-based ATN biomarkers, the plasma levels of Aβ42/40 ratio, p-tau, and neurofilament light chain (NfL) r..."
+      8. Several cerebrospinal fluid and blood biomarkers have been proposed to show excellent diagnosis ability by identifying tau pathology and cerebral amyloid beta for Alzheimer's disease
+         -> [pubmed 2023] Advanced Overview of Biomarkers and Techniques for Early Diagnosis of Alzheimer'
+            Snippet: "Several cerebrospinal fluid (CSF) and blood biomarkers have been proposed to show excellent diagnosis ability by identif..."
+    TRIALS (6):
+      - NCT06416072 | ACTIVE_NOT_RECRUITING | Alzheimer's Plasma Extension
+        Location: University of Alabama, Birmingham, United States
+        Relevance: This study aims to capture longitudinal follow-up of plasma biomarkers and cognitive and functional assessments in individuals who screen failed in the AHEAD study
+      - NCT05291234 | COMPLETED | A Study to Assess Safety of ABBV-916 and How Intravenous ABBV-916 Move
+        Location: Tucson Neuroscience Research /ID# 244957, United States
+        Relevance: This study assesses the safety and efficacy of ABBV-916 in treating early Alzheimer's disease
+      - NCT03721705 | COMPLETED | Renew NCP-5 for the Treatment of Mild Cognitive Impairment Due to Alzh
+        Location: Xenoscience, United States
+        Relevance: This study examines the efficacy and safety of Renew NCP-5 therapy in the treatment of mild cognitive impairment due to Alzheimer's disease
+      - NCT02951598 | ACTIVE_NOT_RECRUITING | A Study of Health Care Use and Costs in Participants With Early Stage 
+        Location: California Pharmaceutical Research Institute, United States
+        Relevance: This study aims to learn about health care use, costs, and clinical outcomes over time for amyloid positive participants with early stages of Alzheimer's disease
+      - NCT00106899 | COMPLETED | ADNI: Alzheimer's Disease Neuroimaging Initiative
+        Location: University of Alabama, United States
+        Relevance: This study examines how brain imaging technology can be used with other tests to measure the progression of mild cognitive impairment and early Alzheimer's disease
+      - NCT07170150 | RECRUITING | A Clinical Trial of Trontinemab in Participants With Early Symptomatic
+        Location: Banner Alzheimer?s Institute, United States
+        Relevance: This study assesses the efficacy and safety of trontinemab in participants with early symptomatic Alzheimer's disease
+    PIPELINE META:
+      Timings: {'query_expansion': 1168, 'retrieval': 24524, 'normalization': 170, 'ranking': 8715, 'context_build': 1, 'llm': 4011, 'assembly': 3, 'total': 38592}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 200, 'after_filter': 183, 'after_ranking': 14}
+      Citations: {'total': 15, 'verified': 15, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 15 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 2: "How reliable is the p-tau217 test?" ---
+  Response time: 22.0s
+    OVERVIEW: The reliability of the p-tau217 test is a subject of ongoing research, with studies indicating its potential as a promising blood biomarker for Alzheimer's disease. However, there are concerns about its specificity and the need for further validation. The test has been shown to be useful in detecting early stages of Alzheimer's disease and monitoring clinical progression heterogeneity.
+    INSIGHTS (6):
+      1. P-tau217 levels are increased in early stages of Alzheimer's disease
+         -> [openalex 2020] Longitudinal plasma p-tau217 is increased in early stages of Alzheimer’s disease
+            Snippet: "In summary, plasma p-tau217 increases during early Alzheimer's disease and can be used to monitor disease progression. P..."
+      2. P-tau217 can be used to assess eligibility for amyloid-lowering immunotherapy in memory clinic patients with early Alzheimer's disease
+         -> [openalex 2024] Clinical application of plasma P-tau217 to assess eligibility for amyloid-loweri
+            Snippet: "This study, which included participants treated with aducanumab, confirms the utility of one- and two-cutoff strategies ..."
+      3. The clinical utility and reliability of p-tau217 assays are being refined, with challenges including refining plasma Aβ42/Aβ40 assays and enhancing the precision of p-tau217
+         -> [openalex 2024] Blood-based biomarkers in Alzheimer’s disease – moving towards a new era of diag
+            Snippet: "This paper briefly evaluates the clinical utility and reliability of these biomarkers across various AD stages, highligh..."
+      4. Plasma p-tau217 levels vary across different assays, with some showing significantly lower levels in serum compared to plasma
+         -> [openalex 2025] Equivalence of Plasma and Serum for Clinical Measurement of p‐tau217: Comparativ
+            Snippet: "Plasma and serum p-tau217 levels varied across assays; the ALZpath, Pittsburgh, and NULISA methods showed significantly ..."
+      5. Longitudinal increases in plasma p-tau217 are steepest in rapid cognitive decliners, indicating its potential for tracking clinical progression heterogeneity
+         -> [openalex 2025] Repeated plasma p‐tau217 measurements to monitor clinical progression heterogene
+            Snippet: "Longitudinal increases in plasma p-tau217 were steepest in rapid decliners. Plasma p-tau217 tracks clinical progression ..."
+      6. Combining remote digital memory assessments with plasma p-tau217 may improve prediction of future cognitive decline
+         -> [openalex 2024] Remote and unsupervised digital memory assessments can reliably detect cognitive
+            Snippet: "Memory performance at baseline was associated with future cognitive decline and prediction of future cognitive decline w..."
+    TRIALS (6):
+      - NCT03721705 | COMPLETED | Renew NCP-5 for the Treatment of Mild Cognitive Impairment Due to Alzh
+        Location: Xenoscience, United States
+        Relevance: This trial is relevant as it investigates the efficacy and safety of a treatment for mild cognitive impairment due to Alzheimer's disease, which may be related to the use of p-tau217 as a biomarker
+      - NCT07170150 | RECRUITING | A Clinical Trial of Trontinemab in Participants With Early Symptomatic
+        Location: Banner Alzheimer?s Institute, United States
+        Relevance: This trial is relevant as it investigates the efficacy and safety of a treatment for early symptomatic Alzheimer's disease, which may be related to the use of p-tau217 as a biomarker
+      - NCT00106899 | COMPLETED | ADNI: Alzheimer's Disease Neuroimaging Initiative
+        Location: University of Alabama, United States
+        Relevance: This trial is relevant as it examines the progression of mild cognitive impairment and early Alzheimer's disease using various tests, including biomarkers like p-tau217
+      - NCT04867616 | COMPLETED | A Study to Test the Efficacy, Safety, and Tolerability of Bepranemab (
+        Location: Ah0003 50428, United States
+        Relevance: This trial is relevant as it investigates the efficacy and safety of a treatment for mild cognitive impairment or mild Alzheimer's disease, which may be related to the use of p-tau217 as a biomarker
+      - NCT02951598 | ACTIVE_NOT_RECRUITING | A Study of Health Care Use and Costs in Participants With Early Stage 
+        Location: California Pharmaceutical Research Institute, United States
+        Relevance: This trial is relevant as it investigates health care use and costs in participants with early stage Alzheimer's disease, which may be related to the use of p-tau217 as a biomarker
+      - NCT00267163 | COMPLETED | Brain Imaging and Mental Disorders of Aging Intervention
+        Location: UCLA, The Semel Institute for Neuroscience and Human Behavior, United States
+        Relevance: This trial is relevant as it investigates the effectiveness of a cholinesterase inhibitor in delaying cognitive and brain functional decline in people at risk for Alzheimer's disease, which may be related to the use of p-tau217 as a biomarker
+    PIPELINE META:
+      Timings: {'query_expansion': 1267, 'retrieval': 6152, 'normalization': 78, 'ranking': 8530, 'context_build': 2, 'llm': 3488, 'assembly': 3, 'total': 19520}
+      Retrieval: {'pubmed': 0, 'openalex': 80, 'trials': 50, 'after_dedupe': 130, 'after_filter': 123, 'after_ranking': 14}
+      Citations: {'total': 12, 'verified': 12, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 6 insights
+    PASS: 6 trials
+    PASS: 12 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 3: "What role does the APOE gene play in risk?" ---
+  Response time: 19.5s
+    OVERVIEW: The APOE gene plays a significant role in the risk of developing Alzheimer's disease, with certain variants such as APOE4 increasing the risk, while others like APOE2 may be protective [doc1, doc4]. The APOE gene is involved in lipid metabolism and has been implicated in the pathogenesis of Alzheimer's disease [doc7].
+    INSIGHTS (8):
+      1. The APOE gene is the major genetic risk factor for late-onset Alzheimer's disease
+         -> [pubmed, openalex 2021] Common variants in Alzheimer's disease and risk stratification by polygenic risk
+            Snippet: "Genetic discoveries of Alzheimer's disease are the drivers of our understanding, and together with polygenetic risk stra..."
+         -> [pubmed 2014] Apolipoprotein E in Alzheimer's disease: an update.
+            Snippet: "Apolipoprotein E (APOE) has been irrefutably recognized as the major genetic risk factor, with semidominant inheritance,..."
+      2. APOE4 allele is associated with a higher risk of Alzheimer's disease, while APOE2 allele is associated with a lower risk
+         -> [pubmed 2014] Apolipoprotein E in Alzheimer's disease: an update.
+            Snippet: "The vast majority of Alzheimer's disease (AD) cases are late onset (LOAD), which is genetically complex with heritabilit..."
+         -> [openalex 2020] Exceptionally low likelihood of Alzheimer’s dementia in APOE2 homozygotes from a
+            Snippet: "Each additional copy of the apolipoprotein E4 (APOE4) allele is associated with a higher risk of Alzheimer's dementia, w..."
+      3. APOE genotyping can provide a relative risk of developing Alzheimer's disease and can guide changes in positive health-related behaviors
+         -> [pubmed 2019] Clinical implications of APOE genotyping for late-onset Alzheimer's disease (LOA
+            Snippet: "We identified 31 articles which suggested that APOE genotyping for LOAD susceptibility provides potential benefits to at..."
+         -> [pubmed 2014] Apolipoprotein E in Alzheimer's disease: an update.
+            Snippet: "Accumulating evidence also suggests the utility of APOE genotyping in AD diagnosis, risk assessment, prevention, and tre..."
+      4. The APOE gene is involved in lipid metabolism and may contribute to Alzheimer's disease pathogenesis through both amyloid-β-dependent and independent pathways
+         -> [pubmed 2014] Apolipoprotein E in Alzheimer's disease: an update.
+            Snippet: "Although the mechanisms that underlie the pathogenic nature of APOE in AD are still not completely understood, emerging ..."
+         -> [openalex 2024] APOE4/4 is linked to damaging lipid droplets in Alzheimer’s disease microglia
+            Snippet: "Several genetic risk factors for Alzheimer's disease implicate genes involved in lipid metabolism and many of these lipi..."
+      5. The impact of APOE and its variants on Alzheimer's disease risk can be modified by other genetic and environmental factors
+         -> [pubmed 2023] Alzheimer's disease and related dementias among aging veterans: Examining gene-b
+            Snippet: "DISCUSSION: PTSD and TBI history will be an important part of interpreting the results of ADRD genetic testing and doing..."
+         -> [pubmed 2018] The effect of APOE and other common genetic variants on the onset of Alzheimer's
+            Snippet: "We assessed the effects of these variants and APOE on cumulative risk and age at onset of Alzheimer's disease and all-ca..."
+      6. APOE2 homozygotes have an exceptionally low risk of developing Alzheimer's dementia
+         -> [openalex 2020] Exceptionally low likelihood of Alzheimer’s dementia in APOE2 homozygotes from a
+            Snippet: "Each additional copy of the apolipoprotein E4 (APOE4) allele is associated with a higher risk of Alzheimer's dementia, w..."
+      7. APOE4/4 is linked to damaging lipid droplets in Alzheimer's disease microglia
+         -> [openalex 2024] APOE4/4 is linked to damaging lipid droplets in Alzheimer’s disease microglia
+            Snippet: "Through single-nucleus RNA sequencing of brain tissue in Alzheimer's disease, we have identified a microglial state defi..."
+      8. APOE ε4 interactions with PTSD and TBI increase the risk of Alzheimer's disease and related dementias
+         -> [pubmed 2023] Alzheimer's disease and related dementias among aging veterans: Examining gene-b
+            Snippet: "These additive interactions indicate that ADRD prevalence associated with PTSD and TBI increased with the number of inhe..."
+    TRIALS (6):
+      - NCT00428090 | COMPLETED | Rosiglitazone (Extended Release Tablets) As Monotherapy In Subjects Wi
+        Location: GSK Investigational Site, United States
+        Relevance: This trial investigates the safety and efficacy of rosiglitazone in patients with mild to moderate Alzheimer's disease, with a focus on the role of APOE genotype
+      - NCT03721705 | COMPLETED | Renew NCP-5 for the Treatment of Mild Cognitive Impairment Due to Alzh
+        Location: Xenoscience, United States
+        Relevance: This trial examines the efficacy and safety of Renew NCP-5 therapy in patients with mild cognitive impairment due to Alzheimer's disease, with consideration of APOE genotype
+      - NCT01254448 | COMPLETED | Multiple Ascending Dose Study of TC-5619 in Healthy Elderly Subjects a
+        Location: Collaborative Neuroscience Network, United States
+        Relevance: This trial investigates the safety, tolerability, and pharmacokinetics of TC-5619 in healthy elderly subjects and patients with Alzheimer's disease, with consideration of APOE genotype
+      - NCT00053599 | COMPLETED | Cholesterol Lowering Agent to Slow Progression (CLASP) of Alzheimer's 
+        Location: University of Alabama, Birmingham, United States
+        Relevance: This trial examines the safety and effectiveness of simvastatin in slowing the progression of Alzheimer's disease, with consideration of APOE genotype
+      - NCT07177352 | RECRUITING | Screening Study to Determine Individuals With Potential Trial Eligibil
+        Location: University of Alabama at Birmingham, United States
+        Relevance: This trial is a pre-screening process to assess participants' potential eligibility for Roche interventional Alzheimer's disease studies, including those related to APOE genotype
+      - NCT00546767 | COMPLETED | Home-Based Assessment for Alzheimer Disease Prevention
+        Location: University of Alabama at Birmingham, United States
+        Relevance: This trial evaluates home-based assessments for Alzheimer's disease prevention, with consideration of APOE genotype
+    PIPELINE META:
+      Timings: {'query_expansion': 869, 'retrieval': 6523, 'normalization': 157, 'ranking': 5585, 'context_build': 1, 'llm': 3567, 'assembly': 4, 'total': 16706}
+      Retrieval: {'pubmed': 80, 'openalex': 80, 'trials': 50, 'after_dedupe': 201, 'after_filter': 184, 'after_ranking': 14}
+      Citations: {'total': 19, 'verified': 19, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 19 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 4: "Any early diagnosis studies near LA?" ---
+  Response time: 19.8s
+    OVERVIEW: There are several studies related to early diagnosis of Alzheimer's disease, including those using biomarkers and neuroimaging techniques. Some studies are being conducted near Los Angeles, California, USA. The Alzheimer's Disease Neuroimaging Initiative (ADNI) has been a significant contributor to the development of biomarkers and diagnostic tools for Alzheimer's disease.
+    INSIGHTS (6):
+      1. The Alzheimer's Disease Neuroimaging Initiative (ADNI) has accumulated 15 years of clinical, neuroimaging, cognitive, biofluid biomarker and genetic data, and biofluid samples available to researchers
+         -> [pubmed 2022] Using the Alzheimer's Disease Neuroimaging Initiative to improve early detection
+            Snippet: "INTRODUCTION: The Alzheimer's Disease Neuroimaging Initiative (ADNI) has accumulated 15 years of clinical, neuroimaging,..."
+      2. Neuroimaging studies have focused on middle-aged and older adults with only mild memory complaints and evaluated results according to the major known genetic risk for Alzheimer's disease, the apolipoprotein E-4 (APOE-4) allele
+         -> [pubmed 2002] Use of neuroimaging to detect early brain changes in people at genetic risk for 
+            Snippet: "To address such challenges, recent neuroimaging studies have focused on middle-aged and older adults with only mild memo..."
+      3. A convolutional neural network (CNN)-based AD diagnosis approach using the surface-enhanced Raman spectroscopy (SERS) fingerprints of human cerebrospinal fluid (CSF) has been demonstrated to have high accuracy
+         -> [pubmed 2022] The Feasibility of Early Alzheimer's Disease Diagnosis Using a Neural Network Hy
+            Snippet: "Here, we demonstrate a convolutional neural network (CNN)-based AD diagnosis approach using the surface-enhanced Raman s..."
+      4. Altered neuronal synchrony can be a surrogate marker to quantify network hyperexcitability in patients with Alzheimer's disease
+         -> [pubmed 2022] Neuronal synchrony abnormalities associated with subclinical epileptiform activi
+            Snippet: "In this study we examined whether altered neuronal synchrony can be a surrogate marker to quantify network hyperexcitabi..."
+      5. The ADNI has developed standardized biomarkers for use in clinical trial subject selection and as surrogate outcome measures
+         -> [pubmed 2015] Impact of the Alzheimer's Disease Neuroimaging Initiative, 2004 to 2014.
+            Snippet: "RESULTS: ADNI has (1) developed standardized biomarkers for use in clinical trial subject selection and as surrogate out..."
+      6. The use of neuroimaging technology can be used with other tests to measure the progression of mild cognitive impairment (MCI) and early Alzheimer's disease (AD)
+         -> [clinicaltrials 2005] ADNI: Alzheimer's Disease Neuroimaging Initiative
+            Snippet: "The purpose of this study is to examine how brain imaging technology can be used with other tests to measure the progres..."
+    TRIALS (6):
+      - NCT07170150 | RECRUITING | A Clinical Trial of Trontinemab in Participants With Early Symptomatic
+        Location: Banner Alzheimer?s Institute, United States
+        Relevance: This trial is relevant to early diagnosis as it aims to assess the efficacy and safety of trontinemab in participants with early symptomatic Alzheimer's disease
+      - NCT01767311 | COMPLETED | A Study to Evaluate Safety, Tolerability, and Efficacy of Lecanemab in
+        Location: Facility #1, United States
+        Relevance: This trial is relevant to early diagnosis as it aims to evaluate the safety, tolerability, and efficacy of lecanemab in subjects with early Alzheimer's disease
+      - NCT00034567 | COMPLETED | Healthy Aging and Memory Study
+        Location: University of Alabama, Birmingham, United States
+        Relevance: This trial is relevant to early diagnosis as it focuses on the development and testing of efficient, cost-effective measures for use in Alzheimer's Disease primary prevention trials
+      - NCT00106899 | COMPLETED | ADNI: Alzheimer's Disease Neuroimaging Initiative
+        Location: University of Alabama, United States
+        Relevance: This trial is relevant to early diagnosis as it aims to examine how brain imaging technology can be used with other tests to measure the progression of mild cognitive impairment (MCI) and early Alzheimer's disease (AD)
+      - NCT04867616 | COMPLETED | A Study to Test the Efficacy, Safety, and Tolerability of Bepranemab (
+        Location: Ah0003 50428, United States
+        Relevance: This trial is relevant to early diagnosis as it aims to investigate the effect of bepranemab versus placebo on the Clinical Dementia Rating Scale Sum of Boxes (CDR-SB) up to Week 80 in study participants with prodromal or mild Alzheimer's Disease (AD)
+      - NCT00546767 | COMPLETED | Home-Based Assessment for Alzheimer Disease Prevention
+        Location: University of Alabama at Birmingham, United States
+        Relevance: This trial is relevant to early diagnosis as it aims to evaluate three methods of performing home-based assessments in Alzheimer's Disease prevention trials
+    PIPELINE META:
+      Timings: {'query_expansion': 1020, 'retrieval': 6885, 'normalization': 136, 'ranking': 5422, 'context_build': 0, 'llm': 3475, 'assembly': 2, 'total': 16941}
+      Retrieval: {'pubmed': 55, 'openalex': 80, 'trials': 50, 'after_dedupe': 184, 'after_filter': 175, 'after_ranking': 14}
+      Citations: {'total': 12, 'verified': 12, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 6 insights
+    PASS: 6 trials
+    PASS: 12 verified citations
+    PASS: disease mentioned in overview
+
+  --- Question 5: "How does amyloid PET compare to blood-based screening?" ---
+  Response time: 21.4s
+    OVERVIEW: Amyloid PET and blood-based screening are two different methods for detecting Alzheimer's disease, with amyloid PET being more accurate but also more invasive and expensive, while blood-based screening is less invasive and potentially more cost-effective, but may have lower accuracy and specificity. Recent studies have shown that blood-based biomarkers, such as plasma Aβ42/40 ratio, can accurately identify brain amyloid status and predict progression to amyloid PET positivity [doc3, doc8].
+    INSIGHTS (8):
+      1. Blood-based biomarkers, such as plasma Aβ42/40 ratio, can accurately identify brain amyloid status
+         -> [pubmed, openalex 2021] A blood-based diagnostic test incorporating plasma Aβ42/40 ratio, ApoE proteotyp
+            Snippet: "CONCLUSIONS: This mass spectrometry-based plasma biomarker test: has strong diagnostic performance; can accurately disti..."
+         -> [pubmed 2026] Plasma Aβ42/40 predicts progression from Aβ-amyloid negative to positive PET sca
+            Snippet: "BACKGROUND: The agreement between plasma Aβ42/40 and Aβ positron emission tomography (PET) is approximately 75 %, with ∼..."
+      2. Plasma p-tau217 assays have excellent diagnostic performance for AD and can identify individuals with AD vs other neurodegenerative diseases
+         -> [pubmed 2024] Comparison of two plasma p-tau217 assays to detect and monitor Alzheimer's patho
+            Snippet: "Furthermore, both plasma p-tau217 assays identified individuals with AD vs other neurodegenerative diseases (ALZpath AUC..."
+      3. Blood-based biomarker testing can be a cost-effective alternative to amyloid PET for diagnosing Alzheimer's disease
+         -> [pubmed 2026] Cost-effectiveness analysis of blood-based biomarker testing in the diagnosis of
+            Snippet: "OBJECTIVES: We aimed to evaluate the cost-effectiveness of blood-based biomarker (BBM) testing vs amyloid positron emiss..."
+      4. The APOE gene plays a significant role in the risk of developing Alzheimer's disease, with certain variants increasing the risk
+         -> [pubmed 2025] Association and multimodal model of retinal and blood-based biomarkers for detec
+            Snippet: "METHODS: We included 82 cognitively unimpaired (CU) participants (141 eyes; mean age: 67 years; range: 56-80) from the A..."
+      5. Retinal biomarkers, such as retinal gliosis surface area and macular retinal nerve fiber layer thickness, are associated with preclinical Alzheimer's disease
+         -> [pubmed 2025] Association and multimodal model of retinal and blood-based biomarkers for detec
+            Snippet: "The Spectralis II system (Heidelberg Engineering) was used to acquire macular centered Spectral Domain Optical Coherence..."
+      6. Machine learning algorithms can be used to develop a multipredictor nomogram for diagnosing Alzheimer's disease based on blood-based biomarkers
+         -> [pubmed 2022] Machine Learning Reveals a Multipredictor Nomogram for Diagnosing the Alzheimer'
+            Snippet: "The blood-based biomarkers offer the opportunity to provide an alternative approach for easy diagnosis of AD, which woul..."
+      7. The 2024 Alzheimer's Association revised criteria define AD biologically and designate A and T as core biomarkers
+         -> [pubmed 2026] Evolving Alzheimer's Disease Clinical Practice: Updated Diagnostic Criteria, Flu
+            Snippet: "RESULTS: The 2024 AA criteria define AD biologically and designate A and T as core biomarkers; Core 1 biomarkers can est..."
+      8. Blood-based markers have the potential to be accurate, cost-effective, and easily accessible for widespread clinical use
+         -> [openalex 2022] Blood Biomarkers from Research Use to Clinical Practice: What Must Be Done? A Re
+            Snippet: "Emerging blood-based markers have the potential to be accurate, cost-effective, and easily accessible for widespread cli..."
+    TRIALS (6):
+      - NCT06416072 | ACTIVE_NOT_RECRUITING | Alzheimer's Plasma Extension
+        Location: University of Alabama, Birmingham, United States
+        Relevance: This study is evaluating the use of plasma biomarkers for diagnosing Alzheimer's disease
+      - NCT07177352 | RECRUITING | Screening Study to Determine Individuals With Potential Trial Eligibil
+        Location: University of Alabama at Birmingham, United States
+        Relevance: This study is a pre-screening process to assess participants' potential eligibility for Roche interventional Alzheimer's disease studies
+      - NCT01677754 | COMPLETED | A Study of RO4602522 in Participants With Moderate Severity Alzheimer 
+        Location: Advanced Research Center, Inc.;In-Patient Unit, United States
+        Relevance: This study evaluated the efficacy and safety of RO4602522 in participants with moderate severity Alzheimer's disease
+      - NCT00106899 | COMPLETED | ADNI: Alzheimer's Disease Neuroimaging Initiative
+        Location: University of Alabama, United States
+        Relevance: This study is examining how brain imaging technology can be used with other tests to measure the progression of mild cognitive impairment and early Alzheimer's disease
+      - NCT01122329 | COMPLETED | A Positron Emission Tomography (PET) Study Evaluating Brain Metabolism
+        Location: 200 Medical Plaza, UCLA Medical Center, United States
+        Relevance: This study examined the brain metabolic effects of a medical food in Alzheimer's disease
+      - NCT04867616 | COMPLETED | A Study to Test the Efficacy, Safety, and Tolerability of Bepranemab (
+        Location: Ah0003 50428, United States
+        Relevance: This study investigated the effect of bepranemab on the Clinical Dementia Rating Scale Sum of Boxes in patients with prodromal or mild Alzheimer's disease
+    PIPELINE META:
+      Timings: {'query_expansion': 781, 'retrieval': 6442, 'normalization': 104, 'ranking': 7162, 'context_build': 0, 'llm': 3887, 'assembly': 4, 'total': 18380}
+      Retrieval: {'pubmed': 14, 'openalex': 80, 'trials': 50, 'after_dedupe': 141, 'after_filter': 128, 'after_ranking': 14}
+      Citations: {'total': 15, 'verified': 15, 'unverified': 0}
+
+  CHECKS:
+    PASS: overview present
+    PASS: 8 insights
+    PASS: 6 trials
+    PASS: 15 verified citations
+    PASS: disease mentioned in overview
+
+======================================================================
+TOTAL TIME: 776.1s
+======================================================================

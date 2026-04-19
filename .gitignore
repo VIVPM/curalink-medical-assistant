@@ -1,0 +1,69 @@
+# ============================================================
+# Curalink - gitignore
+# ============================================================
+
+# --- Secrets (NEVER commit) ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+.env.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Model caches (huge) ---
+.cache/
+models/
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+
+# --- Vite / React build ---
+frontend/dist/
+frontend/.vite/
+frontend/node_modules/
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Local scratch / test files ---
+scratch/
+tmp/
+*.bak
+
+architecture.md
+plan.md
+instructions.md
