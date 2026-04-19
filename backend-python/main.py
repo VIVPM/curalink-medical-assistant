@@ -68,6 +68,12 @@ class EmbedBatchRequest(BaseModel):
     batch_size: int = Field(32, ge=1, le=128)
 
 
+@app.get("/")
+@app.head("/")
+async def root():
+    return {"ok": True, "service": "fastapi"}
+
+
 @app.get("/health")
 async def health():
     return {"ok": True, "service": "fastapi"}
