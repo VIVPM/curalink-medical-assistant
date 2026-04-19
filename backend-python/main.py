@@ -557,7 +557,7 @@ async def pipeline_run(req: PipelineRequest, background_tasks: BackgroundTasks):
 
     # Stage 6 — LLM reasoning
     t0 = time.perf_counter()
-    reasoner_output = await run_reasoner(payload, llm=llm, max_tokens=1200)
+    reasoner_output = await run_reasoner(payload, llm=llm, max_tokens=4000)
     stage_timings["llm"] = round((time.perf_counter() - t0) * 1000)
 
     # Stage 7 — Assembly
@@ -702,7 +702,7 @@ async def pipeline_stream(req: PipelineRequest, background_tasks: BackgroundTask
             async for token in llm.generate_stream(
                 payload.user_prompt,
                 system_prompt=payload.system_prompt,
-                max_tokens=1200,
+                max_tokens=4000,
                 temperature=0.2,
                 json_mode=True,
             ):

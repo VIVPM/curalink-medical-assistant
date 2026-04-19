@@ -101,7 +101,7 @@ def _fallback_output(error_msg: str) -> dict:
 async def run_reasoner(
     payload: PromptPayload,
     llm: LLMBackend,
-    max_tokens: int = 1200,
+    max_tokens: int = 4000,
     temperature: float = 0.2,
 ) -> ReasonerResult:
     """
