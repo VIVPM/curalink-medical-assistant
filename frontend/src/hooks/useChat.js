@@ -56,14 +56,15 @@ export default function useChat() {
     const userMsg = { role: "user", content: text, _id: Date.now().toString() };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
-    setStreamStatus("Running pipeline...");
-    setPipelineStage("processing");
+    setStreamStatus("Starting pipeline...");
+    setPipelineStage("starting");
     setRetrievalCounts(null);
 
     const assistantId = (Date.now() + 1).toString();
+    let gotResult = false;
 
     try {
-      const res = await fetch(`${API}/chat`, {
+      const res = await fetch(`${API}/chat/stream`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -72,26 +73,73 @@ export default function useChat() {
         }),
       });
 
-      const data = await res.json();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
 
-      if (!data.ok) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        let currentEvent = null;
+        for (const line of lines) {
+          if (line.startsWith("event: ")) {
+            currentEvent = line.slice(7);
+          } else if (line.startsWith("data: ") && currentEvent) {
+            const data = line.slice(6);
+            if (currentEvent === "status") {
+              try {
+                const info = JSON.parse(data);
+                setStreamStatus(info.message || info.stage);
+                if (info.stage) setPipelineStage(info.stage);
+                if (info.retrieval_counts) setRetrievalCounts(info.retrieval_counts);
+              } catch {}
+            } else if (currentEvent === "metadata") {
+              try {
+                const meta = JSON.parse(data);
+                gotResult = true;
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    role: "assistant",
+                    content: meta.overview || "",
+                    structuredResponse: meta,
+                    _id: assistantId,
+                  },
+                ]);
+              } catch {}
+            } else if (currentEvent === "error") {
+              try {
+                const errData = JSON.parse(data);
+                gotResult = true;
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    role: "assistant",
+                    content: errData.error || "Pipeline error",
+                    _id: assistantId,
+                    error: true,
+                  },
+                ]);
+              } catch {}
+            }
+            currentEvent = null;
+          }
+        }
+      }
+
+      if (!gotResult) {
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
-            content: data.error || "Pipeline error",
+            content: "The assistant didn't respond. Please try again.",
             _id: assistantId,
             error: true,
-          },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: data.response?.overview || "",
-            structuredResponse: data.response,
-            _id: data.assistantMessage?._id || assistantId,
           },
         ]);
       }
