@@ -87,6 +87,7 @@ export default function useChat() {
       let buffer = "";
       let tokens = "";
 
+      let gotMetadata = false;
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -119,6 +120,7 @@ export default function useChat() {
             } else if (currentEvent === "metadata") {
               try {
                 const meta = JSON.parse(data);
+                gotMetadata = true;
                 setMessages((prev) =>
                   prev.map((m) =>
                     m._id === assistantId
@@ -145,6 +147,21 @@ export default function useChat() {
             currentEvent = null;
           }
         }
+      }
+
+      // Stream ended. If no metadata/error event ever arrived, the pipeline
+      // died silently (cold start, OOM, upstream hangup). Mark the message
+      // as errored so the blinking cursor doesn't hang forever.
+      if (!gotMetadata) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m._id === assistantId && m.streaming
+              ? { ...m, content: "The assistant didn't respond. Please try again.", streaming: false, error: true }
+              : m
+          )
+        );
+        setStreamStatus(null);
+        setPipelineStage(null);
       }
     } catch (err) {
       setMessages((prev) =>
