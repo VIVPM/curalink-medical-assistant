@@ -26,19 +26,33 @@ export default function App() {
     setMessages,
   } = useChat();
 
-  const [showForm, setShowForm] = useState(true);
+  const [showForm, setShowForm] = useState(
+    () => !localStorage.getItem("activeSessionId")
+  );
+  // True while we're fetching a stored session on page refresh — prevents
+  // the intake form from flashing before the session loads.
+  const [rehydrating, setRehydrating] = useState(
+    () => !!localStorage.getItem("activeSessionId")
+  );
 
   useEffect(() => {
     if (user) fetchSessions();
   }, [user, fetchSessions]);
 
-  // Rehydrate last active session on refresh
   useEffect(() => {
-    if (!user) return;
-    const lastId = localStorage.getItem("activeSessionId");
-    if (lastId) {
-      loadSession(lastId).then(() => setShowForm(false)).catch(() => {});
+    if (!user) {
+      setRehydrating(false);
+      return;
     }
+    const lastId = localStorage.getItem("activeSessionId");
+    if (!lastId) {
+      setRehydrating(false);
+      return;
+    }
+    loadSession(lastId)
+      .then(() => setShowForm(false))
+      .catch(() => setShowForm(true))
+      .finally(() => setRehydrating(false));
   }, [user, loadSession]);
 
   if (authLoading) {
@@ -82,7 +96,12 @@ export default function App() {
         onLogout={logout}
       />
       <main className="main-content">
-        {showForm || !activeSession ? (
+        {rehydrating ? (
+          <div className="loading-screen">
+            <div className="spinner" />
+            <p>Loading your conversation...</p>
+          </div>
+        ) : showForm || !activeSession ? (
           <IntakeForm onSubmit={handleFormSubmit} />
         ) : (
           <ChatView
