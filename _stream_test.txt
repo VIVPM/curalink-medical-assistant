@@ -1,0 +1,3645 @@
+event: status
+data: {"stage":"query_expansion","message":"Expanding query..."}
+
+event: status
+data: {"stage":"retrieval","message":"Fetching from PubMed, OpenAlex, ClinicalTrials..."}
+
+event: status
+data: {"stage":"normalization","message":"Normalizing 210 documents...","retrieval_counts":{"pubmed":80,"openalex":80,"trials":50}}
+
+event: status
+data: {"stage":"ranking","message":"BM25 filtering 188 docs → top 20 → embedding → RRF → MedCPT → source-balanced selection → top 10"}
+
+event: status
+data: {"stage":"context_build","message":"Building context for LLM..."}
+
+event: status
+data: {"stage":"llm","message":"Generating response..."}
+
+event: token
+data: "```"
+
+event: token
+data: "json"
+
+event: token
+data: "\n"
+
+event: token
+data: "{\n"
+
+event: token
+data: " "
+
+event: token
+data: " \""
+
+event: token
+data: "overview"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "The"
+
+event: token
+data: " latest"
+
+event: token
+data: " treatments"
+
+event: token
+data: " for"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: " prioritize"
+
+event: token
+data: " cardiovascular"
+
+event: token
+data: " and"
+
+event: token
+data: " renal"
+
+event: token
+data: " benefits"
+
+event: token
+data: " using"
+
+event: token
+data: " S"
+
+event: token
+data: "GL"
+
+event: token
+data: "T"
+
+event: token
+data: "-"
+
+event: token
+data: "2"
+
+event: token
+data: " inhibitors"
+
+event: token
+data: " and"
+
+event: token
+data: " GL"
+
+event: token
+data: "P"
+
+event: token
+data: "-"
+
+event: token
+data: "1"
+
+event: token
+data: " receptor"
+
+event: token
+data: " agon"
+
+event: token
+data: "ists"
+
+event: token
+data: ","
+
+event: token
+data: " with"
+
+event: token
+data: " an"
+
+event: token
+data: " emphasis"
+
+event: token
+data: " on"
+
+event: token
+data: " personal"
+
+event: token
+data: "ization"
+
+event: token
+data: " and"
+
+event: token
+data: " the"
+
+event: token
+data: " use"
+
+event: token
+data: " of"
+
+event: token
+data: " newer"
+
+event: token
+data: " agents"
+
+event: token
+data: " like"
+
+event: token
+data: " tir"
+
+event: token
+data: "z"
+
+event: token
+data: "ep"
+
+event: token
+data: "at"
+
+event: token
+data: "ide"
+
+event: token
+data: " for"
+
+event: token
+data: " targeted"
+
+event: token
+data: " cases"
+
+event: token
+data: "."
+
+event: token
+data: " Exercise"
+
+event: token
+data: " therapy"
+
+event: token
+data: " is"
+
+event: token
+data: " also"
+
+event: token
+data: " recognized"
+
+event: token
+data: " as"
+
+event: token
+data: " a"
+
+event: token
+data: " cornerstone"
+
+event: token
+data: " in"
+
+event: token
+data: " the"
+
+event: token
+data: " management"
+
+event: token
+data: " of"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: ","
+
+event: token
+data: " offering"
+
+event: token
+data: " broad"
+
+event: token
+data: " benefits"
+
+event: token
+data: " that"
+
+event: token
+data: " extend"
+
+event: token
+data: " beyond"
+
+event: token
+data: " simple"
+
+event: token
+data: " glyc"
+
+event: token
+data: "emic"
+
+event: token
+data: " control"
+
+event: token
+data: "."
+
+event: token
+data: " Several"
+
+event: token
+data: " clinical"
+
+event: token
+data: " trials"
+
+event: token
+data: " have"
+
+event: token
+data: " been"
+
+event: token
+data: " conducted"
+
+event: token
+data: " to"
+
+event: token
+data: " evaluate"
+
+event: token
+data: " the"
+
+event: token
+data: " efficacy"
+
+event: token
+data: " and"
+
+event: token
+data: " safety"
+
+event: token
+data: " of"
+
+event: token
+data: " various"
+
+event: token
+data: " medications"
+
+event: token
+data: ","
+
+event: token
+data: " including"
+
+event: token
+data: " sax"
+
+event: token
+data: "agli"
+
+event: token
+data: "pt"
+
+event: token
+data: "in"
+
+event: token
+data: ","
+
+event: token
+data: " t"
+
+event: token
+data: "asp"
+
+event: token
+data: "og"
+
+event: token
+data: "lut"
+
+event: token
+data: "ide"
+
+event: token
+data: ","
+
+event: token
+data: " and"
+
+event: token
+data: " el"
+
+event: token
+data: "oral"
+
+event: token
+data: "int"
+
+event: token
+data: "ide"
+
+event: token
+data: ","
+
+event: token
+data: " in"
+
+event: token
+data: " adult"
+
+event: token
+data: " patients"
+
+event: token
+data: " with"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: ".\",\n"
+
+event: token
+data: " "
+
+event: token
+data: " \""
+
+event: token
+data: "ins"
+
+event: token
+data: "ights"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "finding"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "S"
+
+event: token
+data: "GL"
+
+event: token
+data: "T"
+
+event: token
+data: "-"
+
+event: token
+data: "2"
+
+event: token
+data: " inhibitors"
+
+event: token
+data: " and"
+
+event: token
+data: " GL"
+
+event: token
+data: "P"
+
+event: token
+data: "-"
+
+event: token
+data: "1"
+
+event: token
+data: " receptor"
+
+event: token
+data: " agon"
+
+event: token
+data: "ists"
+
+event: token
+data: " are"
+
+event: token
+data: " priorit"
+
+event: token
+data: "ized"
+
+event: token
+data: " for"
+
+event: token
+data: " their"
+
+event: token
+data: " cardiovascular"
+
+event: token
+data: " and"
+
+event: token
+data: " renal"
+
+event: token
+data: " benefits"
+
+event: token
+data: " in"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: " management"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "3"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "doc"
+
+event: token
+data: "5"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "finding"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "Exercise"
+
+event: token
+data: " therapy"
+
+event: token
+data: " is"
+
+event: token
+data: " a"
+
+event: token
+data: " recognized"
+
+event: token
+data: " cornerstone"
+
+event: token
+data: " in"
+
+event: token
+data: " the"
+
+event: token
+data: " management"
+
+event: token
+data: " of"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: ","
+
+event: token
+data: " offering"
+
+event: token
+data: " broad"
+
+event: token
+data: " benefits"
+
+event: token
+data: " beyond"
+
+event: token
+data: " glyc"
+
+event: token
+data: "emic"
+
+event: token
+data: " control"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "4"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "finding"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "In"
+
+event: token
+data: "flamm"
+
+event: token
+data: "ation"
+
+event: token
+data: " plays"
+
+event: token
+data: " a"
+
+event: token
+data: " significant"
+
+event: token
+data: " role"
+
+event: token
+data: " in"
+
+event: token
+data: " the"
+
+event: token
+data: " et"
+
+event: token
+data: "iology"
+
+event: token
+data: " of"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: ","
+
+event: token
+data: " and"
+
+event: token
+data: " is"
+
+event: token
+data: " linked"
+
+event: token
+data: " to"
+
+event: token
+data: " insulin"
+
+event: token
+data: " resistance"
+
+event: token
+data: " and"
+
+event: token
+data: " \u03b2"
+
+event: token
+data: "-cell"
+
+event: token
+data: " dysfunction"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "8"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "finding"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "L"
+
+event: token
+data: "ifestyle"
+
+event: token
+data: " changes"
+
+event: token
+data: ","
+
+event: token
+data: " such"
+
+event: token
+data: " as"
+
+event: token
+data: " diet"
+
+event: token
+data: " and"
+
+event: token
+data: " physical"
+
+event: token
+data: " activity"
+
+event: token
+data: ","
+
+event: token
+data: " are"
+
+event: token
+data: " critical"
+
+event: token
+data: " to"
+
+event: token
+data: " success"
+
+event: token
+data: " in"
+
+event: token
+data: " managing"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "1"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "finding"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "Ph"
+
+event: token
+data: "armac"
+
+event: token
+data: "ological"
+
+event: token
+data: " treatments"
+
+event: token
+data: ","
+
+event: token
+data: " including"
+
+event: token
+data: " pi"
+
+event: token
+data: "og"
+
+event: token
+data: "lit"
+
+event: token
+data: "az"
+
+event: token
+data: "one"
+
+event: token
+data: " and"
+
+event: token
+data: " sodium"
+
+event: token
+data: "-gl"
+
+event: token
+data: "ucose"
+
+event: token
+data: " cot"
+
+event: token
+data: "rans"
+
+event: token
+data: "porter"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " inhibitors"
+
+event: token
+data: ","
+
+event: token
+data: " are"
+
+event: token
+data: " essential"
+
+event: token
+data: " to"
+
+event: token
+data: " treat"
+
+event: token
+data: " non"
+
+event: token
+data: "al"
+
+event: token
+data: "coholic"
+
+event: token
+data: " fatty"
+
+event: token
+data: " liver"
+
+event: token
+data: " disease"
+
+event: token
+data: " ("
+
+event: token
+data: "NA"
+
+event: token
+data: "FL"
+
+event: token
+data: "D"
+
+event: token
+data: ")"
+
+event: token
+data: " and"
+
+event: token
+data: " non"
+
+event: token
+data: "al"
+
+event: token
+data: "coholic"
+
+event: token
+data: " ste"
+
+event: token
+data: "ato"
+
+event: token
+data: "he"
+
+event: token
+data: "pat"
+
+event: token
+data: "itis"
+
+event: token
+data: " ("
+
+event: token
+data: "N"
+
+event: token
+data: "ASH"
+
+event: token
+data: ")"
+
+event: token
+data: " in"
+
+event: token
+data: " patients"
+
+event: token
+data: " with"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "1"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "finding"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "N"
+
+event: token
+data: "urses"
+
+event: token
+data: " should"
+
+event: token
+data: " recognize"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: " as"
+
+event: token
+data: " a"
+
+event: token
+data: " cardi"
+
+event: token
+data: "oren"
+
+event: token
+data: "al"
+
+event: token
+data: " metabolic"
+
+event: token
+data: " syndrome"
+
+event: token
+data: " that"
+
+event: token
+data: " requires"
+
+event: token
+data: " holistic"
+
+event: token
+data: " management"
+
+event: token
+data: " of"
+
+event: token
+data: " blood"
+
+event: token
+data: " glucose"
+
+event: token
+data: ","
+
+event: token
+data: " blood"
+
+event: token
+data: " pressure"
+
+event: token
+data: ","
+
+event: token
+data: " lipid"
+
+event: token
+data: " levels"
+
+event: token
+data: ","
+
+event: token
+data: " and"
+
+event: token
+data: " lifestyle"
+
+event: token
+data: " factors"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "7"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "finding"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "High"
+
+event: token
+data: "-int"
+
+event: token
+data: "ensity"
+
+event: token
+data: " interval"
+
+event: token
+data: " training"
+
+event: token
+data: " ("
+
+event: token
+data: "HI"
+
+event: token
+data: "IT"
+
+event: token
+data: ")"
+
+event: token
+data: " is"
+
+event: token
+data: " highly"
+
+event: token
+data: " time"
+
+event: token
+data: "-efficient"
+
+event: token
+data: " and"
+
+event: token
+data: " yields"
+
+event: token
+data: " superior"
+
+event: token
+data: " reductions"
+
+event: token
+data: " in"
+
+event: token
+data: " glyc"
+
+event: token
+data: "ated"
+
+event: token
+data: " hem"
+
+event: token
+data: "oglobin"
+
+event: token
+data: " ("
+
+event: token
+data: "H"
+
+event: token
+data: "b"
+
+event: token
+data: "A"
+
+event: token
+data: "1"
+
+event: token
+data: "c"
+
+event: token
+data: ")\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "4"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "finding"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "Con"
+
+event: token
+data: "current"
+
+event: token
+data: " training"
+
+event: token
+data: ","
+
+event: token
+data: " which"
+
+event: token
+data: " combines"
+
+event: token
+data: " aerobic"
+
+event: token
+data: " and"
+
+event: token
+data: " resistance"
+
+event: token
+data: " exercise"
+
+event: token
+data: ","
+
+event: token
+data: " provides"
+
+event: token
+data: " the"
+
+event: token
+data: " most"
+
+event: token
+data: " comprehensive"
+
+event: token
+data: " metabolic"
+
+event: token
+data: " and"
+
+event: token
+data: " physiological"
+
+event: token
+data: " benefits"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "4"
+
+event: token
+data: "\"]}\n"
+
+event: token
+data: " "
+
+event: token
+data: " ],\n"
+
+event: token
+data: " "
+
+event: token
+data: " \""
+
+event: token
+data: "tr"
+
+event: token
+data: "ials"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "n"
+
+event: token
+data: "ct"
+
+event: token
+data: "_id"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "N"
+
+event: token
+data: "CT"
+
+event: token
+data: "072"
+
+event: token
+data: "826"
+
+event: token
+data: "00"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "title"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "A"
+
+event: token
+data: " Study"
+
+event: token
+data: " of"
+
+event: token
+data: " El"
+
+event: token
+data: "oral"
+
+event: token
+data: "int"
+
+event: token
+data: "ide"
+
+event: token
+data: " ("
+
+event: token
+data: "LY"
+
+event: token
+data: "384"
+
+event: token
+data: "113"
+
+event: token
+data: "6"
+
+event: token
+data: ")"
+
+event: token
+data: " in"
+
+event: token
+data: " Participants"
+
+event: token
+data: " With"
+
+event: token
+data: " Obesity"
+
+event: token
+data: " or"
+
+event: token
+data: " Over"
+
+event: token
+data: "weight"
+
+event: token
+data: ","
+
+event: token
+data: " and"
+
+event: token
+data: " Type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " Diabetes"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "re"
+
+event: token
+data: "levance"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "This"
+
+event: token
+data: " trial"
+
+event: token
+data: " evaluates"
+
+event: token
+data: " the"
+
+event: token
+data: " efficacy"
+
+event: token
+data: " and"
+
+event: token
+data: " safety"
+
+event: token
+data: " of"
+
+event: token
+data: " el"
+
+event: token
+data: "oral"
+
+event: token
+data: "int"
+
+event: token
+data: "ide"
+
+event: token
+data: " for"
+
+event: token
+data: " body"
+
+event: token
+data: " weight"
+
+event: token
+data: " reduction"
+
+event: token
+data: " in"
+
+event: token
+data: " participants"
+
+event: token
+data: " with"
+
+event: token
+data: " overweight"
+
+event: token
+data: " or"
+
+event: token
+data: " obesity"
+
+event: token
+data: " and"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "14"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "n"
+
+event: token
+data: "ct"
+
+event: token
+data: "_id"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "N"
+
+event: token
+data: "CT"
+
+event: token
+data: "007"
+
+event: token
+data: "981"
+
+event: token
+data: "61"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "title"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "Safety"
+
+event: token
+data: " and"
+
+event: token
+data: " E"
+
+event: token
+data: "ffic"
+
+event: token
+data: "acy"
+
+event: token
+data: " of"
+
+event: token
+data: " Lin"
+
+event: token
+data: "agli"
+
+event: token
+data: "pt"
+
+event: token
+data: "in"
+
+event: token
+data: " ("
+
+event: token
+data: "BI"
+
+event: token
+data: " "
+
+event: token
+data: "135"
+
+event: token
+data: "6"
+
+event: token
+data: ")"
+
+event: token
+data: " Plus"
+
+event: token
+data: " Met"
+
+event: token
+data: "form"
+
+event: token
+data: "in"
+
+event: token
+data: " in"
+
+event: token
+data: " Type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " Diabetes"
+
+event: token
+data: ","
+
+event: token
+data: " Factor"
+
+event: token
+data: "ial"
+
+event: token
+data: " Design"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "re"
+
+event: token
+data: "levance"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "This"
+
+event: token
+data: " trial"
+
+event: token
+data: " investigates"
+
+event: token
+data: " the"
+
+event: token
+data: " efficacy"
+
+event: token
+data: " and"
+
+event: token
+data: " safety"
+
+event: token
+data: " of"
+
+event: token
+data: " lin"
+
+event: token
+data: "agli"
+
+event: token
+data: "pt"
+
+event: token
+data: "in"
+
+event: token
+data: " plus"
+
+event: token
+data: " met"
+
+event: token
+data: "form"
+
+event: token
+data: "in"
+
+event: token
+data: " in"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetic"
+
+event: token
+data: " patients"
+
+event: token
+data: " with"
+
+event: token
+data: " insufficient"
+
+event: token
+data: " gly"
+
+event: token
+data: "ca"
+
+event: token
+data: "emic"
+
+event: token
+data: " control"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "10"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "n"
+
+event: token
+data: "ct"
+
+event: token
+data: "_id"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "N"
+
+event: token
+data: "CT"
+
+event: token
+data: "010"
+
+event: token
+data: "181"
+
+event: token
+data: "73"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "title"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "A"
+
+event: token
+data: " Study"
+
+event: token
+data: " of"
+
+event: token
+data: " T"
+
+event: token
+data: "asp"
+
+event: token
+data: "og"
+
+event: token
+data: "lut"
+
+event: token
+data: "ide"
+
+event: token
+data: " in"
+
+event: token
+data: " Patients"
+
+event: token
+data: " With"
+
+event: token
+data: " In"
+
+event: token
+data: "ade"
+
+event: token
+data: "qu"
+
+event: token
+data: "ately"
+
+event: token
+data: " Controlled"
+
+event: token
+data: " Diabetes"
+
+event: token
+data: " Mell"
+
+event: token
+data: "itus"
+
+event: token
+data: " Type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " and"
+
+event: token
+data: " Cardio"
+
+event: token
+data: "vascular"
+
+event: token
+data: " Disease"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "re"
+
+event: token
+data: "levance"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "This"
+
+event: token
+data: " trial"
+
+event: token
+data: " assess"
+
+event: token
+data: "es"
+
+event: token
+data: " the"
+
+event: token
+data: " efficacy"
+
+event: token
+data: " and"
+
+event: token
+data: " safety"
+
+event: token
+data: " of"
+
+event: token
+data: " t"
+
+event: token
+data: "asp"
+
+event: token
+data: "og"
+
+event: token
+data: "lut"
+
+event: token
+data: "ide"
+
+event: token
+data: " in"
+
+event: token
+data: " patients"
+
+event: token
+data: " with"
+
+event: token
+data: " inade"
+
+event: token
+data: "qu"
+
+event: token
+data: "ately"
+
+event: token
+data: " controlled"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: " and"
+
+event: token
+data: " established"
+
+event: token
+data: " cardiovascular"
+
+event: token
+data: " disease"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "11"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "n"
+
+event: token
+data: "ct"
+
+event: token
+data: "_id"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "N"
+
+event: token
+data: "CT"
+
+event: token
+data: "006"
+
+event: token
+data: "613"
+
+event: token
+data: "62"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "title"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "Evaluate"
+
+event: token
+data: " E"
+
+event: token
+data: "ffic"
+
+event: token
+data: "acy"
+
+event: token
+data: " and"
+
+event: token
+data: " Safety"
+
+event: token
+data: " of"
+
+event: token
+data: " Sax"
+
+event: token
+data: "agli"
+
+event: token
+data: "pt"
+
+event: token
+data: "in"
+
+event: token
+data: " in"
+
+event: token
+data: " Combination"
+
+event: token
+data: " With"
+
+event: token
+data: " Met"
+
+event: token
+data: "form"
+
+event: token
+data: "in"
+
+event: token
+data: " in"
+
+event: token
+data: " Adult"
+
+event: token
+data: " Patients"
+
+event: token
+data: " With"
+
+event: token
+data: " Type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " Diabetes"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "re"
+
+event: token
+data: "levance"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "This"
+
+event: token
+data: " trial"
+
+event: token
+data: " evaluates"
+
+event: token
+data: " the"
+
+event: token
+data: " efficacy"
+
+event: token
+data: " and"
+
+event: token
+data: " safety"
+
+event: token
+data: " of"
+
+event: token
+data: " sax"
+
+event: token
+data: "agli"
+
+event: token
+data: "pt"
+
+event: token
+data: "in"
+
+event: token
+data: " in"
+
+event: token
+data: " combination"
+
+event: token
+data: " with"
+
+event: token
+data: " met"
+
+event: token
+data: "form"
+
+event: token
+data: "in"
+
+event: token
+data: " in"
+
+event: token
+data: " adult"
+
+event: token
+data: " patients"
+
+event: token
+data: " with"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "12"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "n"
+
+event: token
+data: "ct"
+
+event: token
+data: "_id"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "N"
+
+event: token
+data: "CT"
+
+event: token
+data: "006"
+
+event: token
+data: "989"
+
+event: token
+data: "32"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "title"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "Evaluate"
+
+event: token
+data: " E"
+
+event: token
+data: "ffic"
+
+event: token
+data: "acy"
+
+event: token
+data: " and"
+
+event: token
+data: " Safety"
+
+event: token
+data: " of"
+
+event: token
+data: " Sax"
+
+event: token
+data: "agli"
+
+event: token
+data: "pt"
+
+event: token
+data: "in"
+
+event: token
+data: " in"
+
+event: token
+data: " Adult"
+
+event: token
+data: " Patients"
+
+event: token
+data: " With"
+
+event: token
+data: " Type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " Diabetes"
+
+event: token
+data: " In"
+
+event: token
+data: "ade"
+
+event: token
+data: "quate"
+
+event: token
+data: " Gly"
+
+event: token
+data: "c"
+
+event: token
+data: "emic"
+
+event: token
+data: " Control"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "re"
+
+event: token
+data: "levance"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "This"
+
+event: token
+data: " trial"
+
+event: token
+data: " evaluates"
+
+event: token
+data: " the"
+
+event: token
+data: " efficacy"
+
+event: token
+data: " and"
+
+event: token
+data: " safety"
+
+event: token
+data: " of"
+
+event: token
+data: " sax"
+
+event: token
+data: "agli"
+
+event: token
+data: "pt"
+
+event: token
+data: "in"
+
+event: token
+data: " in"
+
+event: token
+data: " adult"
+
+event: token
+data: " patients"
+
+event: token
+data: " with"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: " and"
+
+event: token
+data: " inadequate"
+
+event: token
+data: " glyc"
+
+event: token
+data: "emic"
+
+event: token
+data: " control"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "13"
+
+event: token
+data: "\"]"
+
+event: token
+data: "},\n"
+
+event: token
+data: "   "
+
+event: token
+data: " {\""
+
+event: token
+data: "n"
+
+event: token
+data: "ct"
+
+event: token
+data: "_id"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "N"
+
+event: token
+data: "CT"
+
+event: token
+data: "003"
+
+event: token
+data: "856"
+
+event: token
+data: "97"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "title"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "The"
+
+event: token
+data: " Prot"
+
+event: token
+data: "\u00e9g"
+
+event: token
+data: "\u00e9"
+
+event: token
+data: " Study"
+
+event: token
+data: " -"
+
+event: token
+data: " Clinical"
+
+event: token
+data: " Trial"
+
+event: token
+data: " of"
+
+event: token
+data: " M"
+
+event: token
+data: "GA"
+
+event: token
+data: "031"
+
+event: token
+data: " in"
+
+event: token
+data: " Children"
+
+event: token
+data: " and"
+
+event: token
+data: " Adults"
+
+event: token
+data: " With"
+
+event: token
+data: " Recent"
+
+event: token
+data: "-On"
+
+event: token
+data: "set"
+
+event: token
+data: " Type"
+
+event: token
+data: " "
+
+event: token
+data: "1"
+
+event: token
+data: " Diabetes"
+
+event: token
+data: " Mell"
+
+event: token
+data: "itus"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "re"
+
+event: token
+data: "levance"
+
+event: token
+data: "\":"
+
+event: token
+data: " \""
+
+event: token
+data: "Although"
+
+event: token
+data: " this"
+
+event: token
+data: " trial"
+
+event: token
+data: " is"
+
+event: token
+data: " for"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "1"
+
+event: token
+data: " diabetes"
+
+event: token
+data: ","
+
+event: token
+data: " it"
+
+event: token
+data: " may"
+
+event: token
+data: " provide"
+
+event: token
+data: " insights"
+
+event: token
+data: " into"
+
+event: token
+data: " the"
+
+event: token
+data: " treatment"
+
+event: token
+data: " of"
+
+event: token
+data: " diabetes"
+
+event: token
+data: " in"
+
+event: token
+data: " general"
+
+event: token
+data: "\","
+
+event: token
+data: " \""
+
+event: token
+data: "sources"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\""
+
+event: token
+data: "doc"
+
+event: token
+data: "9"
+
+event: token
+data: "\"]}\n"
+
+event: token
+data: " "
+
+event: token
+data: " ],\n"
+
+event: token
+data: " "
+
+event: token
+data: " \""
+
+event: token
+data: "recommend"
+
+event: token
+data: "ations"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\n"
+
+event: token
+data: "   "
+
+event: token
+data: " \""
+
+event: token
+data: "Discuss"
+
+event: token
+data: " with"
+
+event: token
+data: " your"
+
+event: token
+data: " doctor"
+
+event: token
+data: " the"
+
+event: token
+data: " potential"
+
+event: token
+data: " benefits"
+
+event: token
+data: " and"
+
+event: token
+data: " risks"
+
+event: token
+data: " of"
+
+event: token
+data: " using"
+
+event: token
+data: " S"
+
+event: token
+data: "GL"
+
+event: token
+data: "T"
+
+event: token
+data: "-"
+
+event: token
+data: "2"
+
+event: token
+data: " inhibitors"
+
+event: token
+data: " and"
+
+event: token
+data: " GL"
+
+event: token
+data: "P"
+
+event: token
+data: "-"
+
+event: token
+data: "1"
+
+event: token
+data: " receptor"
+
+event: token
+data: " agon"
+
+event: token
+data: "ists"
+
+event: token
+data: " for"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: " management"
+
+event: token
+data: ","
+
+event: token
+data: " particularly"
+
+event: token
+data: " in"
+
+event: token
+data: " terms"
+
+event: token
+data: " of"
+
+event: token
+data: " cardiovascular"
+
+event: token
+data: " and"
+
+event: token
+data: " renal"
+
+event: token
+data: " benefits"
+
+event: token
+data: ".\",\n"
+
+event: token
+data: "   "
+
+event: token
+data: " \""
+
+event: token
+data: "Consider"
+
+event: token
+data: " incorporating"
+
+event: token
+data: " exercise"
+
+event: token
+data: " therapy"
+
+event: token
+data: ","
+
+event: token
+data: " such"
+
+event: token
+data: " as"
+
+event: token
+data: " high"
+
+event: token
+data: "-int"
+
+event: token
+data: "ensity"
+
+event: token
+data: " interval"
+
+event: token
+data: " training"
+
+event: token
+data: " ("
+
+event: token
+data: "HI"
+
+event: token
+data: "IT"
+
+event: token
+data: ")"
+
+event: token
+data: " or"
+
+event: token
+data: " concurrent"
+
+event: token
+data: " training"
+
+event: token
+data: ","
+
+event: token
+data: " into"
+
+event: token
+data: " your"
+
+event: token
+data: " treatment"
+
+event: token
+data: " plan"
+
+event: token
+data: " to"
+
+event: token
+data: " improve"
+
+event: token
+data: " glyc"
+
+event: token
+data: "emic"
+
+event: token
+data: " control"
+
+event: token
+data: " and"
+
+event: token
+data: " overall"
+
+event: token
+data: " health"
+
+event: token
+data: ".\",\n"
+
+event: token
+data: "   "
+
+event: token
+data: " \""
+
+event: token
+data: "Explore"
+
+event: token
+data: " the"
+
+event: token
+data: " possibility"
+
+event: token
+data: " of"
+
+event: token
+data: " participating"
+
+event: token
+data: " in"
+
+event: token
+data: " clinical"
+
+event: token
+data: " trials"
+
+event: token
+data: ","
+
+event: token
+data: " such"
+
+event: token
+data: " as"
+
+event: token
+data: " the"
+
+event: token
+data: " el"
+
+event: token
+data: "oral"
+
+event: token
+data: "int"
+
+event: token
+data: "ide"
+
+event: token
+data: " study"
+
+event: token
+data: ","
+
+event: token
+data: " to"
+
+event: token
+data: " access"
+
+event: token
+data: " new"
+
+event: token
+data: " and"
+
+event: token
+data: " innovative"
+
+event: token
+data: " treatments"
+
+event: token
+data: " for"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: ".\"\n"
+
+event: token
+data: " "
+
+event: token
+data: " ],\n"
+
+event: token
+data: " "
+
+event: token
+data: " \""
+
+event: token
+data: "follow"
+
+event: token
+data: "_up"
+
+event: token
+data: "_questions"
+
+event: token
+data: "\":"
+
+event: token
+data: " [\n"
+
+event: token
+data: "   "
+
+event: token
+data: " \""
+
+event: token
+data: "What"
+
+event: token
+data: " are"
+
+event: token
+data: " the"
+
+event: token
+data: " specific"
+
+event: token
+data: " lifestyle"
+
+event: token
+data: " changes"
+
+event: token
+data: " that"
+
+event: token
+data: " can"
+
+event: token
+data: " help"
+
+event: token
+data: " manage"
+
+event: token
+data: " type"
+
+event: token
+data: " "
+
+event: token
+data: "2"
+
+event: token
+data: " diabetes"
+
+event: token
+data: ","
+
+event: token
+data: " and"
+
+event: token
+data: " how"
+
+event: token
+data: " can"
+
+event: token
+data: " I"
+
+event: token
+data: " incorporate"
+
+event: token
+data: " them"
+
+event: token
+data: " into"
+
+event: token
+data: " my"
+
+event: token
+data: " daily"
+
+event: token
+data: " routine"
+
+event: token
+data: "?\",\n"
+
+event: token
+data: "   "
+
+event: token
+data: " \""
+
+event: token
+data: "Are"
+
+event: token
+data: " there"
+
+event: token
+data: " any"
+
+event: token
+data: " potential"
+
+event: token
+data: " interactions"
+
+event: token
+data: " or"
+
+event: token
+data: " side"
+
+event: token
+data: " effects"
+
+event: token
+data: " that"
+
+event: token
+data: " I"
+
+event: token
+data: " should"
+
+event: token
+data: " be"
+
+event: token
+data: " aware"
+
+event: token
+data: " of"
+
+event: token
+data: " when"
+
+event: token
+data: " using"
+
+event: token
+data: " medications"
+
+event: token
+data: " like"
+
+event: token
+data: " sax"
+
+event: token
+data: "agli"
+
+event: token
+data: "pt"
+
+event: token
+data: "in"
+
+event: token
+data: " or"
+
+event: token
+data: " t"
+
+event: token
+data: "asp"
+
+event: token
+data: "og"
+
+event: token
+data: "lut"
+
+event: token
+data: "ide"
+
+event: token
+data: ","
+
+event: token
+data: " and"
+
+event: token
+data: " how"
+
+event: token
+data: " can"
+
+event: token
+data: " I"
+
+event: token
+data: " minimize"
+
+event: token
+data: " their"
+
+event: token
+data: " risks"
+
+event: token
+data: "?\"\n"
+
+event: token
+data: " "
+
+event: token
+data: " ],\n"
+
+event: token
+data: " "
+
+event: token
+data: " \""
+
+event: token
+data: "ab"
+
+event: token
+data: "st"
+
+event: token
+data: "ain"
+
+event: token
+data: "_reason"
+
+event: token
+data: "\":"
+
+event: token
+data: " null"
+
+event: token
+data: "\n"
+
+event: token
+data: "}\n"
+
+event: token
+data: "```"
+
+event: metadata
+data: {"overview": "The latest treatments for type 2 diabetes prioritize cardiovascular and renal benefits using SGLT-2 inhibitors and GLP-1 receptor agonists, with an emphasis on personalization and the use of newer agents like tirzepatide for targeted cases. Exercise therapy is also recognized as a cornerstone in the management of type 2 diabetes, offering broad benefits that extend beyond simple glycemic control. Several clinical trials have been conducted to evaluate the efficacy and safety of various medications, including saxagliptin, taspoglutide, and eloralintide, in adult patients with type 2 diabetes.", "insights": [{"finding": "SGLT-2 inhibitors and GLP-1 receptor agonists are prioritized for their cardiovascular and renal benefits in type 2 diabetes management", "evidence_type": "other", "source_details": [{"title": "What are the latest treatment guidelines for managing type 2 diabetes?", "authors": ["Tripdatabase"], "year": 2025, "platform": "openalex", "url": "https://doi.org/10.5281/zenodo.17955351", "snippet": "The latest guidelines for type 2 diabetes management prioritize cardiovascular and renal benefits using SGLT-2 inhibitors and GLP-1 receptor agonists, with an emphasis on personalization and the use of newer agents like tirzepatide for targeted cases."}, {"title": "What are the latest treatment guidelines for managing type 2 diabetes?", "authors": ["Tripdatabase"], "year": 2025, "platform": "openalex", "url": "https://doi.org/10.5281/zenodo.17955352", "snippet": "The latest guidelines for type 2 diabetes management prioritize cardiovascular and renal benefits using SGLT-2 inhibitors and GLP-1 receptor agonists, with an emphasis on personalization and the use of newer agents like tirzepatide for targeted cases."}], "unverified": false}, {"finding": "Exercise therapy is a recognized cornerstone in the management of type 2 diabetes, offering broad benefits beyond glycemic control", "evidence_type": "other", "source_details": [{"title": "Latest advances and controversies of exercise therapy in the management of type 2 diabetes.", "authors": ["Hao J", "Zhang H"], "year": 2026, "platform": "pubmed", "url": "https://pubmed.ncbi.nlm.nih.gov/41993978/", "snippet": "Exercise therapy is a recognized cornerstone in the management of type 2 diabetes, offering broad benefits that extend beyond simple glycemic control to include cardiovascular and quality-of-life improvements. Future clinical and research strategies must prioritize behavioral innovations to improve adherence, explore the synergistic effects of exercise with novel pharmacological treatments like GLP-1 receptor agonists, and foster sustainable, active lifestyles for patients with type 2 diabetes."}], "unverified": false}, {"finding": "Inflammation plays a significant role in the etiology of type 2 diabetes, and is linked to insulin resistance and \u03b2-cell dysfunction", "evidence_type": "other", "source_details": [{"title": "An update on the role of inflammation in insulin resistance and islet \u03b2 cell failure- A crosstalk between immune cells, adipose tissue, cytokines, and oxidative stress", "authors": ["Venkatesan K", "Paulsamy P", "Alqahtani S", "Asiri YI", "Alqahtani T"], "year": 2025, "platform": "openalex", "url": "https://doi.org/10.1016/j.lddd.2025.100023", "snippet": "In conclusion, it has been indicated that inflammation plays a significant role in the etiology of type 2 diabetes, and that this role cannot be ignored. Our primary focus has been on the latest developments in the evolution of type 2 diabetes, which encompass a variety of inflammatory processes that have the potential to generate insulin resistance, as well as dysfunctional \u03b2-cells."}], "unverified": false}, {"finding": "Lifestyle changes, such as diet and physical activity, are critical to success in managing type 2 diabetes", "evidence_type": "other", "source_details": [{"title": "Pharmacological Approaches to Nonalcoholic Fatty Liver Disease: Current and Future Therapies", "authors": ["Genua I", "Cusi K"], "year": 2024, "platform": "openalex", "url": "https://doi.org/10.2337/dsi23-0012", "snippet": "Although lifestyle changes are critical to success, early implementation of pharmacological treatments for obesity and type 2 diabetes are essential to treat NASH and avoid disease progression. This article reviews current guidance regarding the use of pharmacological agents such as pioglitazone, glucagon-like peptide 1 receptor agonists, and sodium-glucose cotransporter 2 inhibitors in the setting of NAFLD and NASH."}], "unverified": false}, {"finding": "Pharmacological treatments, including pioglitazone and sodium-glucose cotransporter 2 inhibitors, are essential to treat nonalcoholic fatty liver disease (NAFLD) and nonalcoholic steatohepatitis (NASH) in patients with type 2 diabetes", "evidence_type": "other", "source_details": [{"title": "Pharmacological Approaches to Nonalcoholic Fatty Liver Disease: Current and Future Therapies", "authors": ["Genua I", "Cusi K"], "year": 2024, "platform": "openalex", "url": "https://doi.org/10.2337/dsi23-0012", "snippet": "Although lifestyle changes are critical to success, early implementation of pharmacological treatments for obesity and type 2 diabetes are essential to treat NASH and avoid disease progression. Nonalcoholic fatty liver disease (NAFLD) and its more severe form, nonalcoholic steatohepatitis (NASH), can promote the development of cirrhosis, hepatocellular carcinoma, cardiovascular disease, and type 2 diabetes."}], "unverified": false}, {"finding": "Nurses should recognize type 2 diabetes as a cardiorenal metabolic syndrome that requires holistic management of blood glucose, blood pressure, lipid levels, and lifestyle factors", "evidence_type": "other", "source_details": [{"title": "Type 2 diabetes: treatment recommendations for reducing the risk of complications.", "authors": ["Syed H"], "year": 2023, "platform": "pubmed", "url": "https://pubmed.ncbi.nlm.nih.gov/37183423/", "snippet": "Nurses should recognise type 2 diabetes as a cardiorenal metabolic syndrome that requires the holistic management of blood glucose, blood pressure, lipid levels and lifestyle factors. It is also important that nurses can identify, prevent and manage complications associated with type 2 diabetes, such as cardiovascular disease, retinopathy, nephropathy, foot health issues and psychological effects."}], "unverified": false}, {"finding": "High-intensity interval training (HIIT) is highly time-efficient and yields superior reductions in glycated hemoglobin (HbA1c)", "evidence_type": "other", "source_details": [{"title": "Latest advances and controversies of exercise therapy in the management of type 2 diabetes.", "authors": ["Hao J", "Zhang H"], "year": 2026, "platform": "pubmed", "url": "https://pubmed.ncbi.nlm.nih.gov/41993978/", "snippet": "Recent meta-analyses indicate that high-intensity interval training (HIIT) is highly time-efficient and yields superior reductions in glycated hemoglobin (HbA1c). Exercise therapy is a recognized cornerstone in the management of type 2 diabetes, offering broad benefits that extend beyond simple glycemic control to include cardiovascular and quality-of-life improvements."}], "unverified": false}, {"finding": "Concurrent training, which combines aerobic and resistance exercise, provides the most comprehensive metabolic and physiological benefits", "evidence_type": "other", "source_details": [{"title": "Latest advances and controversies of exercise therapy in the management of type 2 diabetes.", "authors": ["Hao J", "Zhang H"], "year": 2026, "platform": "pubmed", "url": "https://pubmed.ncbi.nlm.nih.gov/41993978/", "snippet": "Meanwhile, concurrent training, which combines aerobic and resistance exercise, provides the most comprehensive metabolic and physiological benefits. Exercise therapy is a recognized cornerstone in the management of type 2 diabetes, offering broad benefits that extend beyond simple glycemic control to include cardiovascular and quality-of-life improvements."}], "unverified": false}], "trials": [{"nct_id": "NCT07282600", "title": "A Study of Eloralintide (LY3841136) in Participants With Obesity or Overweight, and Type 2 Diabetes", "status": "RECRUITING", "eligibility_summary": "Inclusion Criteria: * Have type 2 diabetes * Are on stable treatment for type 2 diabetes for at least 90 days prior to screening * Have a BMI \u2265 27 kg/m2 * Have a stable body weight (\\<5% body weight change) for 90 days prior to screening Exclusion Criteria: * Have a prior or planned surgical treatment for obesity (liposuction, cryolipolysis, or abdominoplasty allowed if performed \\>1 year before screening) * Have a prior or planned endoscopic procedure and/or device-based therapy for obesity (prior device-based therapy acceptable if device removal was more than 6 months prior to screening) * Have type 1 diabetes * Have taken any of the following antihyperglycemic medications within 90 days before screening: * amylin analogs * glucagon-like peptide-1 (GLP-1) receptor agonists * glucose-dependent insulinotropic polypeptide/glucagon-like peptide-1 (GIP/GLP) receptor agonists, or * insulin * Have had within 90 days prior to screening: * heart attack * stroke * coronary artery revascularization * unstable angina, or * hospitalization due to congestive heart failure * Have a history or diagnosis of New York Heart Association Functional Classification Class IV congestive heart failure * Have taken medications or alternative remedies intended for weight loss within 90 days of screening", "age_range": "From 18 Years", "start_date": "2025-12-15", "location": "Birmingham Clinical Research, United States", "contact": {"name": "Trial questions or participation questions: 1-877-CTLILLY (1-877-285-4559) or", "email": "LillyTrials@Lilly.com", "phone": "317-615-4559"}, "relevance": "This trial evaluates the efficacy and safety of eloralintide for body weight reduction in participants with overweight or obesity and type 2 diabetes", "source_details": [{"title": "A Study of Eloralintide (LY3841136) in Participants With Obesity or Overweight, and Type 2 Diabetes", "authors": [], "year": 2025, "platform": "clinicaltrials", "url": "https://clinicaltrials.gov/study/NCT07282600", "snippet": "The main purpose of this study is to evaluate the efficacy and safety of eloralintide compared with placebo for body weight reduction in participants with overweight or obesity and type 2 diabetes. Participation in the study will last about 75 weeks."}]}, {"nct_id": "NCT00798161", "title": "Safety and Efficacy of Linagliptin (BI 1356) Plus Metformin in Type 2 Diabetes, Factorial Design", "status": "COMPLETED", "eligibility_summary": "Inclusion criteria: Patients with type 2 diabetes (drug naive or pre-treated) with insufficient glycaemic control (HbA1c higher or equal than 7.5 to less than 11.0 %), with very poor glycaemic control (HbA1c higher or equal than 11.0 %) who are not eligible for randomisation to be included in the open-label arm Exclusion criteria: Myocardial infarction, stroke or transient ischemic attack (TIA), unstable or acute congestive heart failure, impaired hepatic function, treatment with rosiglitazone or pioglitazone, with a GLP1 analogue, with insulin, with anti-obesity drugs, with systemic steroids, renal failure or impairment, gastric bypass", "age_range": "From 18 Years \u2014 To 80 Years", "start_date": "2008-12", "location": "1218.46.11005 Boehringer Ingelheim Investigational Site, Canada", "contact": {}, "relevance": "This trial investigates the efficacy and safety of linagliptin plus metformin in type 2 diabetic patients with insufficient glycaemic control", "source_details": [{"title": "Safety and Efficacy of Linagliptin (BI 1356) Plus Metformin in Type 2 Diabetes, Factorial Design", "authors": [], "year": 2008, "platform": "clinicaltrials", "url": "https://clinicaltrials.gov/study/NCT00798161", "snippet": "The objective of the randomised part of the study is to investigate the efficacy and safety of BI 1356 plus metformin compared to BI 1356 or metformin alone given for 24 weeks to drug naive or previously treated (4 weeks wash-out, 2 weeks placebo run-in) type 2 diabetic patients with insufficient glycaemic control. For the open-label part of the study the objective is to estimate the efficacy and safety of BI 1356 and metformin in type 2 diabetic patients with very poor glycaemic control for 24 weeks"}]}, {"nct_id": "NCT01018173", "title": "A Study of Taspoglutide in Patients With Inadequately Controlled Diabetes Mellitus Type 2 and Cardiovascular Disease", "status": "COMPLETED", "eligibility_summary": "Inclusion Criteria: * adult patients, \\>18 years of age * diabetes mellitus type 2 * HbA1c \\>/=6.5% and \\</=10% at screening * BMI \\>/=23kg/m2 * cardiovascular disease with onset \\>/=1 month prior to screening Exclusion Criteria: * diagnosis or history of type 1 diabetes or secondary forms of diabetes * acute metabolic diabetic complications within past 6 months * severe hypoglycemia \\</=1 month prior to screening * clinically significant gastrointestinal disease * history of chronic or acute pancreatitis * current New York Heart Association (NYHA) class IV heart failure or post-transplantation cardiomyopathy * severely impaired renal function", "age_range": "From 18 Years", "start_date": "2010-01", "location": "None, United States", "contact": {}, "relevance": "This trial assesses the efficacy and safety of taspoglutide in patients with inadequately controlled type 2 diabetes and established cardiovascular disease", "source_details": [{"title": "A Study of Taspoglutide in Patients With Inadequately Controlled Diabetes Mellitus Type 2 and Cardiovascular Disease", "authors": [], "year": 2010, "platform": "clinicaltrials", "url": "https://clinicaltrials.gov/study/NCT01018173", "snippet": "This randomized, double-blind, placebo-controlled parallel arm study will assess efficacy and safety and the effects of taspoglutide on cardiovascular events in patients with inadequately controlled type 2 diabetes mellitus and established cardiovascular disease. Patients will be randomized to receive either taspoglutide subcutaneously (sc) 10mg weekly for 4 weeks followed by 20mg sc weekly, or weekly sc placebo, in addition to background anti-hyperglycemic medication and standard of care treatment for cardiovascular disease."}]}, {"nct_id": "NCT00661362", "title": "Evaluate Efficacy and Safety of Saxagliptin in Combination With Metformin in Adult Patients With Type 2 Diabetes", "status": "COMPLETED", "eligibility_summary": "Inclusion Criteria: * Diagnosed with Type 2 diabetes * Treatment with metformin at a stable dose \\>1500 mg/day * HbA1c \u2265 7.0% and \u226410.0% Exclusion Criteria: * Insulin therapy within one year of enrolment (with the exception of insulin therapy during a hospitalization or use in gestational diabetes) * Type 1 diabetes, history of ketoacidosis, or hyperosmolar non-ketonic koma", "age_range": "From 18 Years", "start_date": "2008-06", "location": "Research Site, China", "contact": {}, "relevance": "This trial evaluates the efficacy and safety of saxagliptin in combination with metformin in adult patients with type 2 diabetes", "source_details": [{"title": "Evaluate Efficacy and Safety of Saxagliptin in Combination With Metformin in Adult Patients With Type 2 Diabetes", "authors": [], "year": 2008, "platform": "clinicaltrials", "url": "https://clinicaltrials.gov/study/NCT00661362", "snippet": "Saxagliptin is a new investigational medication being developed for treatment of type 2 diabetes. This study is designed to evaluate the efficacy and safety in adult patients who have inadequate glycaemic control when treated with metformin in addition to diet and exercise."}]}, {"nct_id": "NCT00698932", "title": "Evaluate Efficacy and Safety of Saxagliptin in Adult Patients With Type 2 Diabetes Inadequate Glycemic Control", "status": "COMPLETED", "eligibility_summary": "Inclusion Criteria: * Diagnosed with Type 2 diabetes * Patients should be drug na\u00efve ie, not received medical treatment for diabetes, * HbA1c \u2265 7.2% and \u226410.0% (at enrolment), HbA1c \u2265 7.0% and \u226410.0% (at randomization) Exclusion Criteria: * Insulin therapy within one year of enrolment (with the exception of insulin therapy during a hospitalization or use in gestational diabetes), * Type 1 diabetes,history of ketoacidosis or hyperosmolar non-ketonic koma", "age_range": "From 18 Years", "start_date": "2008-06", "location": "Research Site, China", "contact": {}, "relevance": "This trial evaluates the efficacy and safety of saxagliptin in adult patients with type 2 diabetes and inadequate glycemic control", "source_details": [{"title": "Evaluate Efficacy and Safety of Saxagliptin in Adult Patients With Type 2 Diabetes Inadequate Glycemic Control", "authors": [], "year": 2008, "platform": "clinicaltrials", "url": "https://clinicaltrials.gov/study/NCT00698932", "snippet": "Saxagliptin is a new investigational medication being developed for treatment of type 2 diabetes. This study is designed to evaluate the efficacy and safety in adult patients with inadequate glycaemic control with diet and exercise."}]}, {"nct_id": "NCT00385697", "title": "The Prot\u00e9g\u00e9 Study - Clinical Trial of MGA031 in Children and Adults With Recent-Onset Type 1 Diabetes Mellitus", "status": "COMPLETED", "eligibility_summary": "Inclusion Criteria: Subjects must meet all of the following criteria: 1. Enrollment (Segment #1) or randomization (Segment #2) on Study Day 0 within 12 weeks of first visit to any physician for symptoms or signs of diabetes. Study Day 0 is the first day of study drug dosing. 2. Diagnosis of type 1 diabetes mellitus, according to the American Diabetes Association (ADA) criteria 3. Requirement for injected insulin therapy 4. Have a detectable fasting or stimulated C-peptide level (above the lower limit of detection of the assay) 5. One positive result on testing for any of the following antibodies: 1. islet-cell autoantibodies (ICA512/IA-2), 2. glutamic acid decarboxylase autoantibodies, or 3. insulin autoantibodies (if present during first 2 weeks, but not beyond 2 weeks, of insulin treatment) 6. Male or female 7. Subject must be in one of the following age groups: * Age 18-35 years * Age 12-17 years pending approval by Data Monitoring Committee * Age 8-11 years pending approval by Data Monitoring Committee 8. Body weight \u2265 36 kg Exclusion Criteria: Subjects must have none of the following: 1. Prior administration of a monoclonal antibody -- within the 1 year before enrollment or randomization at Study Day 0 -- that could potentially prevent or confound a therapeutic response to MGA031 2. Participation in any type of therapeutic drug or vaccine clinical trial within the 12 weeks before enrollment or randomization 3. Any medical condition that, in the opinion of the investigator, would interfere with safe completion of the trial 4. Pregnant or lactating females 5. Prior murine OKT\u00ae3 treatment at any time before enrollment or randomization 6. Current or planned therapy with exenatide or any other agents that stimulate pancreatic beta cell regeneration or insulin secretion 7. Current or planned therapy with inhaled insulin 8. Uncompensated heart failure, fluid overload, myocardial infarction or evidence of ischemic heart disease, or other serious cardiac disease within the 12 weeks before enrollment or randomization 9. History of epilepsy, cancer, cystic fibrosis, sickle cell anemia, neuropathy, peripheral vascular disease or cerebrovascular disease 10. Newly diagnosed hypothyroidism (not currently being treated but which, in the opinion of the investigator, should be treated) or active Graves' disease 11. Eczema, asthma or severe atopic disease requiring treatment within the 12 weeks before enrollment or randomization 12. Evidence of active infection, such as fever \u2265 38.0 degrees Celsius (100.5 degrees Fahrenheit) 13. Known or suspected infection with human immunodeficiency virus (HIV) 14. Evidence of active hepatitis B (HBV) or hepatitis C virus (HCV) 15. Evidence of active or latent tuberculosis 16. Vaccination with a live virus within the 8 weeks before enrollment or randomization or planned live virus vaccination continuing through week 52 of the study. Vaccination with an antigen or killed organism must not be given within 8 weeks before or planned within 8 weeks after each dosing cycle. 17. Any infectious mononucleosis-like illness within the 6 months before enrollment or randomization 18. Serologic and clinical evidence of acute infection with Epstein-Barr virus (EBV) 19. Serologic evidence of acute infection with cytomegalovirus (CMV)", "age_range": "From 8 Years \u2014 To 35 Years", "start_date": "2006-10", "location": "UAB School of Medicine, United States", "contact": {}, "relevance": "Although this trial is for type 1 diabetes, it may provide insights into the treatment of diabetes in general", "source_details": [{"title": "The Prot\u00e9g\u00e9 Study - Clinical Trial of MGA031 in Children and Adults With Recent-Onset Type 1 Diabetes Mellitus", "authors": [], "year": 2006, "platform": "clinicaltrials", "url": "https://clinicaltrials.gov/study/NCT00385697", "snippet": "The primary purpose of this protocol is to assess the efficacy, tolerability, and safety of MGA031 when administered according to 3 different MGA031 dosing regimens in children and adults with recent-onset (diagnosis within past 12 weeks) type 1 diabetes mellitus. All regimens will be administered as an addition to insulin and other standard of care treatments."}]}], "recommendations": ["Discuss with your doctor the potential benefits and risks of using SGLT-2 inhibitors and GLP-1 receptor agonists for type 2 diabetes management, particularly in terms of cardiovascular and renal benefits.", "Consider incorporating exercise therapy, such as high-intensity interval training (HIIT) or concurrent training, into your treatment plan to improve glycemic control and overall health.", "Explore the possibility of participating in clinical trials, such as the eloralintide study, to access new and innovative treatments for type 2 diabetes."], "follow_up_questions": ["What are the specific lifestyle changes that can help manage type 2 diabetes, and how can I incorporate them into my daily routine?", "Are there any potential interactions or side effects that I should be aware of when using medications like saxagliptin or taspoglutide, and how can I minimize their risks?"], "abstain_reason": null, "pipelineMeta": {"stage_timings_ms": {"query_expansion": 789, "retrieval": 8206, "normalization": 701, "ranking": 5294, "context_build": 0, "llm": 3356, "assembly": 1, "total": 18347}, "retrieval_counts": {"pubmed": 80, "openalex": 80, "trials": 50, "after_dedupe": 205, "after_filter": 188, "after_ranking": 14}, "warnings": [], "citation_stats": {"total": 15, "verified": 15, "unverified": 0}}}
+
+event: done
+data: {}
+
