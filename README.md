@@ -1,0 +1,1 @@
+# curalink-medical-assistant
