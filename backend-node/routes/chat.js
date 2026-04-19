@@ -159,10 +159,15 @@ router.post("/chat/stream", async (req, res) => {
 
   // Set SSE headers
   res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("X-Accel-Buffering", "no");
   res.flushHeaders();
+
+  // Padding comment to bust edge-proxy buffering (Render/Cloudflare buffer
+  // small chunks until ~2KB accumulates). A comment line is valid SSE that
+  // clients ignore, but forces the proxy to flush subsequent chunks live.
+  res.write(":" + " ".repeat(2048) + "\n\n");
 
   try {
     const resp = await fetch(`${FASTAPI_URL}/pipeline/stream`, {
