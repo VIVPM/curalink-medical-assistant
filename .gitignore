@@ -35,6 +35,7 @@ env/
 # --- Model caches (huge) ---
 .cache/
 models/
+!backend-node/models/
 *.bin
 *.safetensors
 *.pt
