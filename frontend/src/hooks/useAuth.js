@@ -71,6 +71,7 @@ export default function useAuth() {
 
   const logout = useCallback(() => {
     localStorage.removeItem("token");
+    localStorage.removeItem("activeSessionId");
     setToken(null);
     setUser(null);
   }, []);

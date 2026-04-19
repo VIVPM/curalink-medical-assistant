@@ -34,6 +34,7 @@ export default function useChat() {
     const data = await res.json();
     if (data.ok) {
       setActiveSession(data.session);
+      localStorage.setItem("activeSessionId", data.session._id);
       setMessages([]);
       fetchSessions();
       return data.session;
@@ -46,6 +47,7 @@ export default function useChat() {
     const data = await res.json();
     if (data.ok) {
       setActiveSession(data.session);
+      localStorage.setItem("activeSessionId", data.session._id);
       setMessages(data.messages);
     }
   }, []);

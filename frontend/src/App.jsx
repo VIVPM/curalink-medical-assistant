@@ -32,6 +32,15 @@ export default function App() {
     if (user) fetchSessions();
   }, [user, fetchSessions]);
 
+  // Rehydrate last active session on refresh
+  useEffect(() => {
+    if (!user) return;
+    const lastId = localStorage.getItem("activeSessionId");
+    if (lastId) {
+      loadSession(lastId).then(() => setShowForm(false)).catch(() => {});
+    }
+  }, [user, loadSession]);
+
   if (authLoading) {
     return (
       <div className="loading-screen">
@@ -49,6 +58,7 @@ export default function App() {
     setActiveSession(null);
     setMessages([]);
     setShowForm(true);
+    localStorage.removeItem("activeSessionId");
   };
 
   const handleFormSubmit = async (form) => {
