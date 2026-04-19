@@ -156,7 +156,11 @@ def assemble_response(
         )
 
     # --- Resolve insights ---
+    # LLM occasionally misclassifies a ClinicalTrials.gov doc as an insight
+    # source despite the prompt. Enforce doc_type discipline here: trial docs
+    # cannot back a publication insight — drop them and hand off to trials.
     resolved_insights = []
+    orphaned_trial_anchors: list[str] = []
     for ins in llm_output.get("insights", []):
         finding = ins.get("finding", "")
         raw_sources = ins.get("sources", [])
@@ -167,6 +171,11 @@ def assemble_response(
             citation_stats["total"] += 1
             doc = doc_anchors.get(anchor)
             if doc:
+                if doc.doc_type == "trial":
+                    warnings.append(f"LLM put trial {anchor} in insights; promoted to trials")
+                    orphaned_trial_anchors.append(anchor)
+                    citation_stats["verified"] += 1
+                    continue
                 source_details.append(_resolve_source(anchor, doc, finding))
                 citation_stats["verified"] += 1
             else:
@@ -174,7 +183,12 @@ def assemble_response(
                 citation_stats["unverified"] += 1
                 unverified = True
 
-        # If all sources were hallucinated, mark as unverified
+        # Drop insights whose only sources were trials (now promoted away)
+        if not source_details and not raw_sources:
+            continue
+        if not source_details and raw_sources and not unverified:
+            continue
+
         if not source_details and raw_sources:
             unverified = True
 
@@ -187,6 +201,7 @@ def assemble_response(
 
     # --- Resolve trials ---
     resolved_trials = []
+    seen_trial_anchors: set[str] = set()
     for trial in llm_output.get("trials", []):
         raw_sources = trial.get("sources", [])
         source_details = []
@@ -195,10 +210,16 @@ def assemble_response(
             citation_stats["total"] += 1
             doc = doc_anchors.get(anchor)
             if doc:
+                # Skip publications misclassified as trials
+                if doc.doc_type == "publication":
+                    warnings.append(f"LLM put publication {anchor} in trials; dropped")
+                    citation_stats["verified"] += 1
+                    continue
                 trial_entry = _resolve_trial(anchor, doc)
                 trial_entry["relevance"] = trial.get("relevance", "")
                 trial_entry["source_details"] = [_resolve_source(anchor, doc)]
                 resolved_trials.append(trial_entry)
+                seen_trial_anchors.add(anchor)
                 citation_stats["verified"] += 1
             else:
                 warnings.append(f"hallucinated trial citation: {anchor}")
@@ -216,6 +237,19 @@ def assemble_response(
                 "contact": {},
                 "source_details": [],
             })
+
+    # Promote orphan trial anchors that the LLM put into insights
+    for anchor in orphaned_trial_anchors:
+        if anchor in seen_trial_anchors:
+            continue
+        doc = doc_anchors.get(anchor)
+        if not doc:
+            continue
+        trial_entry = _resolve_trial(anchor, doc)
+        trial_entry["relevance"] = ""
+        trial_entry["source_details"] = [_resolve_source(anchor, doc)]
+        resolved_trials.append(trial_entry)
+        seen_trial_anchors.add(anchor)
 
     # --- Assemble final JSON ---
     user_facing = {
