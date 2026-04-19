@@ -4,7 +4,7 @@ Stage 1 — Query Expander.
 Takes user message + static form context + chat history, outputs
 search-optimized queries for Stage 2 retrievers.
 
-Single LLM call with strict JSON-output prompt. ~400-600ms on Groq.
+Single LLM call with strict JSON-output prompt. ~1-2s on HF Inference API.
 
 Six jobs:
   1. Context injection — inject static disease into every variant

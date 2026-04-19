@@ -1,7 +1,7 @@
 """
 Stage 6 — LLM Reasoner.
 
-Takes the PromptPayload from Stage 5, sends it to the LLM (Groq),
+Takes the PromptPayload from Stage 5, sends it to the LLM (HF Inference),
 parses the structured JSON response, and validates against the schema.
 Retries once on schema failure.
 

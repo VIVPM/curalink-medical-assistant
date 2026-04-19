@@ -1,11 +1,19 @@
+import crypto from "crypto";
 import { Router } from "express";
 import Session from "../models/Session.js";
 import Message from "../models/Message.js";
+import Cache from "../models/Cache.js";
 import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
 
 const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";  // overridden by env at deploy
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+function cacheKey(disease, intent, message) {
+  const normalized = `${(disease || "").trim().toLowerCase()}|${(intent || "").trim().toLowerCase()}|${message.trim().toLowerCase().replace(/\s+/g, " ")}`;
+  return crypto.createHash("sha256").update(normalized).digest("hex");
+}
 
 // All chat routes require auth
 router.use(authMiddleware);
@@ -44,6 +52,31 @@ router.post("/chat", async (req, res) => {
     role: "user",
     content: message.trim(),
   });
+
+  // Query-result cache check
+  const ckey = cacheKey(
+    session.staticContext.disease,
+    session.staticContext.intent,
+    message
+  );
+  const cached = await Cache.findOne({ key: ckey }).lean();
+  if (cached && cached.response) {
+    const assistantMsg = await Message.create({
+      sessionId,
+      role: "assistant",
+      content: cached.response.overview || JSON.stringify(cached.response),
+      structuredResponse: cached.response,
+      pipelineMeta: cached.response.pipelineMeta || null,
+    });
+    await Session.findByIdAndUpdate(sessionId, { $inc: { messageCount: 2 } });
+    return res.json({
+      ok: true,
+      userMessage: userMsg,
+      assistantMessage: assistantMsg,
+      response: cached.response,
+      cached: true,
+    });
+  }
 
   // 4. Call FastAPI /pipeline/run
   const pipelineBody = {
@@ -104,7 +137,20 @@ router.post("/chat", async (req, res) => {
     $inc: { messageCount: 2 },
   });
 
-  // 7. Return response
+  // 7. Cache the result (skip abstain responses — they signal no useful info)
+  if (!pipelineResult.abstain_reason) {
+    await Cache.updateOne(
+      { key: ckey },
+      {
+        key: ckey,
+        response: pipelineResult,
+        expiresAt: new Date(Date.now() + CACHE_TTL_MS),
+      },
+      { upsert: true }
+    );
+  }
+
+  // 8. Return response
   res.json({
     ok: true,
     userMessage: userMsg,
@@ -169,6 +215,29 @@ router.post("/chat/stream", async (req, res) => {
   // clients ignore, but forces the proxy to flush subsequent chunks live.
   res.write(":" + " ".repeat(2048) + "\n\n");
 
+  // Query-result cache check — skip whole pipeline on hit
+  const ckey = cacheKey(
+    session.staticContext.disease,
+    session.staticContext.intent,
+    message
+  );
+  const cached = await Cache.findOne({ key: ckey }).lean();
+  if (cached && cached.response) {
+    res.write(`event: status\ndata: {"stage":"cache_hit","message":"Served from cache"}\n\n`);
+    res.write(`event: metadata\ndata: ${JSON.stringify(cached.response)}\n\n`);
+    res.write(`event: done\ndata: {}\n\n`);
+
+    await Message.create({
+      sessionId,
+      role: "assistant",
+      content: cached.response.overview || JSON.stringify(cached.response),
+      structuredResponse: cached.response,
+      pipelineMeta: cached.response.pipelineMeta || null,
+    });
+    await Session.findByIdAndUpdate(sessionId, { $inc: { messageCount: 2 } });
+    return res.end();
+  }
+
   try {
     const resp = await fetch(`${FASTAPI_URL}/pipeline/stream`, {
       method: "POST",
@@ -229,6 +298,18 @@ router.post("/chat/stream", async (req, res) => {
       await Session.findByIdAndUpdate(sessionId, {
         $inc: { messageCount: 2 },
       });
+
+      if (!metadataJson.abstain_reason) {
+        await Cache.updateOne(
+          { key: ckey },
+          {
+            key: ckey,
+            response: metadataJson,
+            expiresAt: new Date(Date.now() + CACHE_TTL_MS),
+          },
+          { upsert: true }
+        );
+      }
     }
   } catch (err) {
     res.write(`event: error\ndata: {"error":"${err.message}"}\n\n`);

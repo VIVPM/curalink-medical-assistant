@@ -91,12 +91,6 @@ export default function PipelinePanel({ meta, collapsed, onToggle }) {
                   <span className="count-label">Trials</span>
                 </div>
               )}
-              {counts.pinecone != null && (
-                <div className="count-item">
-                  <span className="count-number">{counts.pinecone}</span>
-                  <span className="count-label">Pinecone</span>
-                </div>
-              )}
             </div>
 
             <div className="retrieval-funnel">

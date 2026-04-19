@@ -155,42 +155,28 @@ def assemble_response(
             warnings=warnings,
         )
 
-    # --- Resolve insights ---
-    # LLM occasionally misclassifies a ClinicalTrials.gov doc as an insight
-    # source despite the prompt. Enforce doc_type discipline here: trial docs
-    # cannot back a publication insight — drop them and hand off to trials.
+    # --- Resolve insights (publications only) ---
     resolved_insights = []
-    orphaned_trial_anchors: list[str] = []
     for ins in llm_output.get("insights", []):
         finding = ins.get("finding", "")
-        raw_sources = ins.get("sources", [])
         source_details = []
         unverified = False
 
-        for anchor in raw_sources:
+        for anchor in ins.get("sources", []):
             citation_stats["total"] += 1
             doc = doc_anchors.get(anchor)
-            if doc:
-                if doc.doc_type == "trial":
-                    warnings.append(f"LLM put trial {anchor} in insights; promoted to trials")
-                    orphaned_trial_anchors.append(anchor)
-                    citation_stats["verified"] += 1
-                    continue
-                source_details.append(_resolve_source(anchor, doc, finding))
-                citation_stats["verified"] += 1
-            else:
-                warnings.append(f"hallucinated citation: {anchor}")
+            if not doc:
                 citation_stats["unverified"] += 1
                 unverified = True
+                continue
+            if doc.doc_type != "publication":
+                citation_stats["verified"] += 1
+                continue
+            source_details.append(_resolve_source(anchor, doc, finding))
+            citation_stats["verified"] += 1
 
-        # Drop insights whose only sources were trials (now promoted away)
-        if not source_details and not raw_sources:
+        if not source_details:
             continue
-        if not source_details and raw_sources and not unverified:
-            continue
-
-        if not source_details and raw_sources:
-            unverified = True
 
         resolved_insights.append({
             "finding": finding,
@@ -199,57 +185,23 @@ def assemble_response(
             "unverified": unverified,
         })
 
-    # --- Resolve trials ---
+    # --- Resolve trials (trial docs only) ---
     resolved_trials = []
-    seen_trial_anchors: set[str] = set()
     for trial in llm_output.get("trials", []):
-        raw_sources = trial.get("sources", [])
-        source_details = []
-
-        for anchor in raw_sources:
+        for anchor in trial.get("sources", []):
             citation_stats["total"] += 1
             doc = doc_anchors.get(anchor)
-            if doc:
-                # Skip publications misclassified as trials
-                if doc.doc_type == "publication":
-                    warnings.append(f"LLM put publication {anchor} in trials; dropped")
-                    citation_stats["verified"] += 1
-                    continue
-                trial_entry = _resolve_trial(anchor, doc)
-                trial_entry["relevance"] = trial.get("relevance", "")
-                trial_entry["source_details"] = [_resolve_source(anchor, doc)]
-                resolved_trials.append(trial_entry)
-                seen_trial_anchors.add(anchor)
-                citation_stats["verified"] += 1
-            else:
-                warnings.append(f"hallucinated trial citation: {anchor}")
+            if not doc:
                 citation_stats["unverified"] += 1
-
-        # If no sources resolved but we have trial info from LLM
-        if not raw_sources and trial.get("nct_id"):
-            resolved_trials.append({
-                "nct_id": trial.get("nct_id", ""),
-                "title": trial.get("title", ""),
-                "status": "",
-                "relevance": trial.get("relevance", ""),
-                "eligibility_summary": "",
-                "location": "",
-                "contact": {},
-                "source_details": [],
-            })
-
-    # Promote orphan trial anchors that the LLM put into insights
-    for anchor in orphaned_trial_anchors:
-        if anchor in seen_trial_anchors:
-            continue
-        doc = doc_anchors.get(anchor)
-        if not doc:
-            continue
-        trial_entry = _resolve_trial(anchor, doc)
-        trial_entry["relevance"] = ""
-        trial_entry["source_details"] = [_resolve_source(anchor, doc)]
-        resolved_trials.append(trial_entry)
-        seen_trial_anchors.add(anchor)
+                continue
+            if doc.doc_type != "trial":
+                citation_stats["verified"] += 1
+                continue
+            trial_entry = _resolve_trial(anchor, doc)
+            trial_entry["relevance"] = trial.get("relevance", "")
+            trial_entry["source_details"] = [_resolve_source(anchor, doc)]
+            resolved_trials.append(trial_entry)
+            citation_stats["verified"] += 1
 
     # --- Assemble final JSON ---
     user_facing = {

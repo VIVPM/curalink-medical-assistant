@@ -5,7 +5,7 @@ Run from the backend-python directory:
 
 Loads PubMedBERT-MS-MARCO directly (bypassing FastAPI) and confirms:
   1. Model downloads/loads successfully.
-  2. Output dimension is 768 (matches Pinecone index).
+  2. Output dimension is 768.
   3. Embeddings are L2-normalized (cosine similarity works directly).
   4. Similar medical concepts score higher than unrelated ones.
 """
@@ -83,7 +83,7 @@ def main():
     print("PASS: batch encoding works")
 
     print("\n" + "=" * 60)
-    print("All tests passed. Pinecone index must be dim=768 to match.")
+    print("All tests passed. Embedding dim is 768.")
 
 
 if __name__ == "__main__":

@@ -3,11 +3,10 @@ import os
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
-from pinecone import Pinecone
 
 from llm_backend import get_llm_backend
 from embeddings.embedder import Embedder
@@ -21,8 +20,6 @@ from sources.normalizer import (
 )
 from sources.merger import merge_and_dedupe, filter_complete
 from sources.geocode import geocode
-from schemas.document import Document
-from pinecone_store import prepare_records, embed_records, upsert_records, NAMESPACE
 from ranking.cross_encoder import MedCPTReranker
 from ranking.ranker import run_ranking
 from stages.query_expander import expand_query
@@ -32,15 +29,7 @@ from stages.response_assembler import assemble_response
 
 load_dotenv()
 
-PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
-PINECONE_INDEX = os.getenv("PINECONE_INDEX", "curalink")
 BIENCODER_MODEL = os.getenv("BIENCODER_MODEL", "pritamdeka/S-PubMedBert-MS-MARCO")
-
-if not PINECONE_API_KEY:
-    raise RuntimeError("PINECONE_API_KEY not set in .env")
-
-pc = Pinecone(api_key=PINECONE_API_KEY)
-index = pc.Index(PINECONE_INDEX)
 
 llm = get_llm_backend()
 
@@ -82,18 +71,6 @@ class EmbedBatchRequest(BaseModel):
 @app.get("/health")
 async def health():
     return {"ok": True, "service": "fastapi"}
-
-
-@app.get("/pinecone-ping")
-async def pinecone_ping():
-    try:
-        stats = index.describe_index_stats()
-        return {"ok": True, "index": PINECONE_INDEX, "stats": stats.to_dict()}
-    except Exception as e:
-        raise HTTPException(
-            status_code=503,
-            detail={"ok": False, "error": "pinecone unreachable", "detail": str(e)},
-        )
 
 
 @app.post("/embed")
@@ -171,17 +148,13 @@ async def debug_fetch(
     pubmed_limit: int = Query(25, ge=1, le=100),
     openalex_limit: int = Query(25, ge=1, le=100),
     trials_limit: int = Query(10, ge=1, le=50),
-    upsert: bool = Query(
-        False, description="If true, embed + upsert complete docs to Pinecone"
-    ),
     return_docs: bool = Query(
         False, description="If true, include full docs in response (large payload)"
     ),
 ):
     """
-    Runs Phase 2 + optionally Phase 3 pipeline:
-        fetch (3 sources) -> normalize -> merge+dedupe -> filter
-        -> [optional: embed + upsert to Pinecone]
+    Runs the fetch + normalize + merge + filter pipeline across 3 live sources
+    (PubMed, OpenAlex, ClinicalTrials.gov). Useful for debugging retrieval.
     """
     t0 = time.perf_counter()
 
@@ -217,36 +190,6 @@ async def debug_fetch(
     multi_source_count = sum(1 for d in deduped if len(d.sources) > 1)
 
     t_normalize = time.perf_counter() - t0
-
-    # Optional: embed + upsert to Pinecone
-    upsert_stats: dict | None = None
-    if upsert:
-        embedder: Embedder | None = models.get("embedder")
-        if embedder is None:
-            warnings.append("embedder_not_loaded: skipping upsert")
-        else:
-            try:
-                records = prepare_records(complete)
-                t_embed_start = time.perf_counter()
-                embed_records(records, embedder)
-                t_embed = time.perf_counter() - t_embed_start
-                t_upsert_start = time.perf_counter()
-                upserted = upsert_records(index, records)
-                t_upsert = time.perf_counter() - t_upsert_start
-                stats = index.describe_index_stats()
-                ns_stats = (stats.namespaces or {}).get(NAMESPACE)
-                ns_count = ns_stats.vector_count if ns_stats else 0
-                upsert_stats = {
-                    "records_prepared": len(records),
-                    "records_upserted": upserted,
-                    "embed_ms": round(t_embed * 1000),
-                    "upsert_ms": round(t_upsert * 1000),
-                    "namespace": NAMESPACE,
-                    "pinecone_namespace_vectors": ns_count,
-                }
-            except Exception as e:
-                warnings.append(f"upsert_failed: {type(e).__name__}: {e}")
-
     t_total = time.perf_counter() - t0
 
     response = {
@@ -272,68 +215,10 @@ async def debug_fetch(
         "warnings": warnings,
     }
 
-    if upsert_stats:
-        response["upsert"] = upsert_stats
     if return_docs:
         response["documents"] = [d.to_dict() for d in complete]
 
     return response
-
-
-# ---------------------------------------------------------------------------
-# Step 3.5 — Async write-back endpoint
-# ---------------------------------------------------------------------------
-
-class WritebackRequest(BaseModel):
-    """Accepts a list of Document dicts and triggers background embed+upsert."""
-    documents: list[dict] = Field(..., min_length=1)
-
-
-def _bg_writeback(docs_dicts: list[dict]) -> None:
-    """
-    Background task: convert dicts -> Documents, prepare Pinecone records,
-    embed, and upsert. Runs after the HTTP response is already sent.
-    """
-    embedder: Embedder | None = models.get("embedder")
-    if embedder is None:
-        print("[writeback] ERROR: embedder not loaded, skipping")
-        return
-
-    docs = []
-    for d in docs_dicts:
-        try:
-            docs.append(Document(**d))
-        except Exception as e:
-            print(f"[writeback] WARN: skipping invalid doc: {e}")
-
-    if not docs:
-        print("[writeback] no valid docs, nothing to upsert")
-        return
-
-    t0 = time.perf_counter()
-    records = prepare_records(docs)
-    if not records:
-        print("[writeback] no records after prepare, nothing to upsert")
-        return
-
-    embed_records(records, embedder)
-    upserted = upsert_records(index, records)
-    dt = time.perf_counter() - t0
-    print(f"[writeback] upserted {upserted} records in {dt:.1f}s (background)")
-
-
-@app.post("/writeback")
-async def writeback(req: WritebackRequest, background_tasks: BackgroundTasks):
-    """
-    Accepts documents and triggers background embed+upsert to Pinecone.
-    Returns immediately — the upsert runs after the response is sent.
-    """
-    background_tasks.add_task(_bg_writeback, req.documents)
-    return {
-        "ok": True,
-        "queued": len(req.documents),
-        "message": "writeback queued in background",
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -457,7 +342,7 @@ class PipelineRequest(BaseModel):
 
 
 @app.post("/pipeline/run")
-async def pipeline_run(req: PipelineRequest, background_tasks: BackgroundTasks):
+async def pipeline_run(req: PipelineRequest):
     """
     Non-streaming version of the pipeline. Returns a single JSON response.
     Same logic as /pipeline/stream but without SSE.
@@ -573,15 +458,11 @@ async def pipeline_run(req: PipelineRequest, background_tasks: BackgroundTasks):
     assembled.user_facing_json["pipelineMeta"]["stage_timings_ms"] = stage_timings
     assembled.user_facing_json["pipelineMeta"]["warnings"] = warnings + assembled.warnings
 
-    # Background writeback
-    complete_dicts = [d.to_dict() for d in complete]
-    background_tasks.add_task(_bg_writeback, complete_dicts)
-
     return assembled.user_facing_json
 
 
 @app.post("/pipeline/stream")
-async def pipeline_stream(req: PipelineRequest, background_tasks: BackgroundTasks):
+async def pipeline_stream(req: PipelineRequest):
     """
     SSE streaming version of /pipeline/run.
     Events:
@@ -750,10 +631,6 @@ async def pipeline_stream(req: PipelineRequest, background_tasks: BackgroundTask
         meta_json = _json.dumps(assembled.user_facing_json)
         yield f"event: metadata\ndata: {meta_json}\n\n"
         yield "event: done\ndata: {}\n\n"
-
-        # Background writeback
-        complete_dicts = [d.to_dict() for d in complete]
-        background_tasks.add_task(_bg_writeback, complete_dicts)
 
     return StreamingResponse(
         event_generator(),

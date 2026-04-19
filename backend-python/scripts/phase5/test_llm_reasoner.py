@@ -3,7 +3,7 @@ Standalone test for Phase 5 Step 5.3 — LLM Reasoner (Stage 6).
 Run from the backend-python directory:
     python scripts/phase5/test_llm_reasoner.py
 
-Builds a real PromptPayload with mock docs, sends to Groq, and verifies
+Builds a real PromptPayload with mock docs, sends to HF Inference, and verifies
 the response is valid structured JSON with overview, insights, trials,
 and source citations using [docN] anchors.
 """
@@ -151,7 +151,7 @@ async def run_test():
     print(f"  Doc anchors: {list(payload.doc_anchors.keys())}")
 
     # Run reasoner (Stage 6)
-    print("\n[2/3] Sending to LLM (Groq)")
+    print("\n[2/3] Sending to LLM (HF Inference)")
     result = await run_reasoner(payload, llm)
     print(f"  Timing: {result.timing_ms}ms")
     print(f"  Retried: {result.retried}")

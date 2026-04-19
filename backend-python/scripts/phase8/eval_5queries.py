@@ -146,7 +146,7 @@ def create_session(token, form):
 
 def send_message(token, session_id, message, max_retries=2):
     """Send message via non-streaming endpoint and return full response.
-    Retries on pipeline failure (likely Groq rate limit)."""
+    Retries on pipeline failure (likely HF rate limit)."""
     for attempt in range(max_retries + 1):
         resp = httpx.post(
             f"{EXPRESS_URL}/api/chat",
@@ -342,14 +342,14 @@ def run_eval():
                 if status in ("FAIL", "WARN"):
                     print(f"    {c}")
 
-            # Sleep between questions within a session to avoid Groq rate limits
+            # Sleep between questions within a session to avoid HF rate limits
             if qi2 < len(questions) - 1:
                 print(f"    Sleeping 15s (rate limit)...")
                 time.sleep(15)
 
-        # Sleep between sessions to avoid Groq rate limits
+        # Sleep between sessions to avoid HF rate limits
         if qi < len(EVAL_SET) - 1:
-            print(f"  Sleeping 30s before next session (Groq rate limit)...")
+            print(f"  Sleeping 30s before next session (HF rate limit)...")
             time.sleep(30)
 
     total_time = time.perf_counter() - total_start

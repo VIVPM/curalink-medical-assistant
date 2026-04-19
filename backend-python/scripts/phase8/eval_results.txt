@@ -22,7 +22,7 @@ EVAL 1: Q1: Lung Cancer + Immunotherapy (New York)
       2. Biomarkers such as programmed death ligand 1 (PD-L1) expression, tumor mutation burden, and tumor microenvironment have been proposed to predict the efficacy of immunotherapy
          -> [pubmed 2024] Biomarkers of immunotherapy for non-small cell lung cancer.
             Snippet: "Therefore, various biomarkers such as tumour mutation burden, tumour microenvironment, gut microbiome and T-cell recepto..."
-         -> [pubmed 2024] [Research Progress on Predictive Biomarkers of Immunotherapy Efficacyin Non-sma
+         -> [pubmed 2024] Research Progress on Predictive Biomarkers of Immunotherapy Efficacyin Non-sma
             Snippet: "With the development of molecular biology and genome sequencing technology in recent years, as well as the in-depth unde..."
          -> [pubmed 2021] [Advances in Biomarkers for Immunotherapy of Non-small Cell Lung Cancer].
             Snippet: "In particular, immune checkpoint inhibitors (ICIs) targeting programmed cell death 1 (PD-1)/programmed cell death ligand..."
@@ -40,7 +40,7 @@ EVAL 1: Q1: Lung Cancer + Immunotherapy (New York)
       6. Combining different biomarkers may provide a more accurate prediction of response to immunotherapy
          -> [pubmed 2024] Biomarkers of immunotherapy for non-small cell lung cancer.
             Snippet: "Additionally, combining different biomarkers may provide a more accurate prediction of response to immunotherapy. Theref..."
-         -> [pubmed 2024] [Research Progress on Predictive Biomarkers of Immunotherapy Efficacyin Non-sma
+         -> [pubmed 2024] Research Progress on Predictive Biomarkers of Immunotherapy Efficacyin Non-sma
             Snippet: "This review focuses on the predictive biomarkers of immunotherapy efficacy in NSCLC, in order to provide some guidance f..."
       7. Nivolumab and pembrolizumab have been shown to be effective as neoadjuvant treatments in non-small cell lung cancer
          -> [pubmed 2024] Comparative Efficacy and Safety of Neoadjuvant Immunotherapy with Nivolumab vs. 
@@ -86,7 +86,7 @@ EVAL 1: Q1: Lung Cancer + Immunotherapy (New York)
     OVERVIEW: Immunotherapy, particularly checkpoint inhibitors, has shown promise in the treatment of non-small cell lung cancer. The effectiveness of checkpoint inhibitors can vary depending on factors such as the type of inhibitor used and the presence of certain biomarkers. According to various studies, PD-1/PD-L1 inhibitors have demonstrated significant improvements in overall survival compared to chemotherapy alone.
     INSIGHTS (8):
       1. PD-1/PD-L1 inhibitors have shown significant improvements in overall survival compared to chemotherapy alone
-         -> [pubmed 2019] [Progress in Clinical Researches of PD-1/PD-L1 Checkpoint Inhibitor for Non-smal
+         -> [pubmed 2019] Progress in Clinical Researches of PD-1/PD-L1 Checkpoint Inhibitor for Non-smal
             Snippet: "Immunological checkpoint inhibitors targeting PD-1/PD-L1 are beneficial to patients, both in the first-line and second-l..."
          -> [pubmed 2017] Immune Checkpoint Inhibitors in Non-Small Cell Lung Cancer.
             Snippet: "In several large, randomized studies, PD-1/PD-L1 inhibitors have produced significant improvements in overall survival c..."
@@ -976,7 +976,7 @@ EVAL 4: Q4: Alzheimer's + Early Diagnosis (Los Angeles, California)
       2. The Aβ1-42/Aβ1-40 ratio, phosphorylated tau181, and neurofilament light chain are potential blood biomarkers for early diagnosis of Alzheimer's disease
          -> [pubmed 2025] Circulating Biomarkers for the Early Diagnosis of Alzheimer's Disease.
             Snippet: "Research supports the use of blood biomarkers, such as Aβ1-42/Aβ1-40 ratio, phosphorylated tau181, and p-tau217 for diag..."
-         -> [pubmed 2023] [How Helpful are Blood and Cerebrospinal Fluid Biomarkers for the Early Diagnosi
+         -> [pubmed 2023] How Helpful are Blood and Cerebrospinal Fluid Biomarkers for the Early Diagnosi
             Snippet: "Among those blood-based ATN biomarkers, the plasma levels of Aβ42/40 ratio, p-tau, and neurofilament light chain (NfL) r..."
       3. Blood plasma biomarkers, such as 2-aminoethyl dihydrogen phosphate and taurine, may distinguish between early-stage Alzheimer's disease patients and healthy controls
          -> [pubmed, openalex 2022] A possible blood plasma biomarker for early-stage Alzheimer's disease.
