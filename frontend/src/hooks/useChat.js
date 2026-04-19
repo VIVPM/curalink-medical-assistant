@@ -53,27 +53,17 @@ export default function useChat() {
   const sendMessage = useCallback(async (text) => {
     if (!activeSession || loading) return;
 
-    // Add user message immediately
     const userMsg = { role: "user", content: text, _id: Date.now().toString() };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
-    setStreamStatus("Starting pipeline...");
-    setPipelineStage("starting");
+    setStreamStatus("Running pipeline...");
+    setPipelineStage("processing");
     setRetrievalCounts(null);
 
-    // Placeholder for assistant response
     const assistantId = (Date.now() + 1).toString();
-    const assistantMsg = {
-      role: "assistant",
-      content: "",
-      structuredResponse: null,
-      _id: assistantId,
-      streaming: true,
-    };
-    setMessages((prev) => [...prev, assistantMsg]);
 
     try {
-      const res = await fetch(`${API}/chat/stream`, {
+      const res = await fetch(`${API}/chat`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -82,95 +72,39 @@ export default function useChat() {
         }),
       });
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let tokens = "";
+      const data = await res.json();
 
-      let gotMetadata = false;
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        let currentEvent = null;
-        for (const line of lines) {
-          if (line.startsWith("event: ")) {
-            currentEvent = line.slice(7);
-          } else if (line.startsWith("data: ") && currentEvent) {
-            const data = line.slice(6);
-            if (currentEvent === "status") {
-              try {
-                const info = JSON.parse(data);
-                setStreamStatus(info.message || info.stage);
-                if (info.stage) setPipelineStage(info.stage);
-                if (info.retrieval_counts) setRetrievalCounts(info.retrieval_counts);
-              } catch {}
-            } else if (currentEvent === "token") {
-              // Collect tokens silently (LLM outputs JSON, not readable text).
-              // Progress bar handles the loading UX — no need to render raw JSON.
-              try {
-                tokens += JSON.parse(data);
-              } catch {
-                tokens += data;
-              }
-            } else if (currentEvent === "metadata") {
-              try {
-                const meta = JSON.parse(data);
-                gotMetadata = true;
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m._id === assistantId
-                      ? { ...m, structuredResponse: meta, streaming: false, content: meta.overview || tokens }
-                      : m
-                  )
-                );
-              } catch {}
-            } else if (currentEvent === "error") {
-              try {
-                const errData = JSON.parse(data);
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m._id === assistantId
-                      ? { ...m, content: errData.error || "Pipeline error", streaming: false, error: true }
-                      : m
-                  )
-                );
-              } catch {}
-            } else if (currentEvent === "done") {
-              setStreamStatus(null);
-              setPipelineStage(null);
-            }
-            currentEvent = null;
-          }
-        }
-      }
-
-      // Stream ended. If no metadata/error event ever arrived, the pipeline
-      // died silently (cold start, OOM, upstream hangup). Mark the message
-      // as errored so the blinking cursor doesn't hang forever.
-      if (!gotMetadata) {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m._id === assistantId && m.streaming
-              ? { ...m, content: "The assistant didn't respond. Please try again.", streaming: false, error: true }
-              : m
-          )
-        );
-        setStreamStatus(null);
-        setPipelineStage(null);
+      if (!data.ok) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: data.error || "Pipeline error",
+            _id: assistantId,
+            error: true,
+          },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: data.response?.overview || "",
+            structuredResponse: data.response,
+            _id: data.assistantMessage?._id || assistantId,
+          },
+        ]);
       }
     } catch (err) {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m._id === assistantId
-            ? { ...m, content: "Could not reach the server. Please check that all services are running and try again.", streaming: false, error: true }
-            : m
-        )
-      );
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Could not reach the server. Please check that all services are running and try again.",
+          _id: assistantId,
+          error: true,
+        },
+      ]);
     }
 
     setLoading(false);
