@@ -43,6 +43,7 @@ export default function useAuth() {
     const data = await res.json();
     if (data.ok) {
       localStorage.setItem("token", data.token);
+      localStorage.removeItem("activeSessionId");
       setToken(data.token);
       setUser(data.user);
       return true;
@@ -61,6 +62,7 @@ export default function useAuth() {
     const data = await res.json();
     if (data.ok) {
       localStorage.setItem("token", data.token);
+      localStorage.removeItem("activeSessionId");
       setToken(data.token);
       setUser(data.user);
       return true;

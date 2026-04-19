@@ -46,6 +46,10 @@ export default function App() {
     }
     const lastId = localStorage.getItem("activeSessionId");
     if (!lastId) {
+      // Fresh login / signup — clear any stale chat state and show the form
+      setActiveSession(null);
+      setMessages([]);
+      setShowForm(true);
       setRehydrating(false);
       return;
     }
@@ -53,7 +57,7 @@ export default function App() {
       .then(() => setShowForm(false))
       .catch(() => setShowForm(true))
       .finally(() => setRehydrating(false));
-  }, [user, loadSession]);
+  }, [user, loadSession, setActiveSession, setMessages]);
 
   if (authLoading) {
     return (
