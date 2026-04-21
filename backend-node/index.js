@@ -45,6 +45,10 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.json({ ok: true, service: "curalink-express", version: "1.0.0" });
+});
+
 app.get("/health", (req, res) => {
   res.json({ ok: true, service: "express" });
 });
