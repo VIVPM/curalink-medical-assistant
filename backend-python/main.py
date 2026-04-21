@@ -38,17 +38,27 @@ llm = get_llm_backend()
 models: dict = {}
 
 
+async def _load_models():
+    """Load models in background so the server starts instantly (passes health checks)."""
+    try:
+        print(f"[startup] Initializing bi-encoder (HF API): {BIENCODER_MODEL}")
+        models["embedder"] = Embedder(BIENCODER_MODEL)
+        print(f"[startup] Bi-encoder ready (dim={models['embedder'].dim})")
+
+        print("[startup] Initializing cross-encoder (HF API): ncbi/MedCPT-Cross-Encoder")
+        models["reranker"] = MedCPTReranker()
+        print("[startup] Cross-encoder ready")
+
+        print(f"[startup] LLM backend: {llm.__class__.__name__}")
+        print("[startup] All models loaded successfully")
+    except Exception as e:
+        print(f"[startup] ERROR loading models: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print(f"[startup] Initializing bi-encoder (HF API): {BIENCODER_MODEL}")
-    models["embedder"] = Embedder(BIENCODER_MODEL)
-    print(f"[startup] Bi-encoder ready (dim={models['embedder'].dim})")
-
-    print("[startup] Initializing cross-encoder (HF API): ncbi/MedCPT-Cross-Encoder")
-    models["reranker"] = MedCPTReranker()
-    print("[startup] Cross-encoder ready")
-
-    print(f"[startup] LLM backend: {llm.__class__.__name__}")
+    # Start model loading in background — server accepts requests immediately
+    asyncio.create_task(_load_models())
     yield
     models.clear()
 
