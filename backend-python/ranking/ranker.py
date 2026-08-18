@@ -16,7 +16,6 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 
-import numpy as np
 
 from schemas.document import Document
 from embeddings.embedder import Embedder
@@ -25,7 +24,6 @@ from ranking.cosine import rank_cosine
 from ranking.rrf import rrf_fuse
 from ranking.boosts import apply_boosts
 from ranking.cross_encoder import MedCPTReranker
-from ranking.mmr import mmr_select
 
 
 @dataclass

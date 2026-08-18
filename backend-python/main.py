@@ -382,7 +382,6 @@ async def pipeline_run(req: PipelineRequest):
     Non-streaming version of the pipeline. Returns a single JSON response.
     Same logic as /pipeline/stream but without SSE.
     """
-    import json as _json
 
     embedder = models.get("embedder")
     reranker = models.get("reranker")
@@ -554,7 +553,7 @@ async def pipeline_stream(req: PipelineRequest):
         t_pipeline = time.perf_counter()
 
         # Stage 1
-        yield f"event: status\ndata: {{\"stage\":\"query_expansion\",\"message\":\"Expanding query...\"}}\n\n"
+        yield "event: status\ndata: {\"stage\":\"query_expansion\",\"message\":\"Expanding query...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
         expander_result = await expand_query(
@@ -566,12 +565,12 @@ async def pipeline_stream(req: PipelineRequest):
         stage_timings["query_expansion"] = round((time.perf_counter() - t0) * 1000)
 
         if expander_result.skip_retrieval:
-            yield f"event: metadata\ndata: {{\"skip_retrieval\":true,\"message\":\"Non-medical query\"}}\n\n"
+            yield "event: metadata\ndata: {\"skip_retrieval\":true,\"message\":\"Non-medical query\"}\n\n"
             yield "event: done\ndata: {}\n\n"
             return
 
         # Stage 2
-        yield f"event: status\ndata: {{\"stage\":\"retrieval\",\"message\":\"Fetching from PubMed, OpenAlex, ClinicalTrials...\"}}\n\n"
+        yield "event: status\ndata: {\"stage\":\"retrieval\",\"message\":\"Fetching from PubMed, OpenAlex, ClinicalTrials...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
         disease = req.static.get("disease", "")
@@ -620,7 +619,7 @@ async def pipeline_stream(req: PipelineRequest):
         retrieval_counts["after_filter"] = len(complete)
 
         if not complete:
-            yield f"event: metadata\ndata: {{\"error\":\"No documents retrieved\"}}\n\n"
+            yield "event: metadata\ndata: {\"error\":\"No documents retrieved\"}\n\n"
             yield "event: done\ndata: {}\n\n"
             return
 
@@ -636,7 +635,7 @@ async def pipeline_stream(req: PipelineRequest):
         retrieval_counts["after_ranking"] = len(ranking_result.top_docs)
 
         # Stage 5
-        yield f"event: status\ndata: {{\"stage\":\"context_build\",\"message\":\"Building context for LLM...\"}}\n\n"
+        yield "event: status\ndata: {\"stage\":\"context_build\",\"message\":\"Building context for LLM...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
         payload = build_context(
@@ -648,7 +647,7 @@ async def pipeline_stream(req: PipelineRequest):
         stage_timings["context_build"] = round((time.perf_counter() - t0) * 1000)
 
         # Stage 6 — stream LLM tokens
-        yield f"event: status\ndata: {{\"stage\":\"llm\",\"message\":\"Generating response...\"}}\n\n"
+        yield "event: status\ndata: {\"stage\":\"llm\",\"message\":\"Generating response...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
         full_text = ""
@@ -670,9 +669,8 @@ async def pipeline_stream(req: PipelineRequest):
 
         # Parse LLM output
         try:
-            from stages.llm_reasoner import _parse_llm_response, _validate_schema, _fallback_output
+            from stages.llm_reasoner import _parse_llm_response, _fallback_output
             parsed = _parse_llm_response(full_text)
-            issues = _validate_schema(parsed)
             parsed.setdefault("overview", "")
             parsed.setdefault("insights", [])
             parsed.setdefault("trials", [])
