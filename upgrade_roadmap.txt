@@ -67,6 +67,13 @@ App layer
     PDF is intentionally skipped — browser print-to-PDF covers it for free.
   - "Not medical advice" disclaimer shown at signup, at consultation start, and
     on every answer.
+  - Landing page (LandingPage.jsx + landing.css): a Linear-styled marketing page
+    with an animated chat demo, scroll reveals, feature/step sections, and a
+    clinical-teal accent — shown before auth; "Get started"/"Sign in" gate into
+    the app (App.jsx showAuth). Design chosen from awesome-design-md per its
+    rules.txt default (Linear), built the flipkart way; icons are inline SVG (no
+    lucide dependency). The old my-architecture.png was dropped and the README
+    architecture rewritten as a 5-layer mermaid diagram.
   - Request IDs + structured JSON access/error logs + a central Express error
     handler (was REL-1): errors return a generic message + request id, never a
     stack trace (also helps SEC-7); Express 5 async errors route here too.
@@ -122,6 +129,16 @@ App layer
     no-op unless LANGFUSE_* / GRAFANA_OTLP_* are set; nothing raises. Verified
     init + span creation. Deferred (optional, as flipkart also skips): Sentry
     error-grouping and a token/cost dashboard.
+  - CI/CD + Docker (ported from flipkart): .github/workflows/ci.yml runs four
+    gates — backend-node (npm ci + node --check), backend-python (ruff +
+    compileall + load_test --selftest), frontend (npm ci + lint + build), and a
+    docker job building all three images (no push, gha cache). A deploy job gated
+    on main + RENDER_DEPLOY_HOOK_* secrets pokes Render, skipping gracefully if
+    unset. Dockerfiles for all three services (non-root, healthchecks) +
+    docker-compose.yml + frontend/nginx.conf + .dockerignore + ruff.toml. All
+    gates verified locally except the Docker build (no daemon — the CI docker job
+    is the first real build). Fixed a real rules-of-hooks bug it surfaced
+    (conditional useState in StructuredResponse).
   - Mongo query-result cache keyed on SHA-256(disease|intent|message + prior
     chat history), 24h TTL, skips the entire pipeline on exact repeats. History
     is in the key (was BUG-1) so identical follow-up text in different chats

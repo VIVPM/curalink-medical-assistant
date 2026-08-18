@@ -1,0 +1,64 @@
+{
+  "timestamp": "2026-08-17T14:29:38.075542+00:00",
+  "tag": "loadtest-22e06ff7",
+  "config": {
+    "base_url": "https://curalink-medical-assistant.onrender.com",
+    "ramp": true,
+    "ramp_levels": "10,25,50,100",
+    "ramp_duration": 6.0,
+    "ramp_stop_pct": 25,
+    "concurrency": 20,
+    "duration": 15,
+    "chat_clients": 12,
+    "lead_seconds": 4.0,
+    "mix": "read",
+    "seed_sessions": 5,
+    "express_port": 4055,
+    "stub_port": 8055,
+    "serve_stub": false,
+    "selftest": false
+  },
+  "levels": [
+    {
+      "concurrency": 10,
+      "requests": 168,
+      "errors": 0,
+      "error_pct": 0.0,
+      "fast_p50_ms": 328.00000000861473,
+      "fast_p95_ms": 750.0,
+      "login_p95_ms": NaN,
+      "req_per_s": 26.8
+    },
+    {
+      "concurrency": 25,
+      "requests": 307,
+      "errors": 0,
+      "error_pct": 0.0,
+      "fast_p50_ms": 437.9999999946449,
+      "fast_p95_ms": 1109.9999999860302,
+      "login_p95_ms": NaN,
+      "req_per_s": 43.8
+    },
+    {
+      "concurrency": 50,
+      "requests": 317,
+      "errors": 0,
+      "error_pct": 0.0,
+      "fast_p50_ms": 719.0000000118744,
+      "fast_p95_ms": 2405.9999999881256,
+      "login_p95_ms": NaN,
+      "req_per_s": 46.1
+    },
+    {
+      "concurrency": 100,
+      "requests": 462,
+      "errors": 0,
+      "error_pct": 0.0,
+      "fast_p50_ms": 1202.999999979511,
+      "fast_p95_ms": 2657.0000000065193,
+      "login_p95_ms": NaN,
+      "req_per_s": 64.1
+    }
+  ],
+  "estimated_ceiling": 25
+}
