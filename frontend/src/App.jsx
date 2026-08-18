@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useAuth from "./hooks/useAuth";
 import useChat from "./hooks/useChat";
 import AuthPage from "./components/AuthPage";
+import LandingPage from "./components/LandingPage";
 import Sidebar from "./components/Sidebar";
 import IntakeForm from "./components/IntakeForm";
 import ChatView from "./components/ChatView";
@@ -36,6 +37,8 @@ export default function App() {
   const [rehydrating, setRehydrating] = useState(
     () => !!localStorage.getItem("activeSessionId")
   );
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
 
   useEffect(() => {
     if (user) fetchSessions();
@@ -71,7 +74,25 @@ export default function App() {
   }
 
   if (!user) {
-    return <AuthPage onLogin={login} onSignup={signup} error={authError} />;
+    // Landing first; the auth screen appears when they choose to sign in / get
+    // started, or when a session expiry (authError) needs a re-login.
+    if (!showAuth && !authError) {
+      return (
+        <LandingPage
+          onGetStarted={() => { setAuthMode("signup"); setShowAuth(true); }}
+          onSignIn={() => { setAuthMode("login"); setShowAuth(true); }}
+        />
+      );
+    }
+    return (
+      <AuthPage
+        onLogin={login}
+        onSignup={signup}
+        error={authError}
+        initialMode={authMode}
+        onBack={() => setShowAuth(false)}
+      />
+    );
   }
 
   const handleNewSession = () => {

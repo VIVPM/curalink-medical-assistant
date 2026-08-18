@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-export default function AuthPage({ onLogin, onSignup, error }) {
-  const [isLogin, setIsLogin] = useState(true);
+export default function AuthPage({ onLogin, onSignup, error, initialMode = "login", onBack }) {
+  const [isLogin, setIsLogin] = useState(initialMode !== "signup");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
 
   const handleSubmit = (e) => {
@@ -16,6 +16,9 @@ export default function AuthPage({ onLogin, onSignup, error }) {
   return (
     <div className="auth-page">
       <div className="auth-body">
+        {onBack && (
+          <button className="auth-back" onClick={onBack}>&larr; Back to home</button>
+        )}
         <h1 className="auth-brand">Curalink</h1>
         <p className="auth-tagline">AI-Powered Medical Research Assistant</p>
 

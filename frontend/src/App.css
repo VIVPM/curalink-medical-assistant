@@ -370,6 +370,18 @@
   text-align: center;
 }
 
+.auth-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #9a9ab0;
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  padding: 4px 0;
+}
+.auth-back:hover { color: #fff; }
+
 .form-group {
   margin-bottom: 16px;
 }
