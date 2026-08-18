@@ -1,0 +1,20 @@
+# Ruff config for CI (.github/workflows/ci.yml) and local runs:
+#   ruff check backend-python/ backend-node/load_test.py
+line-length = 120
+
+# Dev scripts and notebooks are exploratory, not production code.
+extend-exclude = ["*.ipynb", "backend-python/scripts"]
+
+[lint]
+# Defaults only: real mistakes (unused imports, undefined names), no style bikeshed.
+ignore = [
+    # main.py calls load_dotenv() and wires observability around imports; several
+    # modules also import lazily inside functions on purpose.
+    "E402",
+    # `l`/`I`/`O` as loop vars in a couple of list comprehensions — clear in context.
+    "E741",
+]
+
+[lint.per-file-ignores]
+# The load-test harness prints long measured lines; wrapping hurts readability.
+"backend-node/load_test.py" = ["E501"]
