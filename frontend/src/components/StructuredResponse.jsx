@@ -41,6 +41,7 @@ function toMarkdown(data) {
 }
 
 export default function StructuredResponse({ data, onFollowUp }) {
+  const [copied, setCopied] = useState(false);
   if (!data) return null;
 
   const { overview, insights, trials, recommendations, abstain_reason, pipelineMeta, follow_up_questions } = data;
@@ -49,7 +50,6 @@ export default function StructuredResponse({ data, onFollowUp }) {
     (w) => w.includes("_failed") || w.includes("_timeout")
   );
 
-  const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(toMarkdown(data));
