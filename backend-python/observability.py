@@ -8,8 +8,9 @@ observability.py and adapted for curalink (HuggingFace LLM instead of google-gen
 
 Flipkart got its LLM spans free from openinference's GoogleGenAIInstrumentor. We
 call the HF Inference API directly, so there is no auto-instrumentor — the LLM
-span is created by hand (see llm_generation) with openinference-style attributes
-that Langfuse maps to a GENERATION.
+span is created by hand (see llm_generation) with Langfuse v4-native attributes
+(langfuse.observation.*) that Langfuse maps to a GENERATION. The Langfuse OTLP
+exporter is tagged with the x-langfuse-ingestion-version: 4 header.
 
 Every backend stays OFF unless its env vars are set (LANGFUSE_* / GRAFANA_OTLP_*),
 and nothing here raises — tracing must never break a request.
@@ -69,7 +70,10 @@ def init_observability():
             auth = base64.b64encode(creds.encode()).decode()
             provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(
                 endpoint=f"{_langfuse_host()}/api/public/otel/v1/traces",
-                headers={"Authorization": f"Basic {auth}"},
+                headers={
+                    "Authorization": f"Basic {auth}",
+                    "x-langfuse-ingestion-version": "4",
+                },
             )))
             enabled.append(f"Langfuse ({_langfuse_host()})")
 
@@ -89,15 +93,23 @@ def init_observability():
 
 @contextmanager
 def llm_generation(model: str, input_text: str):
-    """Wrap one HF LLM call as a Langfuse GENERATION. Yields the span, or None if off."""
+    """Wrap one HF LLM call as a Langfuse GENERATION. Yields the span, or None if off.
+
+    Uses Langfuse v4-native OTEL attributes. This span is the root observation
+    for the Langfuse trace, so the request input/output live on it directly.
+    """
     if _llm_tracer is None:
         yield None
         return
     try:
         with _llm_tracer.start_as_current_span("llm-generation") as span:
-            span.set_attribute("openinference.span.kind", "LLM")
-            span.set_attribute("llm.model_name", model or "")
-            span.set_attribute("input.value", (input_text or "")[:8000])
+            span.set_attribute("langfuse.observation.type", "generation")
+            span.set_attribute("langfuse.trace.name", "llm-generation")
+            span.set_attribute("langfuse.environment",
+                               os.getenv("DEPLOYMENT_ENV", "development"))
+            span.set_attribute("langfuse.observation.model.name", model or "")
+            span.set_attribute("gen_ai.request.model", model or "")
+            span.set_attribute("langfuse.observation.input", (input_text or "")[:8000])
             yield span
     except Exception as e:
         logger.warning("llm_generation failed — continuing untraced: %s", e)
@@ -109,7 +121,7 @@ def set_generation_output(span, text: str):
     if span is None:
         return
     try:
-        span.set_attribute("output.value", (text or "")[:12000])
+        span.set_attribute("langfuse.observation.output", (text or "")[:12000])
     except Exception as e:
         logger.debug("set_generation_output failed: %s", e)
 
