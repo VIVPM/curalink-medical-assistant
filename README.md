@@ -4,8 +4,6 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 
 > **Not a chatbot — a research + reasoning system.**
 
-![Architecture](./my%20architecture.png)
-
 ## Features
 
 - **Structured intake + natural chat** — fill disease/intent once, then chat naturally; follow-ups inherit context automatically
@@ -18,27 +16,68 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **Clinical trial geo-filtering** — optional location input geocodes and filters trials within 100 miles via ClinicalTrials.gov geo API
 - **JWT authentication** — signup/login with session persistence across page refreshes
 - **ChatGPT-style session sidebar** — click any past session to reopen it and keep asking; new messages append to that session's history
+- **Landing page** — a Linear-styled marketing page with an animated demo, gating into the app on sign-up
+- **Redis caching** — exact + semantic (near-duplicate first-turn) query cache and a document-embedding cache on Upstash, with graceful Mongo / no-cache fallback
+- **Per-user credits + rate limiting** — 3 credits (1 credit = 1 question) plus per-IP / per-user limits on auth, chat, and session creation
+- **Observability** — LLM generation traces to Langfuse, HTTP spans + a `chat_messages_total` metric to Grafana, over OTLP
+- **CI/CD + Docker** — GitHub Actions (lint, syntax, build, image builds, gated Render deploy) and Dockerfiles for all three services
 
-## Architecture
+## 🏗️ Architecture
+
+Five layers, read top to bottom. Each arrow is a hand-off between layers; the
+shared services (data, external AI) are reached per layer rather than by every
+stage, so the flow stays legible. Caching and observability are cross-cutting.
 
 ```mermaid
 graph TD
-    Browser["🌐 React Frontend"]
-    Express["⚙️ Express API Layer"]
-    FastAPI["🐍 FastAPI Orchestrator"]
-    MongoDB["🗄️ MongoDB Atlas"]
-    PubMed["📚 PubMed API"]
-    OpenAlex["🔬 OpenAlex API"]
-    Trials["🧪 ClinicalTrials.gov"]
-    HF["🤗 HuggingFace Inference API"]
+    User(["👤 Patient · caregiver · clinician"])
 
-    Browser -->|"REST / SSE"| Express
-    Express -->|"POST /pipeline/stream"| FastAPI
-    Express -->|"CRUD"| MongoDB
-    FastAPI -->|"parallel httpx"| PubMed
-    FastAPI -->|"parallel httpx"| OpenAlex
-    FastAPI -->|"parallel httpx"| Trials
-    FastAPI -->|"LLM + embeddings"| HF
+    subgraph CLIENT ["1 · Client — React / Vite"]
+        Land["🛬 Landing page"]
+        UI["💬 Chat UI · streamed answers · intake form · session sidebar"]
+    end
+
+    subgraph API ["2 · API layer — Express (Node)"]
+        Auth["🔐 Auth · bcrypt · JWT · rate-limit · 3-credit quota"]
+        REST["🗂️ Sessions CRUD · POST /chat/stream → SSE proxy"]
+    end
+
+    subgraph ORCH ["3 · Orchestration — FastAPI · 7-stage pipeline"]
+        S1["1 · Query expansion (LLM)"]
+        S2["2 · Parallel retrieval"]
+        S3["3 · Normalize + dedupe"]
+        S4["4 · Hybrid ranking · BM25 · PubMedBERT · RRF · MedCPT · MMR"]
+        S5["5 · Context build"]
+        S6["6 · Grounded reasoning (LLM)"]
+        S7["7 · Response assembly · cite-or-abstain"]
+        S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
+    end
+
+    subgraph DATA ["4 · Data — MongoDB Atlas + Redis (Upstash)"]
+        Mongo[("MongoDB · users · sessions · messages")]
+        Redis[("Redis · query + embedding + semantic caches")]
+    end
+
+    subgraph EXT ["5 · External AI + data"]
+        HF["🤗 HF Inference API · Llama · PubMedBERT · MedCPT"]
+        Src["📚 PubMed · 🔬 OpenAlex · 🧪 ClinicalTrials.gov"]
+    end
+
+    Cache["🗄️ Caching · cross-cutting<br>exact + semantic query cache · doc-embedding cache"]
+    OBS["📈 Observability · cross-cutting<br>Langfuse (LLM traces) + Grafana (HTTP · metrics)"]
+
+    User --> CLIENT
+    CLIENT -->|HTTP + JWT + SSE| API
+    API -->|users · sessions · messages| Mongo
+    API -->|query cache| Redis
+    API -->|POST /pipeline/stream| ORCH
+    S2 -->|parallel httpx| Src
+    S4 -->|embeddings · rerank| HF
+    S6 -->|generate| HF
+    ORCH -->|embedding + semantic cache| Redis
+    ORCH -.->|hit / miss| Cache
+    API -.->|HTTP traces · metrics| OBS
+    ORCH -.->|LLM traces| OBS
 ```
 
 > For a detailed breakdown of all 7 pipeline stages, see [architecture.md](./architecture.md).
