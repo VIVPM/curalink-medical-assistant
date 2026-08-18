@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A second push to main should cancel the first run's deploy rather than race it.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-node:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend-node/package-lock.json
+      - run: npm ci
+      - name: Syntax check
+        run: for f in index.js cache.js middleware/*.js models/*.js routes/*.js; do node --check "$f"; done
+
+  backend-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # No `pip install -r requirements.txt` — these checks need no network, DB,
+      # or API key. ruff lints without importing; httpx is only for the selftest.
+      - name: Lint
+        run: |
+          pip install ruff==0.14.4 httpx
+          ruff check backend-python/ backend-node/load_test.py
+      - name: Syntax check
+        run: python -m compileall -q backend-python
+      - name: Load-test selftest (no network)
+        run: python backend-node/load_test.py --selftest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  docker:
+    # Build all three images without pushing, so a broken COPY or dependency
+    # fails here rather than at compose-up / on Render.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build Express image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend-node/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build FastAPI image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend-python/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: frontend/Dockerfile
+          push: false
+          build-args: VITE_API_URL=http://localhost:4000
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    # Only after every suite passes, only for real pushes to main — never for a
+    # pull request, which would otherwise deploy unreviewed code from a fork.
+    needs: [backend-node, backend-python, frontend, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploys
+        env:
+          NODE_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_NODE }}
+          PYTHON_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_PYTHON }}
+          FRONTEND_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
+        run: |
+          if [ -z "$NODE_HOOK" ] && [ -z "$PYTHON_HOOK" ] && [ -z "$FRONTEND_HOOK" ]; then
+            echo "No RENDER_DEPLOY_HOOK_* secrets set — skipping deploy."
+            echo "If Render auto-deploys on push, turn that off so deploys are gated on CI."
+            exit 0
+          fi
+          # --fail so a 4xx/5xx fails the job instead of passing on an error page.
+          for hook in "$NODE_HOOK" "$PYTHON_HOOK" "$FRONTEND_HOOK"; do
+            if [ -n "$hook" ]; then
+              curl --fail --silent --show-error -X POST "$hook" > /dev/null
+              echo "Triggered deploy."
+            fi
+          done
