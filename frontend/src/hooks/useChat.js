@@ -142,7 +142,7 @@ export default function useChat({ onAuthExpired } = {}) {
                 setStreamStatus(info.message || info.stage);
                 if (info.stage) setPipelineStage(info.stage);
                 if (info.retrieval_counts) setRetrievalCounts(info.retrieval_counts);
-              } catch {}
+              } catch { /* ignore malformed SSE data */ }
             } else if (currentEvent === "metadata") {
               try {
                 const meta = JSON.parse(data);
@@ -156,7 +156,7 @@ export default function useChat({ onAuthExpired } = {}) {
                     _id: assistantId,
                   },
                 ]);
-              } catch {}
+              } catch { /* ignore malformed SSE data */ }
             } else if (currentEvent === "error") {
               try {
                 const errData = JSON.parse(data);
@@ -170,7 +170,7 @@ export default function useChat({ onAuthExpired } = {}) {
                     error: true,
                   },
                 ]);
-              } catch {}
+              } catch { /* ignore malformed SSE data */ }
             }
             currentEvent = null;
           }
