@@ -115,6 +115,8 @@ App layer
     per-IP/per-user rate limits (auth, chat, session 30/hr) already in place.
     (Rate-limit maxes + default credits are env-tunable — AUTH/CHAT/SESSION_RATE_MAX,
     DEFAULT_CREDITS — so a load test can lift its own guards.)
+  - Frontend served as a Render static site (CDN-delivered via Cloudflare edge) —
+    static assets are never a bottleneck. (Was SCALE-7.)
   - Load-test harness (backend-node/load_test.py, modeled on multi-crew-lead-
     coordinator's): spawns the REAL Express with the FastAPI pipeline stubbed
     (an SSE stub that sleeps --lead-seconds → zero HF cost), then either ramps
@@ -213,10 +215,6 @@ SCALE-5 Redis cache are DONE — see PART 1. What remains below is infra for rea
     route those reads to a secondary (Atlas replica set / read preference), and
     tune the Mongoose connection pool (maxPoolSize) per instance.
 
-[SCALE-7] Frontend + delivery.
-  Serve the built frontend from a CDN; it's static and should never be a
-  bottleneck. (Low effort, do it early.)
-
 [SCALE-8] Shared rate-limit store once you run more than one instance.
   Depends on adding rate limiting first (SEC-4, Part 3). express-rate-limit's
   default store is in-memory per-process, so with two or more Express instances
@@ -239,7 +237,7 @@ SCALE-5 Redis cache are DONE — see PART 1. What remains below is infra for rea
 Recommended order for what's left:
   1. SCALE-4 infra (always-on + autoscale + Atlas tier + read replica).
   2. SCALE-8 rate-limit store in Redis (the moment there's a second instance).
-  3. SCALE-7 CDN + SCALE-9 secrets manager.
+  3. SCALE-9 secrets manager.
   (The biggest remaining lever at true 10k scale is a pre-indexed PubMed vector
   store so uncached queries don't hit the live APIs — deliberately deferred; the
   semantic cache already covers the demo's hot path.)
@@ -258,7 +256,7 @@ SUMMARY
           embedding caches, a semantic first-turn cache (SCALE-1), HF-call
           throttling (HF-only by choice), and a 3-credit per-user quota. What's
           left is real-10k infra: always-on/autoscale + Atlas tier (SCALE-4),
-          a shared Redis rate-limit store (SCALE-8), CDN + secrets manager
-          (SCALE-7/9), and eventually a pre-indexed PubMed corpus. Observability
+          a shared Redis rate-limit store (SCALE-8), secrets manager
+          (SCALE-9), and eventually a pre-indexed PubMed corpus. Observability
           (Langfuse + Grafana) is now wired — see Part 1. None needed for the demo.
 ================================================================================
