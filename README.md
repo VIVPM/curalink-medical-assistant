@@ -1,8 +1,6 @@
 # Curalink — AI Medical Research Assistant
 
-An AI-powered medical research companion built on the MERN stack with a FastAPI orchestrator microservice. Curalink understands patient context, retrieves high-quality research from PubMed, OpenAlex, and ClinicalTrials.gov, reasons over it using Llama 3.3 70B, and delivers structured, source-backed answers with full citation transparency.
-
-> **Not a chatbot — a research + reasoning system.**
+An AI-powered medical research companion built on the MERN stack with a FastAPI orchestrator microservice. Curalink understands patient context, retrieves high-quality research from PubMed, OpenAlex, and ClinicalTrials.gov, reasons over it with a configurable LLM (HuggingFace Inference API or Cloudflare Workers AI), and delivers structured, source-backed answers with full citation transparency.
 
 ## Features
 
@@ -213,8 +211,10 @@ cp backend-node/.env.example backend-node/.env
 
 | Variable | Description |
 |----------|-------------|
-| `HF_TOKEN` | HuggingFace API token (required) |
-| `LLM_MODEL` | HF model ID (default: `meta-llama/Llama-3.3-70B-Instruct`) |
+| `LLM_MODEL` | **Required.** `CLOUDFLARE` or a HuggingFace model id (e.g. `meta-llama/Llama-3.1-8B-Instruct`) |
+| `HF_TOKEN` | HuggingFace API token (when `LLM_MODEL` is a HF model id) |
+| `CLOUDFLARE_ACCOUNT_ID` | CF account ID (when `LLM_MODEL=CLOUDFLARE`) |
+| `CLOUDFLARE_API_TOKEN` | CF API token (when `LLM_MODEL=CLOUDFLARE`) |
 | `NCBI_API_KEY` | NCBI E-utilities key (recommended) |
 | `NCBI_EMAIL` | Contact email for NCBI policy compliance |
 | `OPENALEX_EMAIL` | Contact email for OpenAlex polite pool |
