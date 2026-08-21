@@ -12,6 +12,23 @@ const router = Router();
 const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";  // overridden by env at deploy
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 4000; // cap the expensive path (SEC-6)
+const DAILY_CREDITS = Number(process.env.DAILY_CREDITS) || 5;
+
+// Count user-role messages sent today (since UTC midnight) across all of a
+// user's sessions. This IS the credit mechanism — remaining = cap - used.
+// At midnight the window moves and the count is 0 again; no column to
+// decrement, no nightly restore job. (Pattern from multi-crew-lead-coordinator.)
+async function messagesUsedToday(userId) {
+  const since = new Date();
+  since.setUTCHours(0, 0, 0, 0);
+  const sessionIds = await Session.find({ userId }).distinct("_id");
+  if (!sessionIds.length) return 0;
+  return Message.countDocuments({
+    sessionId: { $in: sessionIds },
+    role: "user",
+    createdAt: { $gte: since },
+  });
+}
 
 // Per-user quota on the expensive pipeline (SEC-4). Keyed by user id (set by
 // authMiddleware) so one account can't spam costly LLM/retrieval runs.
@@ -76,16 +93,13 @@ router.post("/chat", async (req, res) => {
     return res.status(404).json({ ok: false, error: "session not found" });
   }
 
-  // Demo quota: 1 credit = 1 question. Atomic check-and-decrement.
-  const quota = await User.findOneAndUpdate(
-    { _id: req.userId, credits: { $gt: 0 } },
-    { $inc: { credits: -1 } },
-    { new: true, projection: { credits: 1 } }
-  );
-  if (!quota) {
+  // Daily quota: 1 credit = 1 question. Window-based — count today's messages,
+  // auto-resets at UTC midnight. No decrement, no nightly job.
+  const used = await messagesUsedToday(req.userId);
+  if (used >= DAILY_CREDITS) {
     return res
       .status(402)
-      .json({ ok: false, error: "You're out of questions (credits) for this demo." });
+      .json({ ok: false, error: `Daily limit reached (${DAILY_CREDITS} questions/day). Resets at midnight UTC.` });
   }
 
   // 2. Load chat history
@@ -218,16 +232,12 @@ router.post("/chat/stream", async (req, res) => {
     return res.status(404).json({ ok: false, error: "session not found" });
   }
 
-  // Demo quota: 1 credit = 1 question. Atomic check-and-decrement.
-  const quota = await User.findOneAndUpdate(
-    { _id: req.userId, credits: { $gt: 0 } },
-    { $inc: { credits: -1 } },
-    { new: true, projection: { credits: 1 } }
-  );
-  if (!quota) {
+  // Daily quota check (same window-based logic as /chat)
+  const used = await messagesUsedToday(req.userId);
+  if (used >= DAILY_CREDITS) {
     return res
       .status(402)
-      .json({ ok: false, error: "You're out of questions (credits) for this demo." });
+      .json({ ok: false, error: `Daily limit reached (${DAILY_CREDITS} questions/day). Resets at midnight UTC.` });
   }
 
   const history = await Message.find({ sessionId })

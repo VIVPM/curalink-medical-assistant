@@ -12,7 +12,10 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     password: { type: String, required: true, minlength: 8 },
-    credits: { type: Number, default: () => Number(process.env.DEFAULT_CREDITS) || 3 }, // demo quota: 1 credit = 1 question
+    // ponytail: credits field kept for backward compat reads; daily quota is now
+    // window-based (count messages today, cap from DAILY_CREDITS env). No decrement,
+    // no nightly reset job — at midnight the count is 0 again automatically.
+    credits: { type: Number, default: () => Number(process.env.DAILY_CREDITS) || 5 },
   },
   { timestamps: true }
 );

@@ -341,7 +341,7 @@ def spawn_express(port, stub_port):
         "AUTH_RATE_MAX": "1000000",
         "CHAT_RATE_MAX": "1000000",
         "SESSION_RATE_MAX": "1000000",
-        "DEFAULT_CREDITS": "100000000",
+        "DAILY_CREDITS": "100000000",
     })
     env.pop("REDIS_URL", None)  # keep the run deterministic — Mongo-backed cache only
     os.makedirs(RESULTS_DIR, exist_ok=True)

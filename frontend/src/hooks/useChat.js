@@ -18,7 +18,16 @@ export default function useChat({ onAuthExpired } = {}) {
   const [pipelineStage, setPipelineStage] = useState(null); // current stage name from SSE
   const [retrievalCounts, setRetrievalCounts] = useState(null); // live retrieval counts
   const [waking, setWaking] = useState(false); // true during cold-start wait for a sleeping free-tier server
+  const [credits, setCredits] = useState(null); // { cap, used, remaining }
   const abortRef = useRef(null);
+
+  const fetchCredits = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/account/credits`, { headers: getAuthHeaders() });
+      const data = await res.json();
+      if (data.ok) setCredits(data);
+    } catch { /* non-critical */ }
+  }, []);
 
   const fetchSessions = useCallback(async () => {
     const res = await fetch(`${API}/sessions`, { headers: getAuthHeaders() });
@@ -107,7 +116,7 @@ export default function useChat({ onAuthExpired } = {}) {
         } else {
           const msg =
             res.status === 402
-              ? "You're out of questions (credits) for this demo."
+              ? "Daily limit reached. Resets at midnight UTC."
               : res.status === 404
               ? "This session no longer exists."
               : `The server returned an error (${res.status}). Please try again.`;
@@ -217,7 +226,8 @@ export default function useChat({ onAuthExpired } = {}) {
     setRetrievalCounts(null);
     abortRef.current = null;
     fetchSessions();
-  }, [activeSession, loading, fetchSessions, onAuthExpired]);
+    fetchCredits();
+  }, [activeSession, loading, fetchSessions, fetchCredits, onAuthExpired]);
 
   const stopGeneration = useCallback(() => {
     abortRef.current?.abort();
@@ -232,7 +242,9 @@ export default function useChat({ onAuthExpired } = {}) {
     pipelineStage,
     retrievalCounts,
     waking,
+    credits,
     fetchSessions,
+    fetchCredits,
     createSession,
     loadSession,
     sendMessage,
