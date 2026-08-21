@@ -110,11 +110,13 @@ App layer
     entire pipeline (retrieval + ranking + LLM). High threshold + first-turn-only
     so a rephrase hits but a different question never does. (The full PubMed
     corpus pre-index remains true-10k-scale infra, not needed for the demo.)
-  - Per-user quota (SCALE-3): 3 credits, 1 credit = 1 question, atomic
-    check-and-decrement (User.credits), 402 "out of questions" when exhausted;
-    per-IP/per-user rate limits (auth, chat, session 30/hr) already in place.
-    (Rate-limit maxes + default credits are env-tunable — AUTH/CHAT/SESSION_RATE_MAX,
-    DEFAULT_CREDITS — so a load test can lift its own guards.)
+  - Per-user daily quota (SCALE-3): 5 questions/day (DAILY_MESSAGE_CAP env), window-
+    based — count user messages since UTC midnight, auto-resets at midnight with
+    no nightly job or column decrement (pattern from multi-crew-lead-coordinator).
+    402 "Daily limit reached" when exhausted, shown in the sidebar as a live
+    "X/5 questions today" badge. Per-IP/per-user rate limits (auth, chat, session)
+    already in place. (DAILY_MESSAGE_CAP + rate-limit maxes are env-tunable so a load
+    test can lift its own guards.)
   - Frontend served as a Render static site (CDN-delivered via Cloudflare edge) —
     static assets are never a bottleneck. (Was SCALE-7.)
   - Load-test harness (backend-node/load_test.py, modeled on multi-crew-lead-

@@ -20,7 +20,9 @@ export default function App() {
     pipelineStage,
     retrievalCounts,
     waking,
+    credits,
     fetchSessions,
+    fetchCredits,
     createSession,
     loadSession,
     sendMessage,
@@ -41,8 +43,8 @@ export default function App() {
   const [authMode, setAuthMode] = useState("login");
 
   useEffect(() => {
-    if (user) fetchSessions();
-  }, [user, fetchSessions]);
+    if (user) { fetchSessions(); fetchCredits(); }
+  }, [user, fetchSessions, fetchCredits]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -120,6 +122,7 @@ export default function App() {
         onSelect={handleSelectSession}
         onNew={handleNewSession}
         userName={user.name}
+        credits={credits}
         onLogout={logout}
       />
       <main className="main-content">

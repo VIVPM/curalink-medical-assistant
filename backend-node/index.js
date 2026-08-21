@@ -8,6 +8,9 @@ import authRouter from "./routes/auth.js";
 import sessionRouter from "./routes/session.js";
 import chatRouter from "./routes/chat.js";
 import { redisStatus } from "./cache.js";
+import { authMiddleware } from "./middleware/auth.js";
+import Session from "./models/Session.js";
+import Message from "./models/Message.js";
 
 dotenv.config();
 
@@ -32,11 +35,8 @@ if (!process.env.JWT_SECRET) {
 
 mongoose
   .connect(MONGO_URI)
-  .then(async () => {
+  .then(() => {
     console.log("MongoDB connected");
-    // Backfill demo credits for accounts created before the quota existed.
-    const User = (await import("./models/User.js")).default;
-    await User.updateMany({ credits: { $exists: false } }, { $set: { credits: 3 } });
   })
   .catch((err) => {
     console.error("MongoDB connection failed:", err.message);
@@ -95,6 +95,23 @@ const authLimiter = rateLimit({
 app.use("/api/auth", authLimiter, authRouter);
 app.use("/api", sessionRouter);
 app.use("/api", chatRouter);
+
+// Daily credits: 1 credit = 1 question, auto-resets at UTC midnight.
+const DAILY_MESSAGE_CAP = Number(process.env.DAILY_MESSAGE_CAP) || 5;
+
+app.get("/api/account/credits", authMiddleware, async (req, res) => {
+  const since = new Date();
+  since.setUTCHours(0, 0, 0, 0);
+  const sessionIds = await Session.find({ userId: req.userId }).distinct("_id");
+  const used = sessionIds.length
+    ? await Message.countDocuments({
+        sessionId: { $in: sessionIds },
+        role: "user",
+        createdAt: { $gte: since },
+      })
+    : 0;
+  res.json({ ok: true, cap: DAILY_MESSAGE_CAP, used, remaining: Math.max(0, DAILY_MESSAGE_CAP - used) });
+});
 
 app.get("/api/ping", async (req, res) => {
   try {

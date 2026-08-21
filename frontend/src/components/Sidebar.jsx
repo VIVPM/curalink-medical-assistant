@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Sidebar({ sessions, activeId, onSelect, onNew, userName, onLogout }) {
+export default function Sidebar({ sessions, activeId, onSelect, onNew, userName, credits, onLogout }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -38,6 +38,11 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, userName,
             )}
           </div>
           <div className="sidebar-footer">
+            {credits && (
+              <div className="credits-badge" title="Daily questions — resets at midnight UTC">
+                {credits.remaining}/{credits.cap} questions today
+              </div>
+            )}
             <div className="user-info">
               <span className="user-avatar">{userName?.[0]?.toUpperCase()}</span>
               <span className="user-name">{userName}</span>
