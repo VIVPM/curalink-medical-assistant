@@ -140,7 +140,7 @@ class CloudflareBackend(LLMBackend):
     def __init__(self, account_id: str, api_token: str):
         import httpx as _httpx
         self.model = "@cf/openai/gpt-oss-20b"
-        self._max_tokens = int(os.getenv("CLOUDFLARE_MAX_TOKENS", "4096"))
+        self._max_tokens = 4096
         self._base = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1"
         self._headers = {
             "Authorization": f"Bearer {api_token}",
