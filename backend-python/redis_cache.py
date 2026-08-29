@@ -33,11 +33,14 @@ def _get_client():
         print("[cache] REDIS_URL not set — embedding cache disabled")
         return None
     try:
+        import certifi
         _client = _redis.from_url(
             REDIS_URL,
             socket_timeout=2,
             socket_connect_timeout=2,
             decode_responses=True,
+            ssl_cert_reqs="required",
+            ssl_ca_certs=certifi.where(),
         )
         _client.ping()
         print("[cache] Redis connected (embedding cache on)")
