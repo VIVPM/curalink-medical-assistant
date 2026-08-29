@@ -39,6 +39,9 @@ def _validate_schema(parsed: dict) -> list[str]:
         if key not in parsed:
             issues.append(f"missing key: {key}")
 
+    if "overview" in parsed and not isinstance(parsed["overview"], str):
+        issues.append("overview must be a string")
+
     if "insights" in parsed and not isinstance(parsed["insights"], list):
         issues.append("insights must be a list")
 
@@ -49,12 +52,63 @@ def _validate_schema(parsed: dict) -> list[str]:
         for i, ins in enumerate(parsed["insights"]):
             if not isinstance(ins, dict):
                 issues.append(f"insights[{i}] not a dict")
-            elif "finding" not in ins:
+                continue
+            if "finding" not in ins:
                 issues.append(f"insights[{i}] missing 'finding'")
-            elif "sources" not in ins:
-                issues.append(f"insights[{i}] missing 'sources'")
+            if "sources" not in ins or not isinstance(ins.get("sources"), list):
+                issues.append(f"insights[{i}] missing or invalid 'sources'")
+
+    if "trials" in parsed and isinstance(parsed["trials"], list):
+        for i, trial in enumerate(parsed["trials"]):
+            if not isinstance(trial, dict):
+                issues.append(f"trials[{i}] not a dict")
+                continue
+            if "sources" not in trial or not isinstance(trial.get("sources"), list):
+                issues.append(f"trials[{i}] missing or invalid 'sources'")
 
     return issues
+
+
+def _repair_schema(parsed: dict) -> dict:
+    """Best-effort repair of a structurally valid but incomplete LLM response.
+    Fixes common issues without re-calling the LLM (the expensive path)."""
+    parsed.setdefault("overview", "")
+    parsed.setdefault("insights", [])
+    parsed.setdefault("trials", [])
+    parsed.setdefault("abstain_reason", None)
+
+    # Repair insights: drop entries without finding or sources
+    if isinstance(parsed["insights"], list):
+        repaired = []
+        for ins in parsed["insights"]:
+            if not isinstance(ins, dict):
+                continue
+            if not ins.get("finding"):
+                continue
+            # Coerce sources to list
+            src = ins.get("sources", [])
+            if isinstance(src, str):
+                ins["sources"] = [src]
+            elif not isinstance(src, list):
+                ins["sources"] = []
+            repaired.append(ins)
+        parsed["insights"] = repaired
+
+    # Repair trials: same treatment
+    if isinstance(parsed["trials"], list):
+        repaired = []
+        for trial in parsed["trials"]:
+            if not isinstance(trial, dict):
+                continue
+            src = trial.get("sources", [])
+            if isinstance(src, str):
+                trial["sources"] = [src]
+            elif not isinstance(src, list):
+                trial["sources"] = []
+            repaired.append(trial)
+        parsed["trials"] = repaired
+
+    return parsed
 
 
 def _parse_llm_response(raw: str) -> dict:
@@ -142,11 +196,9 @@ async def run_reasoner(
                 parse_error = f"schema issues: {issues}"
                 continue
 
-            # Fill in missing keys with defaults
-            parsed.setdefault("overview", "")
-            parsed.setdefault("insights", [])
-            parsed.setdefault("trials", [])
-            parsed.setdefault("abstain_reason", None)
+            # Repair: fix missing defaults + drop malformed entries (cheap,
+            # no LLM call). Only on the second attempt or when issues are minor.
+            parsed = _repair_schema(parsed)
 
             timing_ms = round((time.perf_counter() - t0) * 1000)
             return ReasonerResult(

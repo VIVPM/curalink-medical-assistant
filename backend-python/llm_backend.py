@@ -15,6 +15,7 @@ import asyncio
 import json
 import logging
 import os
+import random
 from abc import ABC, abstractmethod
 from typing import AsyncIterator
 
@@ -74,7 +75,7 @@ class HFBackend(LLMBackend):
                 except Exception as e:
                     if attempt == _MAX_RETRIES:
                         raise
-                    wait = _RETRY_BACKOFF * (2 ** (attempt - 1))
+                    wait = _RETRY_BACKOFF * (2 ** (attempt - 1)) * (0.5 + random.random())
                     logger.warning("[hf] attempt %d/%d failed: %s. Retrying in %.1fs...",
                                    attempt, _MAX_RETRIES, e, wait)
                     await asyncio.sleep(wait)
@@ -186,7 +187,7 @@ class CloudflareBackend(LLMBackend):
                     except Exception as e:
                         if attempt == _MAX_RETRIES:
                             raise
-                        wait = _RETRY_BACKOFF * (2 ** (attempt - 1))
+                        wait = _RETRY_BACKOFF * (2 ** (attempt - 1)) * (0.5 + random.random())
                         logger.warning("[cf] attempt %d/%d failed: %s. Retrying in %.1fs...",
                                        attempt, _MAX_RETRIES, e, wait)
                         await asyncio.sleep(wait)

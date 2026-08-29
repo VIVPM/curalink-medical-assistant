@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, curalink-v0-v1-practice]
   pull_request:
 
 # A second push to main should cancel the first run's deploy rather than race it.
