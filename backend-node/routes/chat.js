@@ -14,6 +14,31 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 4000; // cap the expensive path (SEC-6)
 const DAILY_MESSAGE_CAP = Number(process.env.DAILY_MESSAGE_CAP) || 5;
 
+// Idempotency: in-memory store with 5-min TTL. Prevents duplicate pipeline runs
+// when the client retries on a timeout. Keyed on userId + Idempotency-Key header.
+// ponytail: in-memory is fine for single instance; move to Redis with SCALE-8.
+const _idempotencyStore = new Map();
+const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000;
+
+function idempotencyCheck(userId, key) {
+  const k = `${userId}:${key}`;
+  const entry = _idempotencyStore.get(k);
+  if (entry && Date.now() - entry.ts < IDEMPOTENCY_TTL_MS) return entry.res;
+  return null;
+}
+
+function idempotencySet(userId, key, res) {
+  const k = `${userId}:${key}`;
+  _idempotencyStore.set(k, { ts: Date.now(), res });
+  // Lazy eviction: drop expired entries when store gets large
+  if (_idempotencyStore.size > 10_000) {
+    const now = Date.now();
+    for (const [mk, mv] of _idempotencyStore) {
+      if (now - mv.ts > IDEMPOTENCY_TTL_MS) _idempotencyStore.delete(mk);
+    }
+  }
+}
+
 // Count user-role messages sent today (since UTC midnight) across all of a
 // user's sessions. This IS the credit mechanism — remaining = cap - used.
 // At midnight the window moves and the count is 0 again; no column to
@@ -85,6 +110,14 @@ router.post("/chat", async (req, res) => {
   }
   if (message.length > MAX_MESSAGE_LENGTH) {
     return res.status(400).json({ ok: false, error: "message too long" });
+  }
+
+  // Idempotency: if the client sends the same key within 5 min, return the
+  // previous response instead of re-running the pipeline.
+  const idempKey = req.headers["idempotency-key"];
+  if (idempKey) {
+    const prev = idempotencyCheck(req.userId, idempKey);
+    if (prev) return res.json(prev);
   }
 
   // 1. Load session
@@ -212,12 +245,14 @@ router.post("/chat", async (req, res) => {
   }
 
   // 8. Return response
-  res.json({
+  const result = {
     ok: true,
     userMessage: userMsg,
     assistantMessage: assistantMsg,
     response: pipelineResult,
-  });
+  };
+  if (idempKey) idempotencySet(req.userId, idempKey, result);
+  res.json(result);
 });
 
 // POST /api/chat/stream — SSE streaming version
