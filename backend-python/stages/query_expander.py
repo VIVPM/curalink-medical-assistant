@@ -95,10 +95,25 @@ def _build_user_prompt(
     if patient:
         parts.append(f"  Patient Name: {patient}")
 
-    # Chat history
+    # Chat history — keep last 6 messages verbatim, summarize older ones to
+    # cap token growth on long sessions. Without this, a 30-turn session sends
+    # ~15k tokens of history into the query expansion prompt.
     if chat_history:
         parts.append("\nCHAT HISTORY (most recent last):")
-        for msg in chat_history[-5:]:  # last 5 turns
+        MAX_RECENT = 6
+        if len(chat_history) > MAX_RECENT:
+            older = chat_history[:-MAX_RECENT]
+            topics = set()
+            for m in older:
+                # Extract first sentence of each user message as a topic hint
+                if m.get("role") == "user":
+                    first = (m.get("content") or "").split(".")[0].strip()[:80]
+                    if first:
+                        topics.add(first)
+            if topics:
+                parts.append(f"  [earlier: discussed {'; '.join(list(topics)[:5])}]")
+            chat_history = chat_history[-MAX_RECENT:]
+        for msg in chat_history:
             role = msg.get("role", "user")
             content = msg.get("content", "")
             # Condense assistant answers

@@ -144,13 +144,27 @@ def _truncate_to_budget(text: str, max_chars: int) -> tuple[str, bool]:
 
 
 def _format_chat_history(chat_history: list[dict] | None) -> str:
-    """Format last 5 turns. Condense assistant answers to ~150 tokens."""
+    """Format last 6 turns. Summarize older ones as topic hints to cap token growth."""
     if not chat_history:
         return ""
 
-    turns = chat_history[-5:]
+    MAX_RECENT = 6
     parts = ["PREVIOUS CONVERSATION:"]
-    for msg in turns:
+
+    if len(chat_history) > MAX_RECENT:
+        # Summarize older turns as topic hints (saves ~500 tokens per 10 old turns)
+        older = chat_history[:-MAX_RECENT]
+        topics = []
+        for m in older:
+            if m.get("role") == "user":
+                first = (m.get("content") or "").split(".")[0].strip()[:80]
+                if first:
+                    topics.append(first)
+        if topics:
+            parts.append(f"[earlier: discussed {'; '.join(topics[:5])}]")
+        chat_history = chat_history[-MAX_RECENT:]
+
+    for msg in chat_history:
         role = msg.get("role", "user")
         content = msg.get("content", "")
         if role == "assistant":
