@@ -2,6 +2,9 @@
 # Curalink - gitignore
 # ============================================================
 
+# --- Internal planning docs (not for repo) ---
+scale_readiness_audit.txt
+
 # --- Secrets (NEVER commit) ---
 .env
 .env.local
