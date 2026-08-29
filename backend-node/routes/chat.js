@@ -35,7 +35,7 @@ async function messagesUsedToday(userId) {
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: Number(process.env.CHAT_RATE_MAX) || 15,
-  standardHeaders: true,
+  standardHeaders: true,   // sends RateLimit-* + Retry-After headers
   legacyHeaders: false,
   keyGenerator: (req) => req.userId || ipKeyGenerator(req.ip),
   message: { ok: false, error: "rate limit exceeded, please slow down" },
@@ -97,6 +97,13 @@ router.post("/chat", async (req, res) => {
   // auto-resets at UTC midnight. No decrement, no nightly job.
   const used = await messagesUsedToday(req.userId);
   if (used >= DAILY_MESSAGE_CAP) {
+    // Retry-After: seconds until next UTC midnight
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setUTCDate(midnight.getUTCDate() + 1);
+    midnight.setUTCHours(0, 0, 0, 0);
+    const retryAfter = Math.ceil((midnight - now) / 1000);
+    res.setHeader("Retry-After", retryAfter);
     return res
       .status(402)
       .json({ ok: false, error: `Daily limit reached (${DAILY_MESSAGE_CAP} questions/day). Resets at midnight UTC.` });
@@ -235,6 +242,11 @@ router.post("/chat/stream", async (req, res) => {
   // Daily quota check (same window-based logic as /chat)
   const used = await messagesUsedToday(req.userId);
   if (used >= DAILY_MESSAGE_CAP) {
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setUTCDate(midnight.getUTCDate() + 1);
+    midnight.setUTCHours(0, 0, 0, 0);
+    res.setHeader("Retry-After", Math.ceil((midnight - now) / 1000));
     return res
       .status(402)
       .json({ ok: false, error: `Daily limit reached (${DAILY_MESSAGE_CAP} questions/day). Resets at midnight UTC.` });

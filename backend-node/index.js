@@ -153,6 +153,25 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Express listening on http://localhost:${PORT}`);
 });
+
+// Graceful shutdown: stop accepting, let in-flight requests drain, then exit.
+function shutdown(signal) {
+  console.log(`[shutdown] ${signal} received — draining connections...`);
+  server.close(() => {
+    console.log("[shutdown] HTTP server closed");
+    mongoose.connection.close(false).then(() => {
+      console.log("[shutdown] MongoDB disconnected");
+      process.exit(0);
+    });
+  });
+  // Force exit after 30s if drain stalls (above p99 pipeline duration)
+  setTimeout(() => {
+    console.error("[shutdown] forced exit after 30s timeout");
+    process.exit(1);
+  }, 30_000).unref();
+}
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

@@ -60,9 +60,12 @@ async def lifespan(app: FastAPI):
     # Start model loading in background — server accepts requests immediately
     asyncio.create_task(_load_models())
     yield
+    # Graceful shutdown: flush telemetry, release models
+    print("[shutdown] draining — flushing observability spans...")
     import observability
     observability.flush()  # Render can freeze the instance — flush buffered spans first
     models.clear()
+    print("[shutdown] FastAPI shutdown complete")
 
 
 app = FastAPI(title="Curalink Orchestrator", lifespan=lifespan)
