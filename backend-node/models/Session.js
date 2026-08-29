@@ -20,6 +20,11 @@ const sessionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Data retention: auto-delete sessions older than 90 days. MongoDB TTL index
+// on updatedAt — a session stays alive as long as the user interacts with it.
+// ponytail: if retention needs change, adjust expireAfterSeconds in Atlas.
+sessionSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });
+
 // Denormalized title for sidebar: "Parkinson's — DBS" or just disease
 sessionSchema.pre("save", function () {
   if (!this.title) {

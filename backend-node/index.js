@@ -113,6 +113,20 @@ app.get("/api/account/credits", authMiddleware, async (req, res) => {
   res.json({ ok: true, cap: DAILY_MESSAGE_CAP, used, remaining: Math.max(0, DAILY_MESSAGE_CAP - used) });
 });
 
+// DELETE /api/account — delete the authenticated user + all their data.
+// Required for compliance; pattern: cascade-delete user -> sessions -> messages.
+app.delete("/api/account", authMiddleware, async (req, res) => {
+  const userId = req.userId;
+  const sessionIds = await Session.find({ userId }).distinct("_id");
+  if (sessionIds.length) {
+    await Message.deleteMany({ sessionId: { $in: sessionIds } });
+  }
+  await Session.deleteMany({ userId });
+  const { default: User } = await import("./models/User.js");
+  await User.findByIdAndDelete(userId);
+  res.json({ ok: true, deleted: true });
+});
+
 app.get("/api/ping", async (req, res) => {
   try {
     const response = await fetch(`${FASTAPI_URL}/health`);
