@@ -4,6 +4,7 @@
 
 # --- Internal planning docs (not for repo) ---
 scale_readiness_audit.txt
+v2_scale_roadmap.txt
 
 # --- Secrets (NEVER commit) ---
 .env

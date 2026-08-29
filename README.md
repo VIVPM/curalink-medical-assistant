@@ -2,6 +2,8 @@
 
 An AI-powered medical research companion built on the MERN stack with a FastAPI orchestrator microservice. Curalink understands patient context, retrieves high-quality research from PubMed, OpenAlex, and ClinicalTrials.gov, reasons over it with a configurable LLM (HuggingFace Inference API or Cloudflare Workers AI), and delivers structured, source-backed answers with full citation transparency.
 
+> **Multi-provider LLM**: set `LLM_MODEL=CLOUDFLARE` for Cloudflare Workers AI, or any HuggingFace model id (e.g. `meta-llama/Llama-3.3-70B-Instruct`). One provider active at a time.
+
 ## Features
 
 - **Structured intake + natural chat** — fill disease/intent once, then chat naturally; follow-ups inherit context automatically
@@ -15,10 +17,11 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **JWT authentication** — signup/login with session persistence across page refreshes
 - **ChatGPT-style session sidebar** — click any past session to reopen it and keep asking; new messages append to that session's history
 - **Landing page** — a Linear-styled marketing page with an animated demo, gating into the app on sign-up
-- **Redis caching** — exact + semantic (near-duplicate first-turn) query cache and a document-embedding cache on Upstash, with graceful Mongo / no-cache fallback
-- **Per-user credits + rate limiting** — 3 credits (1 credit = 1 question) plus per-IP / per-user limits on auth, chat, and session creation
+- **Redis caching** — exact + semantic (near-duplicate first-turn) query cache, document-embedding cache, and prompt-level LLM cache on Upstash, with graceful Mongo / no-cache fallback
+- **Per-user credits + rate limiting** — 5 questions/day (DAILY_MESSAGE_CAP) plus per-IP / per-user limits on auth, chat, and session creation
 - **Observability** — LLM generation traces to Langfuse, HTTP spans + a `chat_messages_total` metric to Grafana, over OTLP
 - **CI/CD + Docker** — GitHub Actions (lint, syntax, build, image builds, gated Render deploy) and Dockerfiles for all three services
+- **Reliability (v1)** — Retry-After headers, graceful shutdown, idempotency keys, history summarization, user account deletion, 90-day data retention, structured output validation with repair, jittered retries, prompt-level LLM cache
 
 ## 🏗️ Architecture
 
@@ -129,7 +132,7 @@ curalink-medical-assistant/
 │
 ├── backend-python/                # FastAPI orchestrator (AI pipeline)
 │   ├── main.py                    # FastAPI app, /pipeline/run, /pipeline/stream
-│   ├── llm_backend.py             # LLMBackend abstraction (HF Inference API)
+│   ├── llm_backend.py             # LLMBackend abstraction (HF + Cloudflare, multi-provider)
 │   ├── sources/
 │   │   ├── pubmed.py              # PubMed E-utilities (esearch + efetch)
 │   │   ├── openalex.py            # OpenAlex works search
@@ -218,6 +221,7 @@ cp backend-node/.env.example backend-node/.env
 | `NCBI_API_KEY` | NCBI E-utilities key (recommended) |
 | `NCBI_EMAIL` | Contact email for NCBI policy compliance |
 | `OPENALEX_EMAIL` | Contact email for OpenAlex polite pool |
+| `REDIS_URL` | Upstash Redis connection string (shared with Node backend) |
 | `BIENCODER_MODEL` | Embedding model (default: `pritamdeka/S-PubMedBert-MS-MARCO`) |
 
 #### Node Backend (`backend-node/.env`)
@@ -228,6 +232,7 @@ cp backend-node/.env.example backend-node/.env
 | `FASTAPI_URL` | FastAPI orchestrator URL (default: `http://localhost:8000`) |
 | `JWT_SECRET` | Secret for signing JWT tokens |
 | `ALLOWED_ORIGINS` | Comma-separated CORS allow-list of frontend origins (default: deployed frontend + `localhost:5173`) |
+| `REDIS_URL` | Upstash Redis connection string (`rediss://...`) |
 | `PORT` | Express server port (default: `4000`) |
 
 ### Running Locally
@@ -258,7 +263,8 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | **API Layer** | Express.js | Auth, sessions, SSE proxy, MongoDB CRUD |
 | **Orchestrator** | FastAPI (Python) | 7-stage AI pipeline, stateless |
 | **Database** | MongoDB Atlas | Sessions, messages, query-result cache |
-| **LLM** | Llama 3.3 70B via HF Inference API | Query expansion + grounded reasoning |
+| **Cache** | Redis (Upstash) | Embedding, prompt-level LLM, and semantic query caches |
+| **LLM** | HF Inference API or Cloudflare Workers AI | Query expansion + grounded reasoning (multi-provider) |
 | **Bi-Encoder** | PubMedBERT-MS-MARCO via HF API | Domain-specialized dense retrieval |
 | **Cross-Encoder** | MedCPT (NCBI) via HF API | Precision re-ranking on PubMed click logs |
 | **Data Sources** | PubMed, OpenAlex, ClinicalTrials.gov | Live medical research APIs |
@@ -325,6 +331,7 @@ Deployed on Render (free tier) with zero monthly cost:
 | `POST` | `/api/session` | Create new session with intake form data |
 | `GET` | `/api/sessions` | List all sessions for user |
 | `POST` | `/api/chat/stream` | Send message, streams SSE pipeline response |
+| `DELETE` | `/api/account` | Delete user account + all sessions + messages |
 | `GET` | `/health` | Health check |
 
 ### FastAPI (Python) — Internal Orchestrator

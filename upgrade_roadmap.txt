@@ -1,7 +1,7 @@
 ================================================================================
 CURALINK — UPGRADE ROADMAP
 AI Medical Research Assistant (MERN + FastAPI RAG orchestrator)
-Last reviewed: 2026-08-09
+Last reviewed: 2026-08-29
 ================================================================================
 
 How to read this document
@@ -155,6 +155,42 @@ App layer
     Message compound index {sessionId, createdAt}, Cache unique key +
     TTL index on expiresAt. (Good — this is often missed.)
 
+Multi-provider LLM backend
+  - LLM_MODEL env var selects provider: CLOUDFLARE -> Cloudflare Workers AI
+    (@cf/openai/gpt-oss-20b); any other value -> HuggingFace Inference API
+    (value is the model id, e.g. meta-llama/Llama-3.3-70B-Instruct).
+  - LLMBackend ABC with HFBackend + CloudflareBackend, factory via
+    get_llm_backend(). One provider active at a time.
+
+V1 reliability & resilience (curalink-v0-v1-practice branch)
+  - Retry-After header on 429 (rate limit) and 402 (daily cap) responses —
+    seconds until limit resets (UTC midnight for daily, window reset for rate
+    limiter via standardHeaders).
+  - Graceful shutdown: Express catches SIGTERM/SIGINT, closes HTTP server,
+    waits up to 30s for in-flight requests, then exits. FastAPI logs shutdown
+    in lifespan context manager.
+  - Idempotency-Key on POST /chat: dedupes within a 5-min window using an
+    in-memory store (lazy eviction at 10k entries). Duplicate submits return
+    the cached SSE result instead of re-running the pipeline.
+  - History summarization: keeps last 6 turns verbatim, compresses older
+    messages to topic hints (first sentence, up to 5 topics). Applied in
+    both query_expander.py and context_builder.py.
+  - User account deletion: DELETE /api/account cascade-deletes user, all
+    sessions, and all messages.
+  - 90-day data retention: TTL index on Session.updatedAt auto-expires
+    sessions (and their messages cascade via application logic).
+  - Structured output validation with repair: _validate_schema() checks
+    overview type, trials fields, sources list; _repair_schema() fills
+    defaults, coerces string sources to list, drops entries without findings.
+  - Jittered retries: retry backoff uses wait * (0.5 + random()) in both
+    HF and Cloudflare backends to avoid thundering-herd retries.
+  - Prompt-level LLM cache in Redis: hash(model + system_prompt + user_prompt)
+    as key, 24h TTL. Only caches responses > 10 chars. No-ops gracefully when
+    Redis is unavailable. ~60x speedup on cache hit.
+  - Redis TLS fix: uses certifi CA bundle (ssl_ca_certs=certifi.where()) to
+    handle Windows environments where the system CA store doesn't trust
+    Let's Encrypt.
+
 Bottom line: the hard, differentiating part (retrieval + ranking + grounded
 reasoning over live medical literature) is genuinely done and is the strong
 part of the project.
@@ -236,10 +272,33 @@ SCALE-5 Redis cache are DONE — see PART 1. What remains below is infra for rea
   / Render env groups) with rotation. Directly reinforces SEC-2 — a leaked or
   defaulted signing secret is full account takeover.
 
+Scale-readiness by 8-layer reference architecture (see scale_readiness_audit.txt
+for the full benchmark — 30/73 concepts at v0, 41%):
+
+  Biggest gaps for v2 (when traffic gets real):
+  1. Queue + backpressure (Layer 3) — pipeline runs inline, no task queue, DLQ,
+     or per-tenant fairness. A traffic spike kills in-flight requests.
+  2. Circuit breaker + auto-fallback (Layer 5) — one provider outage takes down
+     the whole system. Need: after N failures open the circuit (503 + probe).
+  3. Async submit/poll/cancel (Layer 2) — SSE disconnect = lost work. Need:
+     POST /jobs -> 202, GET /jobs/{id}, DELETE /jobs/{id}.
+  4. Per-step checkpointing (Layer 7) — crash at stage 5 re-runs 1-4 from
+     scratch. Save intermediate results to Redis per stage.
+  5. SSE event buffering + replay (Layer 8) — disconnect mid-stream = all prior
+     events lost. Buffer in Redis, replay via Last-Event-ID.
+  6. Correlation IDs (Control Plane) — request IDs exist in Express but aren't
+     propagated Express -> FastAPI; need end-to-end X-Request-Id.
+  7. Token-aware rate limits — current limits count requests not tokens.
+
+  See v2_scale_roadmap.txt for the full v2 items with status.
+
 Recommended order for what's left:
   1. SCALE-4 infra (always-on + autoscale + Atlas tier + read replica).
   2. SCALE-8 rate-limit store in Redis (the moment there's a second instance).
   3. SCALE-9 secrets manager.
+  4. Queue + backpressure (v2).
+  5. Circuit breaker + auto-fallback (v2).
+  6. Async job API + state machine (v2).
   (The biggest remaining lever at true 10k scale is a pre-indexed PubMed vector
   store so uncached queries don't hit the live APIs — deliberately deferred; the
   semantic cache already covers the demo's hot path.)
@@ -248,17 +307,22 @@ Recommended order for what's left:
 SUMMARY
 ================================================================================
   Part 1: Strong, differentiated core (live-source RAG + medical-domain ranking
-          + cite-or-abstain + real streaming). The hard part is done.
+          + cite-or-abstain + real streaming). Multi-provider LLM (HF + CF).
+          V1 reliability: Retry-After, graceful shutdown, idempotency keys,
+          history summarization, account deletion, data retention, structured
+          output validation, jittered retries, prompt-level LLM cache. Done.
   Part 2: Nothing outstanding. Every tracked issue from this pass — security,
           both bugs, REL-1, and all UX (UX-1..UX-6) — is fixed and in Part 1.
           (Email verification via SMTP is deliberately out of scope.)
   Part 3: OK for a small, trusted user base — blockers fixed and security
           hardening complete. Set JWT_SECRET at deploy. No outstanding items.
   Part 4: The demo-relevant scaling is done and in Part 1 — Redis query +
-          embedding caches, a semantic first-turn cache (SCALE-1), HF-call
-          throttling (HF-only by choice), and a 3-credit per-user quota. What's
-          left is real-10k infra: always-on/autoscale + Atlas tier (SCALE-4),
-          a shared Redis rate-limit store (SCALE-8), secrets manager
-          (SCALE-9), and eventually a pre-indexed PubMed corpus. Observability
-          (Langfuse + Grafana) is now wired — see Part 1. None needed for the demo.
+          embedding + prompt caches, a semantic first-turn cache (SCALE-1),
+          HF-call throttling (HF-only by choice), and a 5-credit per-user
+          quota. What's left is real-10k infra: always-on/autoscale + Atlas
+          tier (SCALE-4), shared Redis rate-limit store (SCALE-8), secrets
+          manager (SCALE-9), and v2 scale items (queue, circuit breaker, async
+          jobs, checkpointing, SSE replay — see v2_scale_roadmap.txt).
+          Observability (Langfuse + Grafana) wired — see Part 1. None needed
+          for demo.
 ================================================================================
