@@ -92,6 +92,14 @@ class HFBackend(LLMBackend):
         sys = system_prompt or ""
         if json_mode:
             sys += "\n\nYou MUST respond with ONLY valid JSON. No prose before or after."
+
+        # Prompt cache: hit = skip the LLM call entirely
+        from redis_cache import get_prompt_cache, set_prompt_cache
+        cached = get_prompt_cache(self.model, sys, prompt)
+        if cached is not None:
+            logger.info("[hf] prompt cache hit (%d chars)", len(cached))
+            return cached
+
         messages = self._build_messages(prompt, sys)
 
         import observability as obs
@@ -104,6 +112,8 @@ class HFBackend(LLMBackend):
             )
             text = resp.choices[0].message.content or ""
             obs.set_generation_output(span, text)
+
+        set_prompt_cache(self.model, sys, prompt, text)
         return text
 
     async def generate_stream(self, prompt, *, system_prompt=None, max_tokens=800,
@@ -162,6 +172,14 @@ class CloudflareBackend(LLMBackend):
         sys = system_prompt or ""
         if json_mode:
             sys += "\n\nYou MUST respond with ONLY valid JSON. No prose before or after."
+
+        # Prompt cache
+        from redis_cache import get_prompt_cache, set_prompt_cache
+        cached = get_prompt_cache(self.model, sys, prompt)
+        if cached is not None:
+            logger.info("[cf] prompt cache hit (%d chars)", len(cached))
+            return cached
+
         messages = self._messages(prompt, sys)
 
         import observability as obs
@@ -183,6 +201,7 @@ class CloudflareBackend(LLMBackend):
                             r.raise_for_status()
                             text = (r.json()["choices"][0]["message"].get("content") or "").strip()
                             obs.set_generation_output(span, text)
+                            set_prompt_cache(self.model, sys, prompt, text)
                             return text
                     except Exception as e:
                         if attempt == _MAX_RETRIES:

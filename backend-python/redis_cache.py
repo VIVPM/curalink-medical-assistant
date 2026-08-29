@@ -18,7 +18,8 @@ except ImportError:
     _redis = None
 
 REDIS_URL = os.getenv("REDIS_URL")
-EMBED_TTL = 7 * 24 * 3600  # 7 days
+EMBED_TTL = 7 * 24 * 3600   # 7 days
+PROMPT_TTL = 24 * 3600      # 1 day — LLM responses are less stable than embeddings
 
 _client = None
 _tried = False
@@ -97,3 +98,38 @@ def set_embeddings(model: str, texts: list[str], vectors: list[list[float]]) -> 
         pipe.execute()
     except Exception as e:
         print(f"[cache] set failed: {e}")
+
+
+# ---------------------------------------------------------------------------
+# Prompt-level LLM cache: hash(model + system_prompt + user_prompt) -> response
+# Saves money on repeated LLM calls with identical prompts (e.g. same query
+# expansion hitting the same disease+message combo). 24h TTL.
+# ---------------------------------------------------------------------------
+
+def _prompt_key(model: str, system_prompt: str, user_prompt: str) -> str:
+    blob = f"{model}|{system_prompt}|{user_prompt}"
+    return "llm:" + hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+def get_prompt_cache(model: str, system_prompt: str, user_prompt: str) -> str | None:
+    """Return cached LLM response text, or None on miss."""
+    client = _get_client()
+    if client is None:
+        return None
+    try:
+        return client.get(_prompt_key(model, system_prompt, user_prompt))
+    except Exception:
+        return None
+
+
+def set_prompt_cache(model: str, system_prompt: str, user_prompt: str, response: str) -> None:
+    """Cache an LLM response. Short responses (< 10 chars) are not cached."""
+    if len(response) < 10:
+        return
+    client = _get_client()
+    if client is None:
+        return
+    try:
+        client.set(_prompt_key(model, system_prompt, user_prompt), response, ex=PROMPT_TTL)
+    except Exception as e:
+        print(f"[cache] prompt set failed: {e}")
