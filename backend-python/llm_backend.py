@@ -285,3 +285,32 @@ def get_llm_backend() -> LLMBackend:
         raise RuntimeError(f"LLM_MODEL={raw} (HuggingFace) requires HF_TOKEN in .env.")
     logger.info("LLM provider: HuggingFace (%s)", raw)
     return HFBackend(token=token, model=raw)
+
+
+def get_resilient_llm():
+    """Return a ResilientLLM with circuit breaker + auto-fallback.
+
+    If both HF and CF credentials exist, the non-selected provider becomes the
+    fallback. Otherwise the primary runs alone (breaker still protects it).
+    """
+    from circuit_breaker import ResilientLLM
+
+    raw = (os.getenv("LLM_MODEL") or "").strip().upper()
+    primary = get_llm_backend()
+    fallback = None
+
+    # Build fallback from the other provider if creds exist
+    if raw == "CLOUDFLARE":
+        hf_token = os.getenv("HF_TOKEN")
+        hf_model = os.getenv("HF_FALLBACK_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
+        if hf_token:
+            fallback = HFBackend(token=hf_token, model=hf_model)
+            logger.info("Fallback provider: HuggingFace (%s)", hf_model)
+    else:
+        cf_account = os.getenv("CLOUDFLARE_ACCOUNT_ID")
+        cf_token = os.getenv("CLOUDFLARE_API_TOKEN")
+        if cf_account and cf_token:
+            fallback = CloudflareBackend(account_id=cf_account, api_token=cf_token)
+            logger.info("Fallback provider: Cloudflare Workers AI")
+
+    return ResilientLLM(primary, fallback)

@@ -59,6 +59,11 @@ async def _load_models():
 async def lifespan(app: FastAPI):
     # Start model loading in background — server accepts requests immediately
     asyncio.create_task(_load_models())
+    # Start async job queue workers
+    from job_manager import get_job_manager
+    jm = get_job_manager()
+    jm.set_pipeline(_run_pipeline_for_job)
+    await jm.start()
     yield
     # Graceful shutdown: flush telemetry, release models
     print("[shutdown] draining — flushing observability spans...")
@@ -98,7 +103,12 @@ async def root():
 @app.get("/health")
 async def health():
     from redis_cache import status as redis_status
-    return {"ok": True, "service": "fastapi", "redis": redis_status()}
+    from job_manager import get_job_manager
+    jm = get_job_manager()
+    return {
+        "ok": True, "service": "fastapi", "redis": redis_status(),
+        "queue_depth": jm.queue_depth,  # for autoscaling triggers
+    }
 
 
 @app.post("/embed")
@@ -711,3 +721,179 @@ async def pipeline_stream(req: PipelineRequest):
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+# ---------------------------------------------------------------------------
+# Async job API: submit/poll/cancel + event replay (v2)
+# ---------------------------------------------------------------------------
+
+async def _run_pipeline_for_job(request_data: dict) -> dict:
+    """Run the full pipeline as a background job. Same logic as /pipeline/run."""
+    from pydantic import ValidationError
+    try:
+        req = PipelineRequest(**request_data)
+    except ValidationError as e:
+        return {"error": str(e)}
+    # Delegate to the existing pipeline_run logic
+    embedder = models.get("embedder")
+    reranker = models.get("reranker")
+    if embedder is None or reranker is None:
+        return {"error": "models not loaded"}
+
+    import checkpoint
+    job_id = request_data.get("_job_id", "unknown")
+    from token_budget import TokenBudget, TokenBudgetExceeded
+    budget = TokenBudget()
+
+    stage_timings: dict = {}
+    warnings: list[str] = []
+    user_message = req.current.get("userMessage", "")
+    chat_history = req.dynamic.get("recentMessages", [])
+
+    budget.consume_text(user_message)
+
+    t_pipeline = time.perf_counter()
+
+    # Stage 1 — Query expansion (check checkpoint first)
+    cached_s1 = checkpoint.load(job_id, "query_expansion")
+    if cached_s1:
+        from types import SimpleNamespace
+        expander_result = SimpleNamespace(**cached_s1)
+    else:
+        t0 = time.perf_counter()
+        expander_result = await expand_query(
+            user_message=user_message, static_context=req.static,
+            chat_history=chat_history, llm=llm,
+        )
+        stage_timings["query_expansion"] = round((time.perf_counter() - t0) * 1000)
+        checkpoint.save(job_id, "query_expansion", {
+            "expanded_queries": expander_result.expanded_queries,
+            "skip_retrieval": expander_result.skip_retrieval,
+        })
+
+    if expander_result.skip_retrieval:
+        return {"skip_retrieval": True, "message": "Non-medical query"}
+
+    # Stages 2-7: same as pipeline_run (abbreviated — delegates to existing code)
+    t0 = time.perf_counter()
+    disease = req.static.get("disease", "")
+    location_str = req.static.get("location", "")
+    best_query = expander_result.expanded_queries[0]
+    geo = await geocode(location_str) if location_str else None
+
+    pubmed_raw, openalex_raw, trials_raw = await asyncio.gather(
+        fetch_pubmed(best_query, limit=80),
+        fetch_openalex(best_query, limit=80),
+        fetch_trials(disease=disease, location=geo, limit=50),
+        return_exceptions=True,
+    )
+
+    def _unwrap(result, name):
+        if isinstance(result, Exception):
+            warnings.append(f"{name}_failed: {type(result).__name__}: {result}")
+            return []
+        return result
+
+    pubmed_raw = _unwrap(pubmed_raw, "pubmed")
+    openalex_raw = _unwrap(openalex_raw, "openalex")
+    trials_raw = _unwrap(trials_raw, "trials")
+    stage_timings["retrieval"] = round((time.perf_counter() - t0) * 1000)
+    retrieval_counts = {"pubmed": len(pubmed_raw), "openalex": len(openalex_raw), "trials": len(trials_raw)}
+
+    t0 = time.perf_counter()
+    pubmed_docs = [normalize_pubmed(r) for r in pubmed_raw]
+    openalex_docs = [normalize_openalex(r) for r in openalex_raw]
+    trial_docs = [normalize_trial(r, disease_context=disease) for r in trials_raw]
+    deduped = merge_and_dedupe([pubmed_docs, openalex_docs, trial_docs])
+    complete = filter_complete(deduped)
+    stage_timings["normalization"] = round((time.perf_counter() - t0) * 1000)
+    retrieval_counts["after_dedupe"] = len(deduped)
+    retrieval_counts["after_filter"] = len(complete)
+
+    if not complete:
+        return {"error": "No documents retrieved"}
+
+    embedder = models.get("embedder")
+    reranker = models.get("reranker")
+
+    t0 = time.perf_counter()
+    ranking_result = run_ranking(query=best_query, docs=complete, embedder=embedder, reranker=reranker, top_k=14)
+    stage_timings["ranking"] = round((time.perf_counter() - t0) * 1000)
+    retrieval_counts["after_ranking"] = len(ranking_result.top_docs)
+    checkpoint.save(job_id, "ranking", {"count": len(ranking_result.top_docs)})
+
+    t0 = time.perf_counter()
+    payload = build_context(top_docs=ranking_result.top_docs, user_message=user_message,
+                            static_context=req.static, chat_history=chat_history)
+    stage_timings["context_build"] = round((time.perf_counter() - t0) * 1000)
+
+    budget.consume_text(payload.user_prompt)
+    budget.consume_text(payload.system_prompt or "")
+
+    t0 = time.perf_counter()
+    try:
+        reasoner_output = await run_reasoner(payload, llm=llm, max_tokens=4000)
+        budget.consume_text(reasoner_output.llm_output.get("overview", ""))
+    except TokenBudgetExceeded:
+        return {"error": "Token budget exceeded for this query"}
+    stage_timings["llm"] = round((time.perf_counter() - t0) * 1000)
+
+    t0 = time.perf_counter()
+    assembled = assemble_response(llm_output=reasoner_output.llm_output,
+                                  doc_anchors=payload.doc_anchors,
+                                  stage_timings=stage_timings,
+                                  retrieval_counts=retrieval_counts)
+    stage_timings["assembly"] = round((time.perf_counter() - t0) * 1000)
+    stage_timings["total"] = round((time.perf_counter() - t_pipeline) * 1000)
+    assembled.user_facing_json["pipelineMeta"]["stage_timings_ms"] = stage_timings
+    assembled.user_facing_json["pipelineMeta"]["warnings"] = warnings + assembled.warnings
+    assembled.user_facing_json["pipelineMeta"]["token_budget"] = budget.summary()
+
+    checkpoint.clear(job_id)
+    record_message("ok")
+    return assembled.user_facing_json
+
+
+@app.post("/jobs", status_code=202)
+async def submit_job(req: PipelineRequest):
+    """Async submit: enqueue pipeline run, return job_id immediately."""
+    from job_manager import get_job_manager
+    jm = get_job_manager()
+    data = req.model_dump()
+    job = jm.create_job(data)
+    data["_job_id"] = job.id
+    ok = await jm.enqueue(job)
+    if not ok:
+        raise HTTPException(status_code=503, detail="Queue full — retry later",
+                            headers={"Retry-After": "30"})
+    return {"ok": True, "job_id": job.id, "state": job.state}
+
+
+@app.get("/jobs/{job_id}")
+async def poll_job(job_id: str):
+    """Poll job status + result."""
+    from job_manager import get_job_manager
+    jm = get_job_manager()
+    job = jm.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
+
+
+@app.delete("/jobs/{job_id}")
+async def cancel_job(job_id: str):
+    """Cancel a pending/running job."""
+    from job_manager import get_job_manager
+    jm = get_job_manager()
+    ok = jm.cancel_job(job_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Job not found or already finished")
+    return {"ok": True, "job_id": job_id, "state": "cancelled"}
+
+
+@app.get("/jobs/{job_id}/events")
+async def replay_job_events(job_id: str, last_event_id: int | None = None):
+    """Replay buffered SSE events for a job (reconnect support)."""
+    from event_buffer import replay_events
+    events = replay_events(job_id, last_event_id)
+    return {"ok": True, "job_id": job_id, "events": events}

@@ -24,6 +24,17 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 | `backend-node/index.js` | Express server, health, CORS, graceful shutdown, DELETE /api/account |
 | `backend-node/routes/chat.js` | POST /chat/stream, idempotency keys, Retry-After headers |
 | `backend-node/models/Session.js` | Session schema + 90-day TTL index |
+| `backend-python/circuit_breaker.py` | CircuitBreaker + ResilientLLM auto-fallback wrapper |
+| `backend-python/job_manager.py` | Async job queue, state machine, backpressure |
+| `backend-python/checkpoint.py` | Per-step pipeline checkpointing in Redis |
+| `backend-python/event_buffer.py` | SSE event buffering + Last-Event-ID replay |
+| `backend-python/pii_redactor.py` | PII redaction for observability spans |
+| `backend-python/token_budget.py` | Per-job token budget enforcement |
+| `backend-node/routes/jobs.js` | Async job submit/poll/cancel proxy to FastAPI |
+| `backend-node/routes/webhooks.js` | Webhook CRUD + HMAC-signed dispatch |
+| `backend-node/models/AuditLog.js` | Audit log schema (1-year TTL) |
+| `backend-node/models/Webhook.js` | Webhook registration schema |
+| `backend-node/middleware/audit.js` | Audit logging middleware (fire-and-forget) |
 | `.github/workflows/ci.yml` | CI: lint, syntax, build, Docker images, gated Render deploy |
 
 ## Caching Layers
@@ -45,6 +56,21 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 - Jittered retries (both backends)
 - Prompt-level LLM cache in Redis
 - Redis TLS via certifi CA bundle
+
+## V2 Scale Features (curalink-v0-v1-practice branch)
+
+- Circuit breaker + auto-fallback (ResilientLLM wraps primary + fallback provider)
+- Async job API: POST /jobs → 202, GET /jobs/{id}, DELETE /jobs/{id}
+- Job state machine: pending → running → completed | failed | cancelled (Redis-backed)
+- Queue + backpressure: asyncio.Queue with configurable size, 503 when full
+- Per-step checkpointing in Redis (resume from last stage on retry)
+- SSE event buffering + Last-Event-ID replay
+- Queue-depth metric on /health (for autoscaling triggers)
+- Token-aware rate limits (DAILY_TOKEN_CAP env)
+- PII redaction on observability spans (email/phone/SSN)
+- Webhooks (CRUD + HMAC-signed dispatch on job.completed/failed)
+- Audit log (AuditLog model + middleware, 1-year TTL)
+- Per-job token budget (MAX_TOKENS_PER_JOB env, default 50k)
 
 ## Commands
 

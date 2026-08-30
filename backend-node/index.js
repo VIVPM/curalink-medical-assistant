@@ -7,8 +7,11 @@ import mongoose from "mongoose";
 import authRouter from "./routes/auth.js";
 import sessionRouter from "./routes/session.js";
 import chatRouter from "./routes/chat.js";
+import jobsRouter from "./routes/jobs.js";
+import webhooksRouter from "./routes/webhooks.js";
 import { redisStatus } from "./cache.js";
 import { authMiddleware } from "./middleware/auth.js";
+import { audit } from "./middleware/audit.js";
 import Session from "./models/Session.js";
 import Message from "./models/Message.js";
 
@@ -95,6 +98,8 @@ const authLimiter = rateLimit({
 app.use("/api/auth", authLimiter, authRouter);
 app.use("/api", sessionRouter);
 app.use("/api", chatRouter);
+app.use("/api/jobs", jobsRouter);
+app.use("/api/webhooks", webhooksRouter);
 
 // Daily credits: 1 credit = 1 question, auto-resets at UTC midnight.
 const DAILY_MESSAGE_CAP = Number(process.env.DAILY_MESSAGE_CAP) || 5;
@@ -115,7 +120,7 @@ app.get("/api/account/credits", authMiddleware, async (req, res) => {
 
 // DELETE /api/account — delete the authenticated user + all their data.
 // Required for compliance; pattern: cascade-delete user -> sessions -> messages.
-app.delete("/api/account", authMiddleware, async (req, res) => {
+app.delete("/api/account", authMiddleware, audit("account.delete"), async (req, res) => {
   const userId = req.userId;
   const sessionIds = await Session.find({ userId }).distinct("_id");
   if (sessionIds.length) {

@@ -109,7 +109,8 @@ def llm_generation(model: str, input_text: str):
                                os.getenv("DEPLOYMENT_ENV", "development"))
             span.set_attribute("langfuse.observation.model.name", model or "")
             span.set_attribute("gen_ai.request.model", model or "")
-            span.set_attribute("langfuse.observation.input", (input_text or "")[:8000])
+            from pii_redactor import redact
+            span.set_attribute("langfuse.observation.input", redact((input_text or "")[:8000]))
             yield span
     except Exception as e:
         logger.warning("llm_generation failed — continuing untraced: %s", e)
@@ -121,7 +122,8 @@ def set_generation_output(span, text: str):
     if span is None:
         return
     try:
-        span.set_attribute("langfuse.observation.output", (text or "")[:12000])
+        from pii_redactor import redact
+        span.set_attribute("langfuse.observation.output", redact((text or "")[:12000]))
     except Exception as e:
         logger.debug("set_generation_output failed: %s", e)
 

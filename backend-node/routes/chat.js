@@ -13,6 +13,9 @@ const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";  // over
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 4000; // cap the expensive path (SEC-6)
 const DAILY_MESSAGE_CAP = Number(process.env.DAILY_MESSAGE_CAP) || 5;
+// Token-aware daily cap: if set, limits total tokens/day instead of just messages.
+// Rough estimate: 1 token ≈ 4 chars. 0 = disabled (message-count only).
+const DAILY_TOKEN_CAP = Number(process.env.DAILY_TOKEN_CAP) || 0;
 
 // Idempotency: in-memory store with 5-min TTL. Prevents duplicate pipeline runs
 // when the client retries on a timeout. Keyed on userId + Idempotency-Key header.
@@ -53,6 +56,23 @@ async function messagesUsedToday(userId) {
     role: "user",
     createdAt: { $gte: since },
   });
+}
+
+// Token-aware daily usage: sum estimated tokens from today's messages.
+// Rough: 1 token ≈ 4 chars. Returns 0 if DAILY_TOKEN_CAP is disabled.
+async function tokensUsedToday(userId) {
+  if (!DAILY_TOKEN_CAP) return 0;
+  const since = new Date();
+  since.setUTCHours(0, 0, 0, 0);
+  const sessionIds = await Session.find({ userId }).distinct("_id");
+  if (!sessionIds.length) return 0;
+  const msgs = await Message.find({
+    sessionId: { $in: sessionIds },
+    createdAt: { $gte: since },
+  })
+    .select("content")
+    .lean();
+  return msgs.reduce((sum, m) => sum + Math.ceil((m.content || "").length / 4), 0);
 }
 
 // Per-user quota on the expensive pipeline (SEC-4). Keyed by user id (set by
@@ -140,6 +160,22 @@ router.post("/chat", async (req, res) => {
     return res
       .status(402)
       .json({ ok: false, error: `Daily limit reached (${DAILY_MESSAGE_CAP} questions/day). Resets at midnight UTC.` });
+  }
+
+  // Token-aware daily cap: count tokens consumed, not just messages.
+  if (DAILY_TOKEN_CAP) {
+    const tUsed = await tokensUsedToday(req.userId);
+    if (tUsed >= DAILY_TOKEN_CAP) {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setUTCDate(midnight.getUTCDate() + 1);
+      midnight.setUTCHours(0, 0, 0, 0);
+      res.setHeader("Retry-After", Math.ceil((midnight - now) / 1000));
+      return res.status(402).json({
+        ok: false,
+        error: `Daily token limit reached (${tUsed}/${DAILY_TOKEN_CAP} tokens). Resets at midnight UTC.`,
+      });
+    }
   }
 
   // 2. Load chat history
@@ -285,6 +321,22 @@ router.post("/chat/stream", async (req, res) => {
     return res
       .status(402)
       .json({ ok: false, error: `Daily limit reached (${DAILY_MESSAGE_CAP} questions/day). Resets at midnight UTC.` });
+  }
+
+  // Token-aware daily cap (same as /chat)
+  if (DAILY_TOKEN_CAP) {
+    const tUsed = await tokensUsedToday(req.userId);
+    if (tUsed >= DAILY_TOKEN_CAP) {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setUTCDate(midnight.getUTCDate() + 1);
+      midnight.setUTCHours(0, 0, 0, 0);
+      res.setHeader("Retry-After", Math.ceil((midnight - now) / 1000));
+      return res.status(402).json({
+        ok: false,
+        error: `Daily token limit reached (${tUsed}/${DAILY_TOKEN_CAP} tokens). Resets at midnight UTC.`,
+      });
+    }
   }
 
   const history = await Message.find({ sessionId })
