@@ -105,11 +105,11 @@ class ResilientLLM:
                     result = await self.fallback.generate(prompt, **kwargs)
                     fb.record_success()
                     return result
-                except Exception as e:
+                except Exception:
                     fb.record_failure()
                     raise
 
-        raise CircuitOpen(f"All providers unavailable — primary: {pb.status()}")
+        raise CircuitOpen("All providers unavailable — primary: %s" % pb.status())
 
     async def generate_stream(self, prompt, **kwargs):
         # Try primary
@@ -135,11 +135,11 @@ class ResilientLLM:
                         yield token
                     fb.record_success()
                     return
-                except Exception as e:
+                except Exception:
                     fb.record_failure()
                     raise
 
-        raise CircuitOpen(f"All providers unavailable")
+        raise CircuitOpen("All providers unavailable")
 
     def status(self) -> dict:
         return {k: b.status() for k, b in self._breakers.items()}
