@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, curalink-v0-v1-practice, curalink-v2]
   pull_request:
 
 # A second push to main should cancel the first run's deploy rather than race it.
@@ -25,7 +25,7 @@ jobs:
           cache-dependency-path: backend-node/package-lock.json
       - run: npm ci
       - name: Syntax check
-        run: for f in index.js cache.js middleware/*.js models/*.js routes/*.js; do node --check "$f"; done
+        run: for f in index.js cache.js middleware/*.js models/*.js routes/*.js; do [ -f "$f" ] && node --check "$f"; done
 
   backend-python:
     runs-on: ubuntu-latest
