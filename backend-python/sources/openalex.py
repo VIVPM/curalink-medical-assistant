@@ -128,7 +128,8 @@ async def fetch_openalex(
     headers = {"User-Agent": _user_agent()}
 
     last_error: Exception | None = None
-    async with httpx.AsyncClient() as client:
+    from egress_allowlist import httpx_event_hook
+    async with httpx.AsyncClient(event_hooks={"request": [httpx_event_hook]}) as client:
         for attempt in range(MAX_RETRIES + 1):
             try:
                 resp = await client.get(WORKS_URL, params=params, headers=headers)

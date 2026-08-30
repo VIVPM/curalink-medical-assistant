@@ -26,6 +26,8 @@ logger = logging.getLogger(__name__)
 _llm_provider = None   # unified TracerProvider for LLM spans, or None when disabled
 _llm_tracer = None     # tracer from that provider (for the generation span)
 _message_counter = None
+_ttft_histogram = None      # time-to-first-token histogram
+_cost_counter = None        # per-user token cost counter
 
 
 def _have_langfuse() -> bool:
@@ -161,8 +163,8 @@ def init_http_tracing(app):
 
 
 def init_metrics():
-    """Export a chat_messages_total counter. A metric, not traces, so alerts are plain PromQL."""
-    global _message_counter
+    """Export metrics to Grafana: message counter, TTFT histogram, cost counter."""
+    global _message_counter, _ttft_histogram, _cost_counter
     if not _have_grafana():
         return
     try:
@@ -178,11 +180,21 @@ def init_metrics():
             export_interval_millis=15000,
         )
         provider = MeterProvider(resource=_resource(), metric_readers=[reader])
-        _message_counter = provider.get_meter("curalink.chat").create_counter(
+        meter = provider.get_meter("curalink.chat")
+        _message_counter = meter.create_counter(
             "chat_messages_total",
             description="Chat pipeline runs handled, by status (ok/error/cache)",
         )
-        logger.info("Grafana metrics enabled via OTLP.")
+        _ttft_histogram = meter.create_histogram(
+            "llm_ttft_seconds",
+            description="Time-to-first-token from LLM provider (seconds)",
+            unit="s",
+        )
+        _cost_counter = meter.create_counter(
+            "llm_tokens_total",
+            description="Estimated tokens consumed, by user and model",
+        )
+        logger.info("Grafana metrics enabled via OTLP (messages + TTFT + cost).")
     except Exception:
         logger.exception("Grafana metrics init failed — continuing without it.")
 
@@ -195,3 +207,23 @@ def record_message(status: str):
         _message_counter.add(1, {"status": status})
     except Exception as e:
         logger.debug("record_message failed: %s", e)
+
+
+def record_ttft(seconds: float, model: str = ""):
+    """Record time-to-first-token for a single LLM call."""
+    if _ttft_histogram is None:
+        return
+    try:
+        _ttft_histogram.record(seconds, {"model": model})
+    except Exception as e:
+        logger.debug("record_ttft failed: %s", e)
+
+
+def record_tokens(tokens: int, user_id: str = "", model: str = ""):
+    """Record estimated token consumption per user + model."""
+    if _cost_counter is None:
+        return
+    try:
+        _cost_counter.add(tokens, {"user_id": user_id, "model": model})
+    except Exception as e:
+        logger.debug("record_tokens failed: %s", e)

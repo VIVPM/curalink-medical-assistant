@@ -242,7 +242,7 @@ router.post("/chat", async (req, res) => {
   try {
     const resp = await fetch(`${FASTAPI_URL}/pipeline/run`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Request-Id": req.id },
       body: JSON.stringify(pipelineBody),
     });
 
@@ -406,7 +406,7 @@ router.post("/chat/stream", async (req, res) => {
   try {
     const resp = await fetch(`${FASTAPI_URL}/pipeline/stream`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Request-Id": req.id },
       body: JSON.stringify(pipelineBody),
     });
 

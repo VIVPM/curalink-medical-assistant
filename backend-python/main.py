@@ -3,7 +3,7 @@ import os
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from dotenv import load_dotenv
@@ -390,11 +390,13 @@ class PipelineRequest(BaseModel):
 
 
 @app.post("/pipeline/run")
-async def pipeline_run(req: PipelineRequest):
+async def pipeline_run(req: PipelineRequest, request: Request):
     """
     Non-streaming version of the pipeline. Returns a single JSON response.
     Same logic as /pipeline/stream but without SSE.
     """
+    # Correlation ID: propagated from Express via X-Request-Id header
+    correlation_id = request.headers.get("x-request-id", "")
 
     embedder = models.get("embedder")
     reranker = models.get("reranker")
@@ -516,6 +518,8 @@ async def pipeline_run(req: PipelineRequest):
     stage_timings["total"] = round((time.perf_counter() - t_pipeline) * 1000)
     assembled.user_facing_json["pipelineMeta"]["stage_timings_ms"] = stage_timings
     assembled.user_facing_json["pipelineMeta"]["warnings"] = warnings + assembled.warnings
+    if correlation_id:
+        assembled.user_facing_json["pipelineMeta"]["correlation_id"] = correlation_id
 
     if sem_emb is not None and not assembled.user_facing_json.get("abstain_reason"):
         from semantic_cache import store
@@ -526,7 +530,7 @@ async def pipeline_run(req: PipelineRequest):
 
 
 @app.post("/pipeline/stream")
-async def pipeline_stream(req: PipelineRequest):
+async def pipeline_stream(req: PipelineRequest, request: Request):
     """
     SSE streaming version of /pipeline/run.
     Events:
@@ -536,6 +540,8 @@ async def pipeline_stream(req: PipelineRequest):
       event: done     -> close signal
     """
     import json as _json
+
+    correlation_id = request.headers.get("x-request-id", "")
 
     embedder = models.get("embedder")
     reranker = models.get("reranker")
@@ -704,6 +710,8 @@ async def pipeline_stream(req: PipelineRequest):
         stage_timings["total"] = round((time.perf_counter() - t_pipeline) * 1000)
         assembled.user_facing_json["pipelineMeta"]["stage_timings_ms"] = stage_timings
         assembled.user_facing_json["pipelineMeta"]["warnings"] = warnings + assembled.warnings
+        if correlation_id:
+            assembled.user_facing_json["pipelineMeta"]["correlation_id"] = correlation_id
 
         # Send final metadata
         meta_json = _json.dumps(assembled.user_facing_json)

@@ -25,7 +25,8 @@ async def geocode(location: str) -> tuple[float, float] | None:
         return _cache[key]
 
     try:
-        async with httpx.AsyncClient() as client:
+        from egress_allowlist import httpx_event_hook
+        async with httpx.AsyncClient(event_hooks={"request": [httpx_event_hook]}) as client:
             resp = await client.get(
                 NOMINATIM_URL,
                 params={

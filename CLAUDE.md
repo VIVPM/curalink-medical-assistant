@@ -25,7 +25,8 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 | `backend-node/routes/chat.js` | POST /chat/stream, idempotency keys, Retry-After headers |
 | `backend-node/models/Session.js` | Session schema + 90-day TTL index |
 | `backend-python/circuit_breaker.py` | CircuitBreaker + ResilientLLM auto-fallback wrapper |
-| `backend-python/job_manager.py` | Async job queue, state machine, backpressure |
+| `backend-python/job_manager.py` | Async job queue, state machine, backpressure, per-tenant fairness |
+| `backend-python/egress_allowlist.py` | Egress allowlist (SSRF protection) for httpx clients |
 | `backend-python/checkpoint.py` | Per-step pipeline checkpointing in Redis |
 | `backend-python/event_buffer.py` | SSE event buffering + Last-Event-ID replay |
 | `backend-python/pii_redactor.py` | PII redaction for observability spans |
@@ -71,6 +72,10 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 - Webhooks (CRUD + HMAC-signed dispatch on job.completed/failed)
 - Audit log (AuditLog model + middleware, 1-year TTL)
 - Per-job token budget (MAX_TOKENS_PER_JOB env, default 50k)
+- Per-tenant fairness (round-robin dispatcher across per-user queues)
+- Egress allowlist (SSRF protection on all httpx clients)
+- Cost + TTFT dashboards (llm_ttft_seconds histogram + llm_tokens_total counter)
+- Correlation IDs (X-Request-Id propagated Express → FastAPI → spans)
 
 ## Commands
 
@@ -95,5 +100,4 @@ cd frontend && npm run lint && npm run build
 ## Planning Docs (gitignored)
 
 - `upgrade_roadmap.txt` — full roadmap (Parts 1-4)
-- `scale_readiness_audit.txt` — 8-layer reference architecture benchmark
 - `v2_scale_roadmap.txt` — v2 items with emoji status table

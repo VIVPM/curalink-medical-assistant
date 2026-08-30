@@ -63,6 +63,12 @@ class JobManager:
         self._workers: list[asyncio.Task] = []
         self._pipeline_fn = None
         self._started = False
+        # Per-tenant fairness: round-robin across users so one user's burst
+        # doesn't starve others. Maps user_id -> deque of pending jobs.
+        from collections import deque
+        self._tenant_queues: dict[str, deque] = {}
+        self._tenant_order: deque = deque()  # round-robin cursor
+        self._rr_lock = asyncio.Lock()
 
     def set_pipeline(self, fn):
         """Set the async pipeline function: fn(request_data) -> result dict."""
@@ -72,9 +78,11 @@ class JobManager:
         if self._started:
             return
         self._started = True
+        # Start the round-robin dispatcher + workers
+        asyncio.create_task(self._dispatcher())
         for i in range(self._max_workers):
             self._workers.append(asyncio.create_task(self._worker(i)))
-        logger.info("[jobs] %d workers started, queue cap %d",
+        logger.info("[jobs] %d workers started, queue cap %d, fair scheduling on",
                     self._max_workers, self._queue.maxsize)
 
     def create_job(self, request_data: dict) -> Job:
@@ -84,11 +92,42 @@ class JobManager:
         return job
 
     async def enqueue(self, job: Job) -> bool:
-        """Returns False if queue is full (backpressure)."""
-        if self._queue.full():
+        """Fair-enqueue: add to the user's per-tenant queue, dispatcher
+        round-robins across users into the main work queue.
+        Returns False if total pending exceeds the cap (backpressure)."""
+        total = sum(len(q) for q in self._tenant_queues.values())
+        if total >= self._queue.maxsize:
             return False
-        await self._queue.put(job)
+        user_id = job.request_data.get("_user_id", "anon")
+        async with self._rr_lock:
+            from collections import deque as _deque
+            if user_id not in self._tenant_queues:
+                self._tenant_queues[user_id] = _deque()
+                self._tenant_order.append(user_id)
+            self._tenant_queues[user_id].append(job)
         return True
+
+    async def _dispatcher(self):
+        """Round-robin: cycle through users, push one job per user per tick
+        into the shared work queue. This ensures no single user monopolises."""
+        while True:
+            pushed = False
+            async with self._rr_lock:
+                for _ in range(len(self._tenant_order)):
+                    if self._queue.full():
+                        break
+                    uid = self._tenant_order[0]
+                    self._tenant_order.rotate(-1)
+                    tq = self._tenant_queues.get(uid)
+                    if tq:
+                        job = tq.popleft()
+                        await self._queue.put(job)
+                        pushed = True
+                        if not tq:
+                            del self._tenant_queues[uid]
+                            self._tenant_order.remove(uid)
+            if not pushed:
+                await asyncio.sleep(0.05)  # idle — wait for new jobs
 
     def get_job(self, job_id: str) -> dict | None:
         job = self._jobs.get(job_id)

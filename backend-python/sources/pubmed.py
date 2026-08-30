@@ -162,7 +162,8 @@ async def fetch_pubmed(
         doi, mesh_terms, url. Docs missing an abstract are included here
         and filtered later by the normalizer.
     """
-    async with httpx.AsyncClient() as client:
+    from egress_allowlist import httpx_event_hook
+    async with httpx.AsyncClient(event_hooks={"request": [httpx_event_hook]}) as client:
         pmids = await _esearch(client, query, limit, sort)
         if not pmids:
             return []
