@@ -99,5 +99,4 @@ cd frontend && npm run lint && npm run build
 
 ## Planning Docs (gitignored)
 
-- `upgrade_roadmap.txt` — full roadmap (Parts 1-4)
-- `v2_scale_roadmap.txt` — v2 items with emoji status table
+- `upgrade_roadmap.txt` — full roadmap (Parts 1-4, includes v2 scale items)

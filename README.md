@@ -22,6 +22,7 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **Observability** — LLM generation traces to Langfuse, HTTP spans + a `chat_messages_total` metric to Grafana, over OTLP
 - **CI/CD + Docker** — GitHub Actions (lint, syntax, build, image builds, gated Render deploy) and Dockerfiles for all three services
 - **Reliability (v1)** — Retry-After headers, graceful shutdown, idempotency keys, history summarization, user account deletion, 90-day data retention, structured output validation with repair, jittered retries, prompt-level LLM cache
+- **Scale (v2)** — circuit breaker + auto-fallback, async job API (submit/poll/cancel), queue + backpressure + per-tenant fairness, per-step checkpointing, SSE event replay, token-aware rate limits, PII redaction, webhooks (HMAC-signed), audit log, per-job token budget, egress allowlist (SSRF protection), cost + TTFT dashboards, correlation IDs
 
 ## 🏗️ Architecture
 
@@ -332,7 +333,13 @@ Deployed on Render (free tier) with zero monthly cost:
 | `GET` | `/api/sessions` | List all sessions for user |
 | `POST` | `/api/chat/stream` | Send message, streams SSE pipeline response |
 | `DELETE` | `/api/account` | Delete user account + all sessions + messages |
-| `GET` | `/health` | Health check |
+| `POST` | `/api/jobs` | Submit async pipeline job (returns 202) |
+| `GET` | `/api/jobs/:id` | Poll job status + result |
+| `DELETE` | `/api/jobs/:id` | Cancel a running job |
+| `POST` | `/api/webhooks` | Register a webhook (job.completed/job.failed) |
+| `GET` | `/api/webhooks` | List registered webhooks |
+| `DELETE` | `/api/webhooks/:id` | Delete a webhook |
+| `GET` | `/health` | Health check (includes queue_depth) |
 
 ### FastAPI (Python) — Internal Orchestrator
 
@@ -340,7 +347,11 @@ Deployed on Render (free tier) with zero monthly cost:
 |--------|----------|-------------|
 | `POST` | `/pipeline/run` | Full pipeline, returns JSON |
 | `POST` | `/pipeline/stream` | Full pipeline with SSE streaming |
-| `GET` | `/health` | Health check |
+| `GET` | `/health` | Health check (includes queue_depth) |
+| `POST` | `/jobs` | Submit async pipeline job (202 + job_id) |
+| `GET` | `/jobs/{id}` | Get job status + result |
+| `DELETE` | `/jobs/{id}` | Cancel a job |
+| `GET` | `/jobs/{id}/events` | Replay SSE events (Last-Event-ID support) |
 | `GET` | `/debug/fetch` | Debug: retrieval + normalization only |
 | `GET` | `/debug/rank` | Debug: retrieval + ranking |
 | `GET` | `/llm-ping` | Test LLM connectivity |

@@ -272,33 +272,38 @@ SCALE-5 Redis cache are DONE — see PART 1. What remains below is infra for rea
   / Render env groups) with rotation. Directly reinforces SEC-2 — a leaked or
   defaulted signing secret is full account takeover.
 
-Scale-readiness by 8-layer reference architecture (see scale_readiness_audit.txt
-for the full benchmark — 30/73 concepts at v0, 41%):
+V2 scale features (curalink-v2 branch — all complete):
+  - Circuit breaker + auto-fallback: ResilientLLM wraps primary + fallback
+    provider. CircuitBreaker (closed → open → half-open) with configurable
+    failure_threshold and reset_timeout.
+  - Async job API: POST /jobs → 202, GET /jobs/{id}, DELETE /jobs/{id}.
+    Job state machine: pending → running → completed | failed | cancelled,
+    persisted in Redis (1h TTL).
+  - Queue + backpressure: asyncio.Queue with configurable size, 503 when full.
+    Per-tenant fairness via round-robin dispatcher across per-user queues.
+  - Per-step checkpointing: save/load per stage in Redis (10m TTL). Crash at
+    stage 5 resumes from stage 4, not from scratch.
+  - SSE event buffering + replay: Redis list per job_id, replay events after
+    Last-Event-ID on reconnect.
+  - Queue-depth metric on /health for autoscaling triggers.
+  - Token-aware rate limits: DAILY_TOKEN_CAP env, chars/4 estimate per message.
+  - PII redaction on observability spans (email/phone/SSN stripped).
+  - Webhooks: CRUD + HMAC-signed POST dispatch on job.completed/failed events.
+  - Audit log: AuditLog model + fire-and-forget middleware, 1-year TTL.
+  - Per-job token budget: TokenBudget class, MAX_TOKENS_PER_JOB env (50k default).
+  - Egress allowlist: SSRF protection on all httpx clients (pubmed, openalex,
+    geocode) via event hooks restricting outbound HTTP to known API hosts.
+  - Cost + TTFT dashboards: llm_ttft_seconds histogram + llm_tokens_total
+    per-user counter exported to Grafana via OTLP.
+  - Correlation IDs: X-Request-Id propagated Express → FastAPI → pipeline spans.
 
-  Biggest gaps for v2 (when traffic gets real):
-  1. Queue + backpressure (Layer 3) — pipeline runs inline, no task queue, DLQ,
-     or per-tenant fairness. A traffic spike kills in-flight requests.
-  2. Circuit breaker + auto-fallback (Layer 5) — one provider outage takes down
-     the whole system. Need: after N failures open the circuit (503 + probe).
-  3. Async submit/poll/cancel (Layer 2) — SSE disconnect = lost work. Need:
-     POST /jobs -> 202, GET /jobs/{id}, DELETE /jobs/{id}.
-  4. Per-step checkpointing (Layer 7) — crash at stage 5 re-runs 1-4 from
-     scratch. Save intermediate results to Redis per stage.
-  5. SSE event buffering + replay (Layer 8) — disconnect mid-stream = all prior
-     events lost. Buffer in Redis, replay via Last-Event-ID.
-  6. Correlation IDs (Control Plane) — request IDs exist in Express but aren't
-     propagated Express -> FastAPI; need end-to-end X-Request-Id.
-  7. Token-aware rate limits — current limits count requests not tokens.
+  Scale-readiness score: 46/73 concepts (63%) across the 8-layer reference
+  architecture benchmark.
 
-  See v2_scale_roadmap.txt for the full v2 items with status.
-
-Recommended order for what's left:
+Recommended order for what's left (infra, not code):
   1. SCALE-4 infra (always-on + autoscale + Atlas tier + read replica).
   2. SCALE-8 rate-limit store in Redis (the moment there's a second instance).
   3. SCALE-9 secrets manager.
-  4. Queue + backpressure (v2).
-  5. Circuit breaker + auto-fallback (v2).
-  6. Async job API + state machine (v2).
   (The biggest remaining lever at true 10k scale is a pre-indexed PubMed vector
   store so uncached queries don't hit the live APIs — deliberately deferred; the
   semantic cache already covers the demo's hot path.)
@@ -316,13 +321,10 @@ SUMMARY
           (Email verification via SMTP is deliberately out of scope.)
   Part 3: OK for a small, trusted user base — blockers fixed and security
           hardening complete. Set JWT_SECRET at deploy. No outstanding items.
-  Part 4: The demo-relevant scaling is done and in Part 1 — Redis query +
-          embedding + prompt caches, a semantic first-turn cache (SCALE-1),
-          HF-call throttling (HF-only by choice), and a 5-credit per-user
-          quota. What's left is real-10k infra: always-on/autoscale + Atlas
-          tier (SCALE-4), shared Redis rate-limit store (SCALE-8), secrets
-          manager (SCALE-9), and v2 scale items (queue, circuit breaker, async
-          jobs, checkpointing, SSE replay — see v2_scale_roadmap.txt).
-          Observability (Langfuse + Grafana) wired — see Part 1. None needed
-          for demo.
+  Part 4: Demo-relevant scaling done in Part 1 (caches, throttle, quota).
+          V2 scale features complete (curalink-v2 branch): circuit breaker +
+          fallback, async job API, queue + backpressure + per-tenant fairness,
+          checkpointing, SSE replay, token limits, PII redaction, webhooks,
+          audit log, egress allowlist, cost/TTFT dashboards, correlation IDs.
+          Score: 46/73 (63%). Remaining: infra only (SCALE-4/8/9).
 ================================================================================
