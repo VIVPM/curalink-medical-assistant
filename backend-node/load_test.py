@@ -352,6 +352,64 @@ def spawn_express(port, stub_port):
 
 
 # =============================================================================
+# Smoke — quick functional check (every endpoint once, pass/fail)
+# =============================================================================
+
+def run_smoke(args):
+    """Spawn Express + stub, hit every endpoint once, report pass/fail."""
+    stub = spawn_stub(args.stub_port, args.lead_seconds)
+    express, express_log = spawn_express(args.express_port, args.stub_port)
+    base = f"http://127.0.0.1:{args.express_port}"
+    checks = []
+    try:
+        ok = wait_for_health(base, timeout=30)
+        checks.append(("health", ok))
+        if not ok:
+            sys.exit("Smoke: server didn't start")
+
+        token, _ = ensure_user(base)
+        checks.append(("auth", True))
+
+        sids = seed_sessions(base, token, 1)
+        checks.append(("session_create", len(sids) == 1))
+
+        auth = {"Authorization": f"Bearer {token}"}
+        r = httpx.get(f"{base}/api/sessions", headers=auth, timeout=10)
+        checks.append(("session_list", r.status_code == 200))
+
+        if sids:
+            r = httpx.get(f"{base}/api/session/{sids[0]}", headers=auth, timeout=10)
+            checks.append(("session_get", r.status_code == 200))
+
+        # Quick chat/stream — the stub answers in lead_seconds
+        r = httpx.post(f"{base}/api/chat/stream", headers=auth, timeout=30,
+                       json={"sessionId": sids[0] if sids else "x", "message": "smoke"})
+        checks.append(("chat_stream", r.status_code == 200))
+
+        if sids:
+            cleanup_sessions(base, token, sids)
+            checks.append(("session_delete", True))
+
+        passed = all(ok for _, ok in checks)
+        for name, ok in checks:
+            print(f"  {'✓' if ok else '✗'} {name}")
+        print(f"\nSmoke {'PASSED' if passed else 'FAILED'}")
+        if not passed:
+            sys.exit(1)
+    finally:
+        if express is not None:
+            express.terminate()
+            try:
+                express.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                express.kill()
+            if express_log:
+                express_log.close()
+        if stub is not None:
+            stub.terminate()
+
+
+# =============================================================================
 # main
 # =============================================================================
 
@@ -372,6 +430,7 @@ def main():
     ap.add_argument("--stub-port", type=int, default=8055)
     ap.add_argument("--serve-stub", action="store_true")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--smoke", action="store_true", help="quick functional check — hit every endpoint once")
     args = ap.parse_args()
 
     if args.selftest:
@@ -381,6 +440,9 @@ def main():
         assert pctl([5], 50) == 5 and math.isnan(pctl([], 50))
         print("selftest ok")
         return
+
+    if args.smoke:
+        return run_smoke(args)
 
     if args.serve_stub:
         return serve_stub(args.stub_port, args.lead_seconds)
