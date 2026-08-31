@@ -279,8 +279,12 @@ def ramp_report(rows, args, tag):
     print(f"  SLO: <1% errors AND fast-path p95 < 3x the {rows[0]['concurrency'] if rows else '?'}-user baseline")
     print("  Measured on THIS machine — a different box / the real Render instance will")
     print("  shift the number; re-run there (or with --base-url) before trusting it.")
+    total_req = sum(r["requests"] for r in rows)
+    total_err = sum(r["errors"] for r in rows)
+    print(f"\n  Total: {total_req} requests, {total_err} errors across {len(rows)} level(s)")
     _save(f"ramp_{_stamp()}.json", {"tag": tag, "config": vars(args), "levels": rows,
-                                    "estimated_ceiling": ceiling})
+                                    "estimated_ceiling": ceiling,
+                                    "total_requests": total_req, "total_errors": total_err})
 
 
 def idle_saturated_report(idle, sat, args, tag):
