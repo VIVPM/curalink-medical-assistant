@@ -338,24 +338,33 @@ Deployed on Render (free tier) with zero monthly cost:
 | `GET` | `/debug/rank` | Debug: retrieval + ranking |
 | `GET` | `/llm-ping` | Test LLM connectivity |
 
-## Load Testing
+## Load Testing & Capacity
 
-`backend-node/load_test.py` spawns a real Express server and a stub FastAPI (zero LLM cost) for offline load testing.
+`backend-node/load_test.py` answers two questions: does the app stay responsive under load, and how many concurrent users it takes. The LLM is stubbed (zero HF cost), so a run finishes in minutes.
+
+**Capacity** (`--ramp`, local, pipeline stubbed). Scales read concurrency through 10→300 users:
+
+| Concurrent users | req/s | p50 | p95 | errors |
+|---|---|---|---|---|
+| 10 | 32.9 | 234ms | 890ms | 0 |
+| 25 | 58.4 | 313ms | 1.0s | 0 |
+| **50** | **77.8** | **484ms** | **1.4s** | **0** |
+| 100 | 63.9 | 860ms | 5.0s | 0 |
+| 200 | 53.5 | 1.3s | 6.8s | 0 |
+| 300 | 63.5 | 4.3s | 6.4s | 0 |
+
+**Zero errors even at 300 concurrent users.** Estimated healthy ceiling: **~50 users** (SLO: <1% errors AND p95 < 3× the 10-user baseline). Above 50 latency degrades but nothing breaks.
+
+**Responsiveness** (idle vs saturated, 20 read clients + 12 chat streams). `/health` barely moves — **p95 31→32ms (×1.0)** — so chat streaming doesn't starve the event loop. DB-hitting reads actually get *faster* under saturation (warm caches): sessions **p95 891→422ms (×0.5)**, session detail **p95 1703→703ms (×0.4)**. **0 errors** in both phases.
+
+**Bottom line:** one Express instance serves ~50 concurrent browsers with no failures. To go further the next levers are a paid always-on tier, horizontal scaling, and a read replica (Part 4 of the roadmap).
 
 ```bash
 cd backend-node
-
-# Concurrency ramp — find the ceiling
-python load_test.py --ramp
-
-# Idle vs saturated comparison (default mode)
-python load_test.py
-
-# Quick functional smoke test (every endpoint once)
-python load_test.py --smoke
-
-# CI smoke test (no servers, instant)
-python load_test.py --selftest
+python load_test.py --ramp              # concurrency ceiling
+python load_test.py                      # idle vs saturated
+python load_test.py --smoke              # quick functional check
+python load_test.py --selftest           # CI smoke test (no servers)
 ```
 
 ## Key Design Decisions
