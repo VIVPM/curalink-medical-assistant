@@ -127,6 +127,12 @@ App layer
     contention); --base-url ramps a live deployment read-only. Reports to
     load_test_results/. Running it already caught + fixed an IPv6-unsafe
     rate-limit keyGenerator (now uses ipKeyGenerator).
+    V2 load-test probes (--v2-probes flag): exercise async job API lifecycle
+    (submit → poll → complete/cancel), verify queue_depth appears in /health,
+    and test webhook CRUD (create/list/delete). The stub FastAPI is extended
+    with /jobs endpoints and queue_depth in /health.
+    CI smoke test: --selftest flag verifies the harness imports and arg parsing
+    without starting servers (runs in the backend-python CI gate).
   - Observability (SCALE-6), wired the flipkart way (observability.py, OTLP):
     LLM generation spans -> Langfuse AND Grafana, HTTP endpoint spans (FastAPI
     instrumentor) -> Grafana, and a chat_messages_total counter -> Grafana. All
