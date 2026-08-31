@@ -68,6 +68,7 @@ logs/
 scratch/
 tmp/
 *.bak
+load_test_results/
 
 architecture.md
 plan.md
