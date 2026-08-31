@@ -435,9 +435,22 @@ def main():
 
     if args.selftest:
         import math
+        # pctl correctness
         assert pctl([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 50) == 5
         assert pctl([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 95) == 10
         assert pctl([5], 50) == 5 and math.isnan(pctl([], 50))
+        assert pctl([3, 1, 2], 99) == 3  # unsorted input, high pctl
+        # report save round-trip
+        _save("selftest_probe.json", {"probe": True})
+        probe_path = os.path.join(RESULTS_DIR, "selftest_probe.json")
+        assert os.path.isfile(probe_path)
+        with open(probe_path) as f:
+            assert json.load(f)["probe"] is True
+        os.remove(probe_path)
+        # all callable helpers exist
+        for fn in (serve_stub, wait_for_health, ensure_user, seed_sessions,
+                   cleanup_sessions, hammer, run_ramp, run_smoke):
+            assert callable(fn), f"{fn} not callable"
         print("selftest ok")
         return
 
