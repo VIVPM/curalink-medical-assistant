@@ -419,6 +419,33 @@ def _save(name, payload):
 # Spawning the real Express + the stub
 # =============================================================================
 
+def _resolve_srv_uri(uri):
+    """Rewrite mongodb+srv:// to mongodb:// with pre-resolved hosts.
+    Node's c-ares DNS can fail SRV lookups in sandboxed environments even when
+    the system resolver works fine.  Falls back to the original URI on error."""
+    # ponytail: only handles the Atlas SRV convention; enough for load tests
+    import re
+    m = re.match(r"mongodb\+srv://([^@]+@)?([^/]+)/(.+)", uri)
+    if not m:
+        return uri
+    creds = m.group(1) or ""
+    host = m.group(2)
+    rest = m.group(3)
+    try:
+        import subprocess as _sp
+        out = _sp.check_output(
+            ["powershell", "-NoProfile", "-Command",
+             f"(Resolve-DnsName -Name '_mongodb._tcp.{host}' -Type SRV"
+             " | ForEach-Object { \"$($_.NameTarget):$($_.Port)\" }) -join ','"],
+            timeout=10, text=True).strip()
+        if out:
+            sep = "&" if "?" in rest else "?"
+            return f"mongodb://{creds}{out}/{rest}{sep}ssl=true&authSource=admin"
+    except Exception:
+        pass
+    return uri
+
+
 def spawn_stub(port, lead_seconds):
     return subprocess.Popen(
         [sys.executable, os.path.abspath(__file__), "--serve-stub",
@@ -438,6 +465,18 @@ def spawn_express(port, stub_port):
         "DAILY_MESSAGE_CAP": "100000000",
     })
     env.pop("REDIS_URL", None)  # keep the run deterministic — Mongo-backed cache only
+    # Rewrite mongodb+srv:// → standard mongodb:// to bypass SRV DNS sandbox issue
+    mongo_uri = env.get("MONGO_URI", "")
+    if not mongo_uri:
+        dotenv_path = os.path.join(BASE_DIR, ".env")
+        if os.path.isfile(dotenv_path):
+            with open(dotenv_path) as f:
+                for line in f:
+                    if line.strip().startswith("MONGO_URI="):
+                        mongo_uri = line.strip().split("=", 1)[1]
+                        break
+    if mongo_uri.startswith("mongodb+srv://"):
+        env["MONGO_URI"] = _resolve_srv_uri(mongo_uri)
     os.makedirs(RESULTS_DIR, exist_ok=True)
     log = open(os.path.join(RESULTS_DIR, "express.log"), "w", encoding="utf-8")
     proc = subprocess.Popen(["node", "index.js"], cwd=BASE_DIR, env=env,
