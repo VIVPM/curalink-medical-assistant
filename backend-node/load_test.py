@@ -90,9 +90,12 @@ def serve_stub(port, lead_seconds):
         "pipelineMeta": {"stub": True},
     }
 
+    # ponytail: minimal in-memory job store for v2 probe tests
+    _jobs = {}
+
     @app.get("/health")
     async def health():
-        return {"ok": True, "service": "stub"}
+        return {"ok": True, "service": "stub", "queue_depth": len(_jobs)}
 
     @app.post("/pipeline/run")
     async def run():
@@ -107,6 +110,24 @@ def serve_stub(port, lead_seconds):
             yield f"event: metadata\ndata: {json.dumps(canned)}\n\n"
             yield "event: done\ndata: {}\n\n"
         return StreamingResponse(gen(), media_type="text/event-stream")
+
+    @app.post("/jobs")
+    async def submit_job():
+        jid = uuid.uuid4().hex[:16]
+        _jobs[jid] = "pending"
+        asyncio.get_event_loop().call_later(lead_seconds, lambda: _jobs.update({jid: "completed"}))
+        return {"job_id": jid, "state": "pending"}
+
+    @app.get("/jobs/{job_id}")
+    async def get_job(job_id: str):
+        state = _jobs.get(job_id, "not_found")
+        return {"job_id": job_id, "state": state}
+
+    @app.delete("/jobs/{job_id}")
+    async def cancel_job(job_id: str):
+        if job_id in _jobs:
+            _jobs[job_id] = "cancelled"
+        return {"job_id": job_id, "state": "cancelled"}
 
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="error")
 
