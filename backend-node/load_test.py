@@ -445,6 +445,8 @@ def main():
     ap.add_argument("--stub-port", type=int, default=8055)
     ap.add_argument("--serve-stub", action="store_true")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--v2-probes", action="store_true",
+                    help="run v2 feature probes: job API, queue depth, webhooks")
     args = ap.parse_args()
 
     if args.selftest:
@@ -481,6 +483,23 @@ def main():
         seeded = seed_sessions(base, token, args.seed_sessions)
         probe = seeded[0] if seeded else "000000000000000000000000"
         print(f"Seeded {len(seeded)} session(s) for the load-test user.")
+
+        if args.v2_probes:
+            print("\n--- V2 feature probes ---")
+            print("  Job API (submit → poll → cancel)...")
+            job = asyncio.run(test_job_api(base, token, probe))
+            print(f"    submit={job['submit']} states={job['poll_states']} "
+                  f"cancel={job['cancel']}")
+            print("  Queue depth on /health...")
+            qd = asyncio.run(test_queue_depth(base))
+            print(f"    has_queue_depth={qd['has_queue_depth']} value={qd['queue_depth']}")
+            print("  Webhook CRUD...")
+            wh = asyncio.run(test_webhook_crud(base, token))
+            print(f"    create={wh['create']} list={wh['list_count']} "
+                  f"delete={wh['delete']}")
+            _save(f"v2_probes_{_stamp()}.json", {"tag": tag, "job_api": job,
+                  "queue_depth": qd, "webhook_crud": wh})
+            print("--- V2 probes done ---\n")
 
         if args.ramp:
             levels = [int(x) for x in args.ramp_levels.split(",") if x.strip()]
