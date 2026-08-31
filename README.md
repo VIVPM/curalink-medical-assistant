@@ -356,6 +356,26 @@ Deployed on Render (free tier) with zero monthly cost:
 | `GET` | `/debug/rank` | Debug: retrieval + ranking |
 | `GET` | `/llm-ping` | Test LLM connectivity |
 
+## Load Testing
+
+`backend-node/load_test.py` spawns a real Express server and a stub FastAPI (zero LLM cost) for offline load testing.
+
+```bash
+cd backend-node
+
+# Concurrency ramp — find the ceiling
+python load_test.py --ramp
+
+# Idle vs saturated comparison (default mode)
+python load_test.py
+
+# V2 feature probes — job API lifecycle, queue depth, webhook CRUD
+python load_test.py --v2-probes
+
+# CI smoke test (no servers, instant)
+python load_test.py --selftest
+```
+
 ## Key Design Decisions
 
 - **Thin Express, fat FastAPI** — routing and DB in Node, entire AI pipeline in Python where the LLM/retrieval/ranking ecosystem is strongest

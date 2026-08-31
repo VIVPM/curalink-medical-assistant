@@ -89,6 +89,12 @@ cd frontend && npm run dev
 cd backend-python && python -m py_compile main.py
 cd backend-node && node --check index.js
 cd frontend && npm run lint && npm run build
+
+# Load test (spawns Express + stub FastAPI, zero HF cost)
+cd backend-node && python load_test.py --ramp         # concurrency ceiling
+cd backend-node && python load_test.py                 # idle vs saturated
+cd backend-node && python load_test.py --v2-probes     # job API, queue depth, webhooks
+cd backend-node && python load_test.py --selftest      # CI smoke test
 ```
 
 ## Environment
