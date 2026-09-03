@@ -330,6 +330,464 @@ EVAL_SET = [
             "source_types": ["pubmed"],
         },
     },
+
+    # --- Pediatric / age-specific ---
+    {
+        "id": "Q21",
+        "disease": "Acute lymphoblastic leukemia",
+        "intent": "CAR-T therapy",
+        "location": "Philadelphia, USA",
+        "message": "What are the outcomes of CAR-T cell therapy in pediatric relapsed ALL?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["CAR-T", "tisagenlecleucel", "CD19", "leukemia", "pediatric", "remission"],
+            "source_types": ["pubmed"],
+        },
+    },
+    {
+        "id": "Q22",
+        "disease": "ADHD",
+        "intent": "non-stimulant treatment",
+        "location": "Toronto, Canada",
+        "message": "How does viloxazine compare to atomoxetine for ADHD in children?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["viloxazine", "atomoxetine", "ADHD", "non-stimulant", "norepinephrine"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Surgical / procedural ---
+    {
+        "id": "Q23",
+        "disease": "Obesity",
+        "intent": "bariatric surgery",
+        "location": "Dallas, USA",
+        "message": "What is the long-term weight loss comparison between gastric sleeve and gastric bypass?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["sleeve", "bypass", "bariatric", "weight loss", "Roux-en-Y", "gastrectomy"],
+            "source_types": ["pubmed"],
+        },
+    },
+    {
+        "id": "Q24",
+        "disease": "Coronary artery disease",
+        "intent": "revascularization",
+        "location": "Cleveland, USA",
+        "message": "When is CABG preferred over PCI for multivessel coronary artery disease?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["CABG", "PCI", "multivessel", "coronary", "revascularization", "SYNTAX"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Infectious disease ---
+    {
+        "id": "Q25",
+        "disease": "Tuberculosis",
+        "intent": "drug-resistant treatment",
+        "location": "Cape Town, South Africa",
+        "message": "What are the current regimens for multidrug-resistant tuberculosis?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["MDR-TB", "bedaquiline", "pretomanid", "linezolid", "drug-resistant"],
+            "source_types": ["pubmed"],
+        },
+    },
+    {
+        "id": "Q26",
+        "disease": "Hepatitis C",
+        "intent": "direct-acting antivirals",
+        "location": "Cairo, Egypt",
+        "message": "What is the sustained virologic response rate with current DAA regimens for hepatitis C?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["DAA", "sofosbuvir", "SVR", "hepatitis C", "virologic", "cure"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Mental health ---
+    {
+        "id": "Q27",
+        "disease": "PTSD",
+        "intent": "psychedelic-assisted therapy",
+        "location": "Denver, USA",
+        "message": "What does the clinical evidence say about MDMA-assisted therapy for PTSD?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["MDMA", "PTSD", "psychedelic", "psychotherapy", "trauma"],
+            "source_types": ["pubmed"],
+        },
+    },
+    {
+        "id": "Q28",
+        "disease": "Schizophrenia",
+        "intent": "long-acting injectables",
+        "location": "Amsterdam, Netherlands",
+        "message": "How do long-acting injectable antipsychotics compare to oral formulations for relapse prevention in schizophrenia?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["long-acting", "injectable", "LAI", "relapse", "paliperidone", "aripiprazole"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Women's health ---
+    {
+        "id": "Q29",
+        "disease": "Endometriosis",
+        "intent": "hormonal management",
+        "location": "Sydney, Australia",
+        "message": "What are the benefits and risks of GnRH antagonists like elagolix for endometriosis pain?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["elagolix", "GnRH", "endometriosis", "pain", "dysmenorrhea"],
+            "source_types": ["pubmed"],
+        },
+    },
+    {
+        "id": "Q30",
+        "disease": "Polycystic ovary syndrome",
+        "intent": "metformin vs lifestyle",
+        "location": "Bangalore, India",
+        "message": "Is metformin more effective than lifestyle intervention alone for PCOS management?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["metformin", "PCOS", "lifestyle", "insulin resistance", "ovulation"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- More abstain tests ---
+    {
+        "id": "Q31",
+        "disease": "None",
+        "intent": "general",
+        "location": "",
+        "message": "What is the best programming language to learn in 2026?",
+        "expect": {
+            "should_abstain": True,
+            "min_insights": 0,
+            "min_trials": 0,
+            "topic_keywords": [],
+            "source_types": [],
+        },
+    },
+    {
+        "id": "Q32",
+        "disease": "None",
+        "intent": "general",
+        "location": "",
+        "message": "Tell me a joke about doctors.",
+        "expect": {
+            "should_abstain": True,
+            "min_insights": 0,
+            "min_trials": 0,
+            "topic_keywords": [],
+            "source_types": [],
+        },
+    },
+    {
+        "id": "Q33",
+        "disease": "None",
+        "intent": "general",
+        "location": "",
+        "message": "How tall is Mount Everest?",
+        "expect": {
+            "should_abstain": True,
+            "min_insights": 0,
+            "min_trials": 0,
+            "topic_keywords": [],
+            "source_types": [],
+        },
+    },
+
+    # --- Ophthalmology ---
+    {
+        "id": "Q34",
+        "disease": "Age-related macular degeneration",
+        "intent": "anti-VEGF therapy",
+        "location": "Zurich, Switzerland",
+        "message": "How does faricimab compare to aflibercept for wet AMD treatment intervals?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["faricimab", "aflibercept", "anti-VEGF", "AMD", "macular", "injection"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Orthopedics ---
+    {
+        "id": "Q35",
+        "disease": "Osteoarthritis",
+        "intent": "knee replacement alternatives",
+        "location": "Minneapolis, USA",
+        "message": "What is the evidence for platelet-rich plasma injections versus hyaluronic acid for knee osteoarthritis?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["PRP", "platelet-rich plasma", "hyaluronic acid", "knee", "osteoarthritis"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Dermatology ---
+    {
+        "id": "Q36",
+        "disease": "Psoriasis",
+        "intent": "IL-17 inhibitors",
+        "location": "Vienna, Austria",
+        "message": "How do IL-17 inhibitors compare to IL-23 inhibitors for plaque psoriasis clearance?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["IL-17", "IL-23", "secukinumab", "ixekizumab", "guselkumab", "risankizumab", "PASI"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Gastroenterology ---
+    {
+        "id": "Q37",
+        "disease": "Ulcerative colitis",
+        "intent": "JAK inhibitors",
+        "location": "Barcelona, Spain",
+        "message": "What is the efficacy of tofacitinib for moderate-to-severe ulcerative colitis?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["tofacitinib", "JAK", "ulcerative colitis", "remission", "mucosal healing"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Endocrinology ---
+    {
+        "id": "Q38",
+        "disease": "Hypothyroidism",
+        "intent": "combination therapy",
+        "location": "Copenhagen, Denmark",
+        "message": "Is there benefit to adding T3 (liothyronine) to levothyroxine for persistent hypothyroid symptoms?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["T3", "liothyronine", "levothyroxine", "hypothyroid", "combination", "thyroid"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Nephrology ---
+    {
+        "id": "Q39",
+        "disease": "Chronic kidney disease",
+        "intent": "finerenone",
+        "location": "Munich, Germany",
+        "message": "What are the renal and cardiovascular outcomes with finerenone in diabetic kidney disease?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["finerenone", "kidney", "FIDELIO", "FIGARO", "MRA", "albuminuria", "eGFR"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Hematology ---
+    {
+        "id": "Q40",
+        "disease": "Multiple myeloma",
+        "intent": "bispecific antibodies",
+        "location": "Rochester, USA",
+        "message": "How effective are bispecific antibodies like teclistamab for relapsed multiple myeloma?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["teclistamab", "bispecific", "BCMA", "myeloma", "relapsed"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Vague / borderline queries (should still attempt, not abstain) ---
+    {
+        "id": "Q41",
+        "disease": "Diabetes",
+        "intent": "general",
+        "location": "Lagos, Nigeria",
+        "message": "What are the newest treatments for diabetes?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["diabetes", "insulin", "GLP", "SGLT2", "metformin"],
+            "source_types": ["pubmed"],
+        },
+    },
+    {
+        "id": "Q42",
+        "disease": "Asthma",
+        "intent": "biologic therapy",
+        "location": "Singapore",
+        "message": "Which biologics are recommended for severe eosinophilic asthma?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["eosinophilic", "mepolizumab", "benralizumab", "dupilumab", "IL-5", "asthma"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Neurology ---
+    {
+        "id": "Q43",
+        "disease": "Amyotrophic lateral sclerosis",
+        "intent": "disease-modifying therapy",
+        "location": "Baltimore, USA",
+        "message": "What is the evidence for tofersen in SOD1-ALS?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["tofersen", "SOD1", "ALS", "antisense", "neurofilament"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Cardiology ---
+    {
+        "id": "Q44",
+        "disease": "Atrial fibrillation",
+        "intent": "ablation vs medication",
+        "location": "Milan, Italy",
+        "message": "Is catheter ablation superior to antiarrhythmic drugs as first-line therapy for atrial fibrillation?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["ablation", "antiarrhythmic", "atrial fibrillation", "rhythm", "EAST-AFNET", "pulmonary vein"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- Pulmonology ---
+    {
+        "id": "Q45",
+        "disease": "Idiopathic pulmonary fibrosis",
+        "intent": "antifibrotic therapy",
+        "location": "Nashville, USA",
+        "message": "How do nintedanib and pirfenidone compare for slowing FVC decline in IPF?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["nintedanib", "pirfenidone", "IPF", "FVC", "antifibrotic", "pulmonary fibrosis"],
+            "source_types": ["pubmed"],
+        },
+    },
+
+    # --- More abstain (tricky borderline) ---
+    {
+        "id": "Q46",
+        "disease": "None",
+        "intent": "general",
+        "location": "",
+        "message": "What stocks should I invest in for healthcare companies?",
+        "expect": {
+            "should_abstain": True,
+            "min_insights": 0,
+            "min_trials": 0,
+            "topic_keywords": [],
+            "source_types": [],
+        },
+    },
+    {
+        "id": "Q47",
+        "disease": "None",
+        "intent": "general",
+        "location": "",
+        "message": "Can you help me write a medical school application essay?",
+        "expect": {
+            "should_abstain": True,
+            "min_insights": 0,
+            "min_trials": 0,
+            "topic_keywords": [],
+            "source_types": [],
+        },
+    },
+
+    # --- Clinical trials heavy ---
+    {
+        "id": "Q48",
+        "disease": "Glioblastoma",
+        "intent": "immunotherapy trials",
+        "location": "Boston, USA",
+        "message": "Are there active immunotherapy clinical trials for recurrent glioblastoma?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 0,
+            "min_trials": 1,
+            "topic_keywords": ["glioblastoma", "immunotherapy", "checkpoint", "vaccine", "GBM"],
+            "source_types": [],
+        },
+    },
+    {
+        "id": "Q49",
+        "disease": "Cystic fibrosis",
+        "intent": "CFTR modulators",
+        "location": "Dublin, Ireland",
+        "message": "What is the impact of elexacaftor-tezacaftor-ivacaftor on lung function in cystic fibrosis?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["elexacaftor", "Trikafta", "CFTR", "FEV1", "cystic fibrosis", "modulator"],
+            "source_types": ["pubmed"],
+        },
+    },
+    {
+        "id": "Q50",
+        "disease": "Prostate cancer",
+        "intent": "PARP inhibitors",
+        "location": "Los Angeles, USA",
+        "message": "What is the role of olaparib in metastatic castration-resistant prostate cancer with BRCA mutations?",
+        "expect": {
+            "should_abstain": False,
+            "min_insights": 1,
+            "min_trials": 0,
+            "topic_keywords": ["olaparib", "PARP", "BRCA", "prostate", "castration-resistant", "HRR"],
+            "source_types": ["pubmed"],
+        },
+    },
 ]
 
 
