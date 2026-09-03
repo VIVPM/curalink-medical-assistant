@@ -357,7 +357,20 @@ Deployed on Render (free tier) with zero monthly cost:
 
 **Responsiveness** (idle vs saturated, 20 read clients + 12 chat streams). `/health` barely moves — **p95 31→32ms (×1.0)** — so chat streaming doesn't starve the event loop. DB-hitting reads actually get *faster* under saturation (warm caches): sessions **p95 891→422ms (×0.5)**, session detail **p95 1703→703ms (×0.4)**. **0 errors** in both phases.
 
-**Bottom line:** one Express instance serves ~50 concurrent browsers with no failures. To go further the next levers are a paid always-on tier, horizontal scaling, and a read replica (Part 4 of the roadmap).
+**Production (Render free tier)** (`--ramp --base-url https://curalink-medical-assistant.onrender.com`):
+
+| Concurrent users | req/s | p50 | p95 | errors |
+|---|---|---|---|---|
+| 10 | 27.4 | 313ms | 594ms | 0 |
+| 25 | 48.1 | 437ms | 938ms | 0 |
+| **50** | **55.8** | **797ms** | **1.6s** | **0** |
+| 100 | 66.0 | 1.5s | 2.3s | 0 |
+| 200 | 71.3 | 3.0s | 4.0s | 0 |
+| 300 | 47.1 | 4.5s | 11.1s | 0 |
+
+**3,170 requests, 0 errors.** Same ~50 user ceiling. Render adds ~100-200ms network overhead vs local, but zero errors all the way to 300.
+
+**Bottom line:** one Express instance serves ~50 concurrent browsers with no failures, both locally and on Render free tier. To go further the next levers are a paid always-on tier, horizontal scaling, and a read replica (Part 4 of the roadmap).
 
 ```bash
 cd backend-node
