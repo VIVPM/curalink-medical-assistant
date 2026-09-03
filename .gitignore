@@ -6,6 +6,7 @@
 scale_readiness_audit.txt
 v2_scale_roadmap.txt
 v0-v1-v2.txt
+upgrade_roadmap.txt
 
 # --- Secrets (NEVER commit) ---
 .env
