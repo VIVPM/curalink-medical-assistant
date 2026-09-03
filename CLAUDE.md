@@ -98,7 +98,7 @@ cd backend-node && python load_test.py --v2-probes     # job API, queue depth, w
 cd backend-node && python load_test.py --selftest      # CI smoke test
 
 # Pipeline quality eval (needs FastAPI running on :8000, hits real LLM — $0 on free tier)
-cd backend-python && python eval_harness.py            # full 20-query eval
+cd backend-python && python eval_harness.py            # full 50-query eval
 cd backend-python && python eval_harness.py --query 0  # single query by index
 cd backend-python && python eval_harness.py --selftest # validate eval set only
 ```
