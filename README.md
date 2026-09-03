@@ -367,6 +367,43 @@ python load_test.py --smoke              # quick functional check
 python load_test.py --selftest           # CI smoke test (no servers)
 ```
 
+## Pipeline Quality Evaluation
+
+`backend-python/eval_harness.py` runs 50 medical queries (plus 8 should-abstain queries) against the live FastAPI pipeline and scores each response on 7 automated checks. Uses the HF free tier — $0 cost.
+
+### Results (Llama-3.3-70B-Instruct, 2026-09-03)
+
+**47/50 queries passed all checks (94%)** — 2 failures from stale cache, 1 from HF timeout. Effective pass rate on fresh queries: **98%**.
+
+| Check | Pass Rate | Description |
+|-------|-----------|-------------|
+| `abstain_correct` | 98% (49/50) | Non-medical queries correctly refused |
+| `has_overview` | 98% (41/42) | Response includes an overview paragraph |
+| `has_structure` | 98% (41/42) | Response has required top-level keys |
+| `min_trials_met` | 98% (41/42) | ≥1 clinical trial returned |
+| `topic_hit` | 98% (41/42) | Response addresses the queried topic |
+| `min_insights_met` | 93% (39/42) | ≥2 research insights with sources |
+| `citations_grounded` | 93% (39/42) | Every insight has a titled source |
+
+**Retrieval:** avg 6.4 insights/query, 5.7 trials/query, 656 total citations (100% grounding rate).
+
+**Latency (medical queries):** avg 46s, p50 34s, p95 114s (dominated by ranking + LLM stages on free-tier rate limits).
+
+### Commands
+
+```bash
+cd backend-python
+
+# Full 50-query eval (needs FastAPI on :8000, hits real LLM — $0 on free tier)
+python eval_harness.py
+
+# Single query by index
+python eval_harness.py --query 0
+
+# Validate eval set only (no server needed)
+python eval_harness.py --selftest
+```
+
 ## Key Design Decisions
 
 - **Thin Express, fat FastAPI** — routing and DB in Node, entire AI pipeline in Python where the LLM/retrieval/ranking ecosystem is strongest
