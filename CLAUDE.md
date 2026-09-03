@@ -49,6 +49,7 @@ cd frontend && npm run lint && npm run build
 cd backend-node && python load_test.py --ramp         # concurrency ceiling
 cd backend-node && python load_test.py                 # idle vs saturated
 cd backend-node && python load_test.py --smoke         # quick functional check
+cd backend-node && python load_test.py --v2-probes     # job API, queue depth, webhooks
 cd backend-node && python load_test.py --selftest      # CI smoke test
 ```
 
@@ -61,10 +62,4 @@ cd backend-node && python load_test.py --selftest      # CI smoke test
 ## Branch Strategy
 
 - `main` — v0 core + bug fixes
-- `curalink-v0-v1-practice` — v0 + v1 reliability features
-- `curalink-v2` — v0 + v1 + v2 scale features
-
-## Planning Docs (gitignored)
-
-- `upgrade_roadmap.txt` — full roadmap (Parts 1-4)
-- `scale_readiness_audit.txt` — 8-layer reference architecture benchmark
+- `curalink-v012` — v0 + v1 + v2 (all features)

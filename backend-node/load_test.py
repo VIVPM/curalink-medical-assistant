@@ -90,9 +90,12 @@ def serve_stub(port, lead_seconds):
         "pipelineMeta": {"stub": True},
     }
 
+    # ponytail: minimal in-memory job store for v2 probe tests
+    _jobs = {}
+
     @app.get("/health")
     async def health():
-        return {"ok": True, "service": "stub"}
+        return {"ok": True, "service": "stub", "queue_depth": len(_jobs)}
 
     @app.post("/pipeline/run")
     async def run():
@@ -107,6 +110,24 @@ def serve_stub(port, lead_seconds):
             yield f"event: metadata\ndata: {json.dumps(canned)}\n\n"
             yield "event: done\ndata: {}\n\n"
         return StreamingResponse(gen(), media_type="text/event-stream")
+
+    @app.post("/jobs")
+    async def submit_job():
+        jid = uuid.uuid4().hex[:16]
+        _jobs[jid] = "pending"
+        asyncio.get_event_loop().call_later(lead_seconds, lambda: _jobs.update({jid: "completed"}))
+        return {"job_id": jid, "state": "pending"}
+
+    @app.get("/jobs/{job_id}")
+    async def get_job(job_id: str):
+        state = _jobs.get(job_id, "not_found")
+        return {"job_id": job_id, "state": state}
+
+    @app.delete("/jobs/{job_id}")
+    async def cancel_job(job_id: str):
+        if job_id in _jobs:
+            _jobs[job_id] = "cancelled"
+        return {"job_id": job_id, "state": "cancelled"}
 
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="error")
 
@@ -233,6 +254,79 @@ async def chat_flood(base, token, session_id, n_clients, stop_evt):
 
     async with httpx.AsyncClient(base_url=base, limits=limits) as client:
         await asyncio.gather(*[looper(client) for _ in range(n_clients)])
+
+
+# =============================================================================
+# V2 feature probes — async jobs, queue depth, webhooks
+# =============================================================================
+
+async def test_job_api(base, token, session_id):
+    """Submit a job, poll until terminal, then verify cancel on a second job."""
+    auth = {"Authorization": f"Bearer {token}"}
+    results = {"submit": None, "poll_states": [], "cancel": None, "errors": []}
+    async with httpx.AsyncClient(base_url=base) as client:
+        # Submit
+        r = await client.post("/api/jobs", timeout=30, headers=auth,
+                              json={"sessionId": session_id, "message": "job api test"})
+        results["submit"] = r.status_code
+        if r.status_code not in (200, 201, 202):
+            results["errors"].append(f"submit {r.status_code}")
+            return results
+        job_id = r.json().get("job_id") or r.json().get("jobId")
+        if not job_id:
+            results["errors"].append("no job_id in response")
+            return results
+        # Poll up to 10 times
+        for _ in range(10):
+            await asyncio.sleep(1)
+            r = await client.get(f"/api/jobs/{job_id}", timeout=15, headers=auth)
+            state = r.json().get("state") or r.json().get("status")
+            results["poll_states"].append(state)
+            if state in ("completed", "failed"):
+                break
+        # Submit + cancel a second job
+        r = await client.post("/api/jobs", timeout=30, headers=auth,
+                              json={"sessionId": session_id, "message": "cancel test"})
+        if r.status_code in (200, 201, 202):
+            j2 = r.json().get("job_id") or r.json().get("jobId")
+            if j2:
+                r = await client.delete(f"/api/jobs/{j2}", timeout=15, headers=auth)
+                results["cancel"] = r.status_code
+    return results
+
+
+async def test_queue_depth(base):
+    """Check /health includes queue_depth field."""
+    async with httpx.AsyncClient(base_url=base) as client:
+        r = await client.get("/health", timeout=10)
+        data = r.json()
+        return {"has_queue_depth": "queue_depth" in data,
+                "queue_depth": data.get("queue_depth")}
+
+
+async def test_webhook_crud(base, token):
+    """Register a webhook, list it, delete it."""
+    auth = {"Authorization": f"Bearer {token}"}
+    results = {"create": None, "list_count": None, "delete": None, "errors": []}
+    async with httpx.AsyncClient(base_url=base) as client:
+        # Create
+        r = await client.post("/api/webhooks", timeout=15, headers=auth,
+                              json={"url": "https://httpbin.org/post",
+                                    "events": ["job.completed"]})
+        results["create"] = r.status_code
+        if r.status_code not in (200, 201):
+            results["errors"].append(f"create {r.status_code}")
+            return results
+        wh_id = r.json().get("_id") or r.json().get("id")
+        # List
+        r = await client.get("/api/webhooks", timeout=15, headers=auth)
+        if r.status_code == 200:
+            results["list_count"] = len(r.json()) if isinstance(r.json(), list) else None
+        # Delete
+        if wh_id:
+            r = await client.delete(f"/api/webhooks/{wh_id}", timeout=15, headers=auth)
+            results["delete"] = r.status_code
+    return results
 
 
 # =============================================================================
@@ -476,6 +570,8 @@ def main():
     ap.add_argument("--serve-stub", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--smoke", action="store_true", help="quick functional check — hit every endpoint once")
+    ap.add_argument("--v2-probes", action="store_true",
+                    help="run v2 feature probes: job API, queue depth, webhooks")
     args = ap.parse_args()
 
     if args.selftest:
@@ -494,7 +590,8 @@ def main():
         os.remove(probe_path)
         # all callable helpers exist
         for fn in (serve_stub, wait_for_health, ensure_user, seed_sessions,
-                   cleanup_sessions, hammer, run_ramp, run_smoke):
+                   cleanup_sessions, hammer, run_ramp, run_smoke,
+                   test_job_api, test_queue_depth, test_webhook_crud):
             assert callable(fn), f"{fn} not callable"
         print("selftest ok")
         return
@@ -528,6 +625,23 @@ def main():
         seeded = seed_sessions(base, token, args.seed_sessions)
         probe = seeded[0] if seeded else "000000000000000000000000"
         print(f"Seeded {len(seeded)} session(s) for the load-test user.")
+
+        if args.v2_probes:
+            print("\n--- V2 feature probes ---")
+            print("  Job API (submit → poll → cancel)...")
+            job = asyncio.run(test_job_api(base, token, probe))
+            print(f"    submit={job['submit']} states={job['poll_states']} "
+                  f"cancel={job['cancel']}")
+            print("  Queue depth on /health...")
+            qd = asyncio.run(test_queue_depth(base))
+            print(f"    has_queue_depth={qd['has_queue_depth']} value={qd['queue_depth']}")
+            print("  Webhook CRUD...")
+            wh = asyncio.run(test_webhook_crud(base, token))
+            print(f"    create={wh['create']} list={wh['list_count']} "
+                  f"delete={wh['delete']}")
+            _save(f"v2_probes_{_stamp()}.json", {"tag": tag, "job_api": job,
+                  "queue_depth": qd, "webhook_crud": wh})
+            print("--- V2 probes done ---\n")
 
         if args.ramp:
             levels = [int(x) for x in args.ramp_levels.split(",") if x.strip()]
