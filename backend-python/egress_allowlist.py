@@ -53,7 +53,7 @@ def is_allowed(url: str) -> bool:
     return host in ALLOWED_HOSTS
 
 
-def httpx_event_hook(request):
+async def httpx_event_hook(request):
     """httpx event hook — validates every outbound request against the allowlist.
 
     Usage: httpx.AsyncClient(event_hooks={"request": [httpx_event_hook]})
