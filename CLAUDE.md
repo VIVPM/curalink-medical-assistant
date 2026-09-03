@@ -93,6 +93,7 @@ cd frontend && npm run lint && npm run build
 # Load test (spawns Express + stub FastAPI, zero HF cost)
 cd backend-node && python load_test.py --ramp         # concurrency ceiling
 cd backend-node && python load_test.py                 # idle vs saturated
+cd backend-node && python load_test.py --smoke         # quick functional check
 cd backend-node && python load_test.py --v2-probes     # job API, queue depth, webhooks
 cd backend-node && python load_test.py --selftest      # CI smoke test
 ```
@@ -105,4 +106,5 @@ cd backend-node && python load_test.py --selftest      # CI smoke test
 
 ## Planning Docs (gitignored)
 
-- `upgrade_roadmap.txt` — full roadmap (Parts 1-4, includes v2 scale items)
+- `v0-v1-v2.txt` — implementation status (what's built vs not)
+- `upgrade_roadmap.txt` — forward-looking roadmap (what to build next)
