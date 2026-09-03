@@ -69,6 +69,7 @@ scratch/
 tmp/
 *.bak
 load_test_results/
+eval_results/
 
 architecture.md
 plan.md
