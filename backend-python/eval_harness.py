@@ -953,7 +953,7 @@ def print_report(results):
                 all_checks[check]["pass"] += 1
 
     print(f"\n  Overall: {passed}/{total} queries passed all checks ({failed} failed)")
-    print(f"\n  Per-check breakdown:")
+    print("\n  Per-check breakdown:")
     for check, counts in sorted(all_checks.items()):
         pct = counts["pass"] / counts["total"] * 100 if counts["total"] else 0
         bar = "█" * int(pct / 5) + "░" * (20 - int(pct / 5))
@@ -978,7 +978,7 @@ def print_report(results):
                 stage_sums[stage] = stage_sums.get(stage, 0) + ms
                 stage_counts[stage] = stage_counts.get(stage, 0) + 1
     if stage_sums:
-        print(f"\n  Average per-stage latency:")
+        print("\n  Average per-stage latency:")
         for stage in ["query_expansion", "retrieval", "normalization", "ranking",
                       "context_build", "llm", "assembly", "total"]:
             if stage in stage_sums:
@@ -989,7 +989,7 @@ def print_report(results):
     if medical:
         avg_insights = sum(r["n_insights"] for r in medical) / len(medical)
         avg_trials = sum(r["n_trials"] for r in medical) / len(medical)
-        print(f"\n  Retrieval (medical queries):")
+        print("\n  Retrieval (medical queries):")
         print(f"    avg insights/query: {avg_insights:.1f}")
         print(f"    avg trials/query:   {avg_trials:.1f}")
 
@@ -999,14 +999,14 @@ def print_report(results):
     unverified_cit = sum(r["citation_stats"].get("unverified", 0) for r in medical)
     if total_cit:
         ground_rate = verified_cit / total_cit * 100
-        print(f"\n  Citations:")
+        print("\n  Citations:")
         print(f"    total: {total_cit}   verified: {verified_cit}   unverified: {unverified_cit}")
         print(f"    grounding rate: {ground_rate:.1f}%")
 
     # Failed queries detail
     failures = [r for r in results if r["status"] == "FAIL"]
     if failures:
-        print(f"\n  Failed queries:")
+        print("\n  Failed queries:")
         for r in failures:
             failed_checks = [k for k, v in r["checks"].items() if not v]
             print(f"    {r['id']}: {r['message'][:50]}...")
