@@ -398,9 +398,24 @@ The server responds faster on DB-backed routes once the connection pool is warm,
 
 Job API lifecycle (submit → poll → cancel) works end-to-end. Queue-depth metric isn't surfaced through the Express health proxy yet — tracked for a future iteration.
 
+### Production (Render free tier)
+
+`--ramp --base-url https://curalink-medical-assistant.onrender.com`:
+
+| Users | req/s | p50 (ms) | p95 (ms) | Errors |
+|------:|------:|---------:|---------:|-------:|
+| 10 | 27.4 | 313 | 594 | 0 |
+| 25 | 48.1 | 437 | 938 | 0 |
+| 50 | 55.8 | 797 | 1,562 | 0 |
+| 100 | 66.0 | 1,500 | 2,313 | 0 |
+| 200 | 71.3 | 3,000 | 4,000 | 0 |
+| 300 | 47.1 | 4,484 | 11,078 | 0 |
+
+**3,170 total requests, 0 errors.** Same ~50 user ceiling. Render adds ~100-200ms network overhead vs local.
+
 ### Bottom Line
 
-The Express API layer handles **~50 concurrent users at < 1 s p95** before latency starts climbing, with **zero errors all the way to 300 users**. DB-backed routes actually speed up under load thanks to connection pool warming. V2 scale features (async jobs, webhooks) are functional and exercised by the test harness.
+The Express API layer handles **~50 concurrent users at < 1 s p95** before latency starts climbing, with **zero errors all the way to 300 users** both locally and on Render free tier. DB-backed routes actually speed up under load thanks to connection pool warming. V2 scale features (async jobs, webhooks) are functional and exercised by the test harness.
 
 ### Commands
 
