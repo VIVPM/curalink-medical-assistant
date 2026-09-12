@@ -1,19 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Light-theme landing page — Inter font, teal accent, clean surfaces.
+   ponytail: unified design system shared with App.css */
 
-/* Linear-inspired dark marketing canvas: near-black surface ladder, hairline
-   borders, and a single clinical-teal accent used scarcely. */
 .landing {
   --l-primary: #17b8a6;
-  --l-primary-hover: #35d6c4;
-  --l-on-primary: #04140f;
-  --l-ink: #f7f8f8;
-  --l-ink-muted: #d0d6e0;
-  --l-ink-subtle: #8a8f98;
-  --l-canvas: #010202;
-  --l-surface-1: #0f1112;
-  --l-surface-2: #141617;
-  --l-hairline: #23262a;
-  --l-hairline-strong: #34363a;
+  --l-primary-hover: #129485;
+  --l-on-primary: #fff;
+  --l-ink: #1a1a2e;
+  --l-ink-muted: #444;
+  --l-ink-subtle: #777;
+  --l-canvas: #f7f8fa;
+  --l-surface-1: #fff;
+  --l-surface-2: #f0f2f5;
+  --l-hairline: #e2e5ea;
+  --l-hairline-strong: #cdd2d9;
 
   position: fixed;
   inset: 0;
@@ -48,7 +47,7 @@
 /* ---- Nav ---- */
 .l-nav {
   position: sticky; top: 0; z-index: 10; height: 56px; display: flex; align-items: center;
-  background: rgba(1, 2, 2, 0.8); backdrop-filter: blur(10px);
+  background: rgba(247, 248, 250, 0.85); backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--l-hairline);
 }
 .l-nav-inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
@@ -69,7 +68,7 @@
 .l-hero > *:nth-child(4) { animation-delay: 0.20s; }
 .l-hero > *:nth-child(5) { animation-delay: 0.30s; }
 @keyframes l-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.l-eyebrow { font-size: 13px; font-weight: 500; letter-spacing: 0.08em; color: var(--l-ink-subtle); margin-bottom: 20px; }
+.l-eyebrow { font-size: 13px; font-weight: 500; letter-spacing: 0.08em; color: var(--l-primary); margin-bottom: 20px; }
 .l-display {
   font-size: clamp(2.75rem, 8vw, 78px); font-weight: 600; line-height: 1.03;
   letter-spacing: -0.04em; color: var(--l-ink); margin: 0 auto; max-width: 16ch;
@@ -80,9 +79,9 @@
 /* ---- Hero chat mock ---- */
 .l-mock {
   max-width: 680px; margin: 44px auto 0; background: var(--l-surface-1);
-  border: 1px solid var(--l-hairline); border-top-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--l-hairline);
   border-radius: 16px; overflow: hidden; text-align: left;
-  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 8px 40px -12px rgba(0, 0, 0, 0.1);
 }
 .l-mock-bar {
   display: flex; align-items: center; gap: 8px; padding: 12px 16px;
@@ -94,8 +93,8 @@
 .l-thinking { color: var(--l-ink-subtle); }
 .l-msg { font-size: 14px; line-height: 1.5; padding: 12px 14px; border-radius: 12px; max-width: 90%; }
 .l-msg-user {
-  align-self: flex-end; background: rgba(23, 184, 166, 0.16);
-  border: 1px solid rgba(23, 184, 166, 0.35); color: var(--l-ink);
+  align-self: flex-end; background: rgba(23, 184, 166, 0.12);
+  border: 1px solid rgba(23, 184, 166, 0.3); color: var(--l-ink);
 }
 .l-msg-bot { align-self: flex-start; background: var(--l-surface-2); border: 1px solid var(--l-hairline); color: var(--l-ink-muted); }
 .l-prod { margin-top: 8px; color: var(--l-ink); font-size: 13.5px; }
@@ -115,11 +114,12 @@
 .l-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
 .l-card {
   background: var(--l-surface-1); border: 1px solid var(--l-hairline);
-  border-top-color: rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 24px;
+  border-radius: 12px; padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .l-card-icon {
   width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-  border-radius: 8px; background: rgba(23, 184, 166, 0.12); color: var(--l-primary); margin-bottom: 16px;
+  border-radius: 8px; background: rgba(23, 184, 166, 0.1); color: var(--l-primary); margin-bottom: 16px;
 }
 .l-card-title { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; color: var(--l-ink); margin-bottom: 8px; }
 .l-card-body { font-size: 14px; line-height: 1.55; color: var(--l-ink-subtle); }
@@ -133,7 +133,8 @@
 .l-cta-wrap { padding-top: 64px; padding-bottom: 76px; }
 .l-cta {
   background: var(--l-surface-1); border: 1px solid var(--l-hairline);
-  border-top-color: rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 48px 32px; text-align: center;
+  border-radius: 16px; padding: 48px 32px; text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .l-cta-lead { margin-top: 12px; margin-bottom: 28px; }
 
