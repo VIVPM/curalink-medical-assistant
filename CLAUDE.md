@@ -29,7 +29,7 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 | `backend-python/egress_allowlist.py` | Egress allowlist (SSRF protection) for httpx clients |
 | `backend-python/checkpoint.py` | Per-step pipeline checkpointing in Redis |
 | `backend-python/event_buffer.py` | SSE event buffering + Last-Event-ID replay |
-| `backend-python/pii_redactor.py` | PII redaction for observability spans |
+| `backend-python/observability.py` | Content-free LLM/HTTP telemetry and metrics exporters |
 | `backend-python/token_budget.py` | Per-job token budget enforcement |
 | `backend-node/routes/jobs.js` | Async job submit/poll/cancel proxy to FastAPI |
 | `backend-node/routes/webhooks.js` | Webhook CRUD + HMAC-signed dispatch |
@@ -68,7 +68,7 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 - SSE event buffering + Last-Event-ID replay
 - Queue-depth metric on /health (for autoscaling triggers)
 - Token-aware rate limits (DAILY_TOKEN_CAP env)
-- PII redaction on observability spans (email/phone/SSN)
+- Prompt and output content omitted from observability spans
 - Webhooks (CRUD + HMAC-signed dispatch on job.completed/failed)
 - Audit log (AuditLog model + middleware, 1-year TTL)
 - Per-job token budget (MAX_TOKENS_PER_JOB env, default 50k)

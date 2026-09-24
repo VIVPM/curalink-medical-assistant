@@ -10,6 +10,7 @@ Prerequisites:
 Tests both FastAPI direct streaming and Express SSE proxy.
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -28,6 +29,7 @@ def test_fastapi_stream():
     print("\n--- Test 1: FastAPI /pipeline/stream (direct) ---")
 
     body = {
+        "tenant": "sse-test",
         "static": {
             "disease": "Parkinson's disease",
             "intent": "DBS",
@@ -47,6 +49,7 @@ def test_fastapi_stream():
             "POST",
             f"{FASTAPI_URL}/pipeline/stream",
             json=body,
+            headers={"X-Internal-API-Key": os.environ["INTERNAL_API_KEY"]},
             timeout=120.0,
         ) as resp:
             if resp.status_code != 200:
@@ -167,6 +170,7 @@ def test_express_stream():
             "POST",
             f"{EXPRESS_URL}/api/chat/stream",
             json=body,
+            headers={"X-Internal-API-Key": os.environ["INTERNAL_API_KEY"]},
             timeout=120.0,
         ) as resp:
             if resp.status_code != 200:

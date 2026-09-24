@@ -1,6 +1,6 @@
 """
 Semantic query cache (SCALE-1). For a FIRST-TURN question, embed it and cosine-
-match against recent questions in the same disease|intent bucket; on a close hit
+match against recent questions in the same tenant|disease|intent|location bucket; on a close hit
 (>= threshold) we return that question's cached response and skip the ENTIRE
 pipeline — external APIs, ranking, and the LLM.
 
@@ -26,13 +26,15 @@ BUCKET_MAX = 50           # keep the most recent N questions per disease|intent
 BUCKET_TTL = 24 * 3600    # 24h
 
 
-def _bucket(disease: str, intent: str) -> str:
+def _bucket(tenant: str, disease: str, intent: str, location: str) -> str:
+    t = (tenant or "").strip().lower()
     d = (disease or "").strip().lower()
     i = (intent or "").strip().lower()
-    return f"semq:{d}|{i}"
+    loc = (location or "").strip().lower()
+    return f"semq:{t}|{d}|{i}|{loc}"
 
 
-def lookup(embedder, disease: str, intent: str, user_message: str):
+def lookup(embedder, tenant: str, disease: str, intent: str, location: str, user_message: str):
     """
     Return (response|None, embedding|None). Embeds the message ONCE (an HF call)
     only when the cache is enabled, so the caller can reuse the embedding for
@@ -44,7 +46,7 @@ def lookup(embedder, disease: str, intent: str, user_message: str):
 
     emb = embedder.embed_text(user_message)  # L2-normalized -> dot == cosine
     try:
-        raw = client.lrange(_bucket(disease, intent), 0, BUCKET_MAX - 1)
+        raw = client.lrange(_bucket(tenant, disease, intent, location), 0, BUCKET_MAX - 1)
     except Exception as e:
         print(f"[semcache] lrange failed: {e}")
         return None, emb
@@ -67,14 +69,14 @@ def lookup(embedder, disease: str, intent: str, user_message: str):
     return None, emb
 
 
-def store(disease: str, intent: str, embedding, response: dict) -> None:
-    """Cache (question embedding, response) in the disease|intent bucket."""
+def store(tenant: str, disease: str, intent: str, location: str, embedding, response: dict) -> None:
+    """Cache a response inside one user's de-identified context bucket."""
     client = _get_client()
     if client is None or embedding is None:
         return
     try:
         entry = json.dumps({"emb": embedding, "resp": response})
-        key = _bucket(disease, intent)
+        key = _bucket(tenant, disease, intent, location)
         pipe = client.pipeline()
         pipe.lpush(key, entry)
         pipe.ltrim(key, 0, BUCKET_MAX - 1)

@@ -5,6 +5,10 @@ import { dispatchWebhooks } from "./webhooks.js";
 
 const router = Router();
 const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
+const fastApiHeaders = (extra = {}) => ({
+  ...extra,
+  "X-Internal-API-Key": process.env.INTERNAL_API_KEY,
+});
 
 router.use(authMiddleware);
 
@@ -16,8 +20,8 @@ router.post(
     try {
       const resp = await fetch(`${FASTAPI_URL}/jobs`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(req.body),
+        headers: fastApiHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ ...req.body, tenant: req.userId.toString() }),
       });
       const data = await resp.json();
       res.status(resp.status).json(data);
@@ -32,7 +36,9 @@ router.post(
 // GET /api/jobs/:id — poll status
 router.get("/:id", async (req, res) => {
   try {
-    const resp = await fetch(`${FASTAPI_URL}/jobs/${req.params.id}`);
+    const resp = await fetch(`${FASTAPI_URL}/jobs/${req.params.id}`, {
+      headers: fastApiHeaders(),
+    });
     const data = await resp.json();
 
     // Dispatch webhooks on terminal states
@@ -58,6 +64,7 @@ router.delete(
     try {
       const resp = await fetch(`${FASTAPI_URL}/jobs/${req.params.id}`, {
         method: "DELETE",
+        headers: fastApiHeaders(),
       });
       const data = await resp.json();
       res.json(data);
@@ -75,7 +82,7 @@ router.get("/:id/events", async (req, res) => {
   try {
     const url = new URL(`${FASTAPI_URL}/jobs/${req.params.id}/events`);
     if (lastEventId) url.searchParams.set("last_event_id", lastEventId);
-    const resp = await fetch(url);
+    const resp = await fetch(url, { headers: fastApiHeaders() });
     const data = await resp.json();
     res.json(data);
   } catch (err) {

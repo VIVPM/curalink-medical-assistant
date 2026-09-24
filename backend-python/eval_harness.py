@@ -868,10 +868,15 @@ def score_response(query, response):
 
 def run_eval(base_url, queries, delay=2.0):
     """Run all queries against the pipeline, score each, return results."""
+    internal_key = os.getenv("INTERNAL_API_KEY")
+    if not internal_key:
+        raise RuntimeError("INTERNAL_API_KEY must be set to run the live evaluation")
+    headers = {"X-Internal-API-Key": internal_key}
     results = []
     for i, q in enumerate(queries):
         qid = q["id"]
         payload = {
+            "tenant": "eval-harness",
             "static": {
                 "disease": q["disease"],
                 "intent": q["intent"],
@@ -884,7 +889,7 @@ def run_eval(base_url, queries, delay=2.0):
         print(f"  [{i+1}/{len(queries)}] {qid}: {q['message'][:60]}...", end=" ", flush=True)
         t0 = time.perf_counter()
         try:
-            r = httpx.post(f"{base_url}/pipeline/run", json=payload, timeout=120)
+            r = httpx.post(f"{base_url}/pipeline/run", json=payload, headers=headers, timeout=120)
             elapsed = round((time.perf_counter() - t0) * 1000)
             if r.status_code != 200:
                 response = {"error": r.text[:200], "status_code": r.status_code}
