@@ -32,7 +32,6 @@ def test_fastapi_stream():
             "disease": "Parkinson's disease",
             "intent": "DBS",
             "location": "Toronto",
-            "patientName": "John",
         },
         "current": {"userMessage": "What are the latest treatments?"},
     }
@@ -149,7 +148,6 @@ def test_express_stream():
                 "disease": "Parkinson's disease",
                 "intent": "DBS",
                 "location": "Toronto",
-                "patientName": "Test",
             },
             timeout=10.0,
         )

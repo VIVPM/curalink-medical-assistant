@@ -156,6 +156,9 @@ export default function StructuredResponse({ data, onFollowUp }) {
       {recommendations && recommendations.length > 0 && (
         <div className="section recommendations-section">
           <h3>Personalized Recommendations</h3>
+          <p className="recommendations-note">
+            Research-informed points to discuss with a qualified healthcare professional.
+          </p>
           <ul className="recommendations-list">
             {recommendations.map((rec, i) => (
               <li key={i} className="recommendation-item">{rec}</li>

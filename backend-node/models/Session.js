@@ -12,7 +12,6 @@ const sessionSchema = new mongoose.Schema(
       disease: { type: String, required: true },
       intent: { type: String, default: "" },
       location: { type: String, default: "" },
-      patientName: { type: String, default: "" },
     },
     title: { type: String, default: "" },
     messageCount: { type: Number, default: 0 },

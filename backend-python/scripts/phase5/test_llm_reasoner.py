@@ -132,7 +132,6 @@ async def run_test():
         "disease": "Parkinson's disease",
         "intent": "Deep Brain Stimulation",
         "location": "Toronto, Canada",
-        "patientName": "John Smith",
     }
     chat_history = [
         {"role": "user", "content": "Tell me about DBS treatment options"},

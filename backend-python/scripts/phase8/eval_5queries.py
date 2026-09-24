@@ -70,7 +70,6 @@ EVAL_SET = [
             "disease": "Lung Cancer",
             "intent": "Immunotherapy",
             "location": "New York, USA",
-            "patientName": "Jane Doe",
         },
         "questions": [
             "How effective is immunotherapy for non-small cell lung cancer?",
@@ -86,7 +85,6 @@ EVAL_SET = [
             "disease": "Coronary Artery Disease",
             "intent": "Statin therapy",
             "location": "Chicago, Illinois, USA",
-            "patientName": "Michael Johnson",
         },
         "questions": [
             "How effective are statins at preventing heart attacks?",
@@ -102,7 +100,6 @@ EVAL_SET = [
             "disease": "Parkinson's disease",
             "intent": "Deep Brain Stimulation",
             "location": "Boston, Massachusetts, USA",
-            "patientName": "John Smith",
         },
         "questions": [
             "What are the latest advances in DBS for Parkinson's?",
@@ -118,7 +115,6 @@ EVAL_SET = [
             "disease": "Alzheimer's disease",
             "intent": "early diagnosis",
             "location": "Los Angeles, California, USA",
-            "patientName": "Robert Williams",
         },
         "questions": [
             "What blood biomarkers can detect Alzheimer's before symptoms appear?",
@@ -268,7 +264,6 @@ def run_eval():
         report.append(f"  Disease: {session_form['disease']}")
         report.append(f"  Intent: {session_form.get('intent', '')}")
         report.append(f"  Location: {session_form.get('location', '')}")
-        report.append(f"  Patient: {session_form.get('patientName', '')}")
 
         # Create session
         session_id = create_session(token, session_form)

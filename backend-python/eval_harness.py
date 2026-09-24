@@ -876,7 +876,6 @@ def run_eval(base_url, queries, delay=2.0):
                 "disease": q["disease"],
                 "intent": q["intent"],
                 "location": q["location"],
-                "patientName": "Eval Harness",
             },
             "dynamic": {},
             "current": {"userMessage": q["message"]},

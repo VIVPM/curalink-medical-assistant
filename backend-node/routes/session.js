@@ -21,7 +21,7 @@ router.use(authMiddleware);
 
 // POST /api/session — create new session (locks form)
 router.post("/session", createSessionLimiter, async (req, res) => {
-  const { disease, intent, location, patientName } = req.body;
+  const { disease, intent, location } = req.body;
 
   if (!disease || !disease.trim()) {
     return res.status(400).json({ ok: false, error: "disease is required" });
@@ -33,7 +33,6 @@ router.post("/session", createSessionLimiter, async (req, res) => {
       disease: disease.trim(),
       intent: (intent || "").trim(),
       location: (location || "").trim(),
-      patientName: (patientName || "").trim(),
     },
   });
 

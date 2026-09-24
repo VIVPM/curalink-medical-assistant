@@ -170,7 +170,7 @@ def seed_sessions(base, token, n):
     for i in range(n):
         r = httpx.post(f"{base}/api/session", headers=auth, timeout=30, json={
             "disease": f"parkinson-loadtest-{i}", "intent": "DBS",
-            "location": "Toronto, Canada", "patientName": "Load Test",
+            "location": "Toronto, Canada",
         })
         if r.status_code == 201:
             ids.append(r.json()["session"]["_id"])
