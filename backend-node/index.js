@@ -32,6 +32,10 @@ if (!process.env.JWT_SECRET) {
   console.error("JWT_SECRET not set in .env"); // SEC-2
   process.exit(1);
 }
+if (!process.env.INTERNAL_API_KEY) {
+  console.error("INTERNAL_API_KEY not set in .env");
+  process.exit(1);
+}
 
 mongoose
   .connect(MONGO_URI)
@@ -120,7 +124,9 @@ app.get("/api/account/credits", authMiddleware, async (req, res) => {
 
 app.get("/api/ping", async (req, res) => {
   try {
-    const response = await fetch(`${FASTAPI_URL}/health`);
+    const response = await fetch(`${FASTAPI_URL}/health`, {
+      headers: { "X-Internal-API-Key": process.env.INTERNAL_API_KEY },
+    });
     if (!response.ok) {
       return res.status(502).json({
         ok: false,

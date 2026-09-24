@@ -6,6 +6,7 @@ Run from the backend-python directory:
 Shows pipeline stages and LLM tokens printing live as they arrive.
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -20,6 +21,7 @@ FASTAPI_URL = "http://localhost:8000"
 
 def main():
     body = {
+        "tenant": "demo",
         "static": {
             "disease": "Parkinson's disease",
             "intent": "Deep Brain Stimulation",
@@ -40,6 +42,7 @@ def main():
         "POST",
         f"{FASTAPI_URL}/pipeline/stream",
         json=body,
+        headers={"X-Internal-API-Key": os.environ["INTERNAL_API_KEY"]},
         timeout=120.0,
     ) as resp:
         current_event = None

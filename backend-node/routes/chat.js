@@ -55,11 +55,12 @@ function normKey(s) {
     .trim();
 }
 
-function cacheKey(disease, intent, message, history = []) {
-  const normalized = `${normKey(disease)}|${normKey(intent)}|${normKey(message)}`;
-  // The answer depends on prior conversation, so the key must too. Without this,
-  // the same follow-up text in two different chats collides on one cached answer
-  // (BUG-1). First turns have empty history, so cross-session hits still work.
+export function cacheKey(userId, disease, intent, location, message, history = []) {
+  const normalized = [userId, disease, intent, location, message]
+    .map(normKey)
+    .join("|");
+  // Personalized answers are never shared across users or locations. History is
+  // included because identical follow-ups can mean different things by turn.
   const historyStr = history
     .map((m) => `${m.role}:${normKey(m.content)}`)
     .join("|");
@@ -122,8 +123,10 @@ router.post("/chat", async (req, res) => {
 
   // Query-result cache check
   const ckey = cacheKey(
+    req.userId.toString(),
     session.staticContext.disease,
     session.staticContext.intent,
+    session.staticContext.location,
     message,
     recentMessages
   );
@@ -148,6 +151,7 @@ router.post("/chat", async (req, res) => {
 
   // 4. Call FastAPI /pipeline/run
   const pipelineBody = {
+    tenant: req.userId.toString(),
     static: {
       disease: session.staticContext.disease,
       intent: session.staticContext.intent,
@@ -165,7 +169,10 @@ router.post("/chat", async (req, res) => {
   try {
     const resp = await fetch(`${FASTAPI_URL}/pipeline/run`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Internal-API-Key": process.env.INTERNAL_API_KEY,
+      },
       body: JSON.stringify(pipelineBody),
     });
 
@@ -257,6 +264,7 @@ router.post("/chat/stream", async (req, res) => {
   });
 
   const pipelineBody = {
+    tenant: req.userId.toString(),
     static: {
       disease: session.staticContext.disease,
       intent: session.staticContext.intent,
@@ -280,8 +288,10 @@ router.post("/chat/stream", async (req, res) => {
 
   // Query-result cache check — skip whole pipeline on hit
   const ckey = cacheKey(
+    req.userId.toString(),
     session.staticContext.disease,
     session.staticContext.intent,
+    session.staticContext.location,
     message,
     recentMessages
   );
@@ -305,7 +315,10 @@ router.post("/chat/stream", async (req, res) => {
   try {
     const resp = await fetch(`${FASTAPI_URL}/pipeline/stream`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Internal-API-Key": process.env.INTERNAL_API_KEY,
+      },
       body: JSON.stringify(pipelineBody),
     });
 

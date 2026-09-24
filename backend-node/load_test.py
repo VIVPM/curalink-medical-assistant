@@ -467,6 +467,7 @@ def spawn_express(port, stub_port):
         "CHAT_RATE_MAX": "1000000",
         "SESSION_RATE_MAX": "1000000",
         "DAILY_MESSAGE_CAP": "100000000",
+        "INTERNAL_API_KEY": "load-test-internal-key",
     })
     env.pop("REDIS_URL", None)  # keep the run deterministic — Mongo-backed cache only
     # Rewrite mongodb+srv:// → standard mongodb:// to bypass SRV DNS sandbox issue.

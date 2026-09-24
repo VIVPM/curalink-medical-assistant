@@ -1,10 +1,11 @@
 import asyncio
 import os
+import secrets
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from dotenv import load_dotenv
 
@@ -28,6 +29,10 @@ from stages.llm_reasoner import run_reasoner
 from stages.response_assembler import assemble_response
 
 load_dotenv()
+
+INTERNAL_API_KEY = os.getenv("INTERNAL_API_KEY", "")
+if not INTERNAL_API_KEY:
+    raise RuntimeError("INTERNAL_API_KEY must be set")
 
 BIENCODER_MODEL = os.getenv("BIENCODER_MODEL", "pritamdeka/S-PubMedBert-MS-MARCO")
 
@@ -66,6 +71,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Curalink Orchestrator", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def require_internal_api_key(request: Request, call_next):
+    if request.url.path in {"/", "/health"}:
+        return await call_next(request)
+    provided = request.headers.get("x-internal-api-key", "")
+    if not secrets.compare_digest(provided, INTERNAL_API_KEY):
+        return JSONResponse(status_code=401, content={"detail": "unauthorized"})
+    return await call_next(request)
+
 
 # Observability (SCALE-6) — all no-ops unless env is set (LANGFUSE_* / GRAFANA_OTLP_*):
 from observability import init_observability, init_http_tracing, init_metrics, record_message
@@ -364,6 +380,7 @@ MAX_USER_MESSAGE_LEN = 8000  # defense-in-depth cap (SEC-6); Express caps at 400
 
 
 class PipelineRequest(BaseModel):
+    tenant: str = Field(..., min_length=1, max_length=128, description="Authenticated user scope")
     static: dict = Field(..., description="De-identified context: disease, intent, location")
     dynamic: dict = Field(default_factory=dict, description="Chat history and entities")
     current: dict = Field(..., description="Current user message: {userMessage}")
@@ -398,7 +415,12 @@ async def pipeline_run(req: PipelineRequest):
     if not chat_history:
         from semantic_cache import lookup
         hit, sem_emb = lookup(
-            embedder, req.static.get("disease", ""), req.static.get("intent", ""), user_message
+            embedder,
+            req.tenant,
+            req.static.get("disease", ""),
+            req.static.get("intent", ""),
+            req.static.get("location", ""),
+            user_message,
         )
         if hit is not None:
             hit.setdefault("pipelineMeta", {})["semantic_cache"] = True
@@ -506,7 +528,14 @@ async def pipeline_run(req: PipelineRequest):
 
     if sem_emb is not None and not assembled.user_facing_json.get("abstain_reason"):
         from semantic_cache import store
-        store(req.static.get("disease", ""), req.static.get("intent", ""), sem_emb, assembled.user_facing_json)
+        store(
+            req.tenant,
+            req.static.get("disease", ""),
+            req.static.get("intent", ""),
+            req.static.get("location", ""),
+            sem_emb,
+            assembled.user_facing_json,
+        )
 
     record_message("ok")
     return assembled.user_facing_json
@@ -540,7 +569,12 @@ async def pipeline_stream(req: PipelineRequest):
         if not chat_history:
             from semantic_cache import lookup
             hit, sem_emb = lookup(
-                embedder, req.static.get("disease", ""), req.static.get("intent", ""), user_message
+                embedder,
+                req.tenant,
+                req.static.get("disease", ""),
+                req.static.get("intent", ""),
+                req.static.get("location", ""),
+                user_message,
             )
             if hit is not None:
                 hit.setdefault("pipelineMeta", {})["semantic_cache"] = True
@@ -699,7 +733,14 @@ async def pipeline_stream(req: PipelineRequest):
 
         if sem_emb is not None and not assembled.user_facing_json.get("abstain_reason"):
             from semantic_cache import store
-            store(req.static.get("disease", ""), req.static.get("intent", ""), sem_emb, assembled.user_facing_json)
+            store(
+                req.tenant,
+                req.static.get("disease", ""),
+                req.static.get("intent", ""),
+                req.static.get("location", ""),
+                sem_emb,
+                assembled.user_facing_json,
+            )
 
         record_message("ok")
 
