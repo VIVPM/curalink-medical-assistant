@@ -24,7 +24,6 @@ def main():
             "disease": "Parkinson's disease",
             "intent": "Deep Brain Stimulation",
             "location": "Toronto, Canada",
-            "patientName": "John Smith",
         },
         "current": {"userMessage": "Can I take Vitamin D?"},
     }

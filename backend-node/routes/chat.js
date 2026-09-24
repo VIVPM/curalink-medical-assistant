@@ -228,7 +228,6 @@ router.post("/chat", async (req, res) => {
       disease: session.staticContext.disease,
       intent: session.staticContext.intent,
       location: session.staticContext.location,
-      patientName: session.staticContext.patientName,
     },
     dynamic: {
       recentMessages,
@@ -361,7 +360,6 @@ router.post("/chat/stream", async (req, res) => {
       disease: session.staticContext.disease,
       intent: session.staticContext.intent,
       location: session.staticContext.location,
-      patientName: session.staticContext.patientName,
     },
     dynamic: { recentMessages },
     current: { userMessage: message.trim() },

@@ -1,6 +1,6 @@
 # Curalink — AI Medical Research Assistant
 
-An AI-powered medical research companion built on the MERN stack with a FastAPI orchestrator microservice. Curalink understands patient context, retrieves high-quality research from PubMed, OpenAlex, and ClinicalTrials.gov, reasons over it with a configurable LLM (HuggingFace Inference API or Cloudflare Workers AI), and delivers structured, source-backed answers with full citation transparency.
+An AI-powered medical research companion built on the MERN stack with a FastAPI orchestrator microservice. Curalink uses de-identified patient context to retrieve research from PubMed, OpenAlex, and ClinicalTrials.gov, reasons over it with a configurable LLM (HuggingFace Inference API or Cloudflare Workers AI), and delivers structured answers with sources users can inspect.
 
 > **Multi-provider LLM**: set `LLM_MODEL=CLOUDFLARE` for Cloudflare Workers AI, or any HuggingFace model id (e.g. `meta-llama/Llama-3.3-70B-Instruct`). One provider active at a time.
 
@@ -10,7 +10,7 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **7-stage AI pipeline** — query expansion → parallel retrieval → normalization → hybrid re-ranking → context building → LLM reasoning → response assembly
 - **Three live medical sources** — PubMed, OpenAlex, ClinicalTrials.gov fetched in parallel (~170 unique candidates per query)
 - **Domain-specialized ranking** — BM25 + PubMedBERT embeddings fused via Reciprocal Rank Fusion, refined by MedCPT cross-encoder with source-balanced MMR selection
-- **Cite-or-abstain grounding** — every claim cites its source with title, authors, year, URL, and supporting snippet; the system abstains rather than hallucinate
+- **Inspectable sources** — research findings include titles, authors, years, URLs, and supporting excerpts for verification against the original publications
 - **Real-time SSE streaming** — live pipeline progress + token-by-token LLM output through FastAPI → Express → React
 - **Multi-turn context awareness** — chat history and static form context are merged into every query expansion
 - **Clinical trial geo-filtering** — optional location input geocodes and filters trials within 100 miles via ClinicalTrials.gov geo API
@@ -93,7 +93,7 @@ graph TD
 | 3 | `normalizer.py` `merger.py` | Unify schemas into `Document[]`, dedupe by DOI/PMID/NCT-ID, quality filter |
 | 4 | `ranker.py` | BM25 pre-filter → PubMedBERT cosine → RRF fusion → MedCPT cross-encoder → MMR selection → top 10 |
 | 5 | `context_builder.py` | Token-budgeted prompt with citation anchors `[doc1]`, grounding rules, output schema |
-| 6 | `llm_reasoner.py` | Llama 3.3 70B via HF Inference API — grounded, cite-or-abstain generation |
+| 6 | `llm_reasoner.py` | Llama 3.3 70B via HF Inference API — source-constrained structured generation |
 | 7 | `response_assembler.py` | Citation resolution, snippet extraction, hallucination flags, structured JSON assembly |
 
 ## Project Structure
@@ -453,7 +453,7 @@ python load_test.py --selftest
 | `min_insights_met` | 93% (39/42) | ≥2 research insights with sources |
 | `citations_grounded` | 93% (39/42) | Every insight has a titled source |
 
-**Retrieval:** avg 6.4 insights/query, 5.7 trials/query, 656 total citations (100% grounding rate).
+**Retrieval:** avg 6.4 insights/query, 5.7 trials/query, 656 resolved citation references. This structural metric does not verify that every claim is medically correct or entailed by its source.
 
 **Latency (medical queries):** avg 46s, p50 34s, p95 114s (dominated by ranking + LLM stages on free-tier rate limits).
 
@@ -478,7 +478,7 @@ python eval_harness.py --selftest
 - **Live-APIs-only RAG** — no pre-indexed vector store; every query hits live sources for freshest results
 - **Stateless pipeline** — FastAPI holds no state; context is passed in each request from Express
 - **RRF over linear combination** — BM25 and cosine scores live on different scales; RRF uses rank position only, sidesteps normalization
-- **Cite-or-abstain** — the system refuses to answer rather than hallucinate; abstain is a feature, not a failure
+- **Cite-or-abstain intent** — prompts instruct the model to cite retrieved documents and abstain when they are insufficient; users must still verify the original sources
 - **Mongo query-result cache** — `SHA-256(disease|intent|message)` key with 24h TTL skips the entire pipeline on exact-match repeats
 
 ## 📜 License

@@ -84,7 +84,6 @@ def _build_user_prompt(
     disease = static_context.get("disease", "")
     intent = static_context.get("intent", "")
     location = static_context.get("location", "")
-    patient = static_context.get("patientName", "")
 
     parts.append("STATIC CONTEXT:")
     parts.append(f"  Disease of Interest: {disease}")
@@ -92,8 +91,6 @@ def _build_user_prompt(
         parts.append(f"  Additional Query/Intent: {intent}")
     if location:
         parts.append(f"  Location: {location}")
-    if patient:
-        parts.append(f"  Patient Name: {patient}")
 
     # Chat history — keep last 6 messages verbatim, summarize older ones to
     # cap token growth on long sessions. Without this, a 30-turn session sends
@@ -175,7 +172,7 @@ async def expand_query(
 
     Args:
         user_message: current user question
-        static_context: {disease, intent, location, patientName}
+        static_context: {disease, intent, location}
         chat_history: list of {role, content} dicts (may be None/empty)
         llm: LLMBackend instance
 

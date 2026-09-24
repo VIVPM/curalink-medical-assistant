@@ -18,7 +18,7 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, userName,
       {!collapsed && (
         <>
           <button className="new-session-btn" onClick={onNew}>
-            + New Consultation
+            + New Research Session
           </button>
           <div className="session-list">
             {sessions.map((s) => (
@@ -53,7 +53,7 @@ export default function Sidebar({ sessions, activeId, onSelect, onNew, userName,
       )}
       {collapsed && (
         <div className="sidebar-collapsed-icons">
-          <button className="collapsed-icon-btn" onClick={onNew} title="New Consultation">+</button>
+          <button className="collapsed-icon-btn" onClick={onNew} title="New Research Session">+</button>
           <div className="sidebar-footer">
             <span className="user-avatar">{userName?.[0]?.toUpperCase()}</span>
           </div>

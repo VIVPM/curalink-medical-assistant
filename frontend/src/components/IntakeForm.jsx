@@ -5,7 +5,6 @@ export default function IntakeForm({ onSubmit }) {
     disease: "",
     intent: "",
     location: "",
-    patientName: "",
   });
 
   const handleSubmit = (e) => {
@@ -20,15 +19,19 @@ export default function IntakeForm({ onSubmit }) {
         <h2>Curalink</h2>
         <p className="intake-subtitle">AI Medical Research Assistant</p>
         <p className="intake-desc">
-          Fill in the consultation details below. This context will be used
-          throughout your session to provide personalized, research-backed answers.
+          Add de-identified research context below. Curalink uses it throughout
+          this session to provide personalized, research-backed answers.
         </p>
+        <div className="intake-disclaimer">
+          <strong>Do not enter identifiable patient information.</strong> Use a
+          condition, research intent, and general location only—never names,
+          birth dates, addresses, medical-record numbers, or contact details.
+        </div>
         <div className="intake-disclaimer">
           <strong>Not medical advice.</strong> Curalink surfaces published research
           and clinical-trial listings for informational purposes only. It is not a
           diagnosis, treatment recommendation, or a substitute for a qualified
-          clinician. Always consult a healthcare professional before making any
-          medical decision.
+          clinician. Do not use Curalink for emergencies.
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -59,17 +62,8 @@ export default function IntakeForm({ onSubmit }) {
               onChange={(e) => setForm({ ...form, location: e.target.value })}
             />
           </div>
-          <div className="form-group">
-            <label>Patient Name</label>
-            <input
-              type="text"
-              placeholder="e.g. John Smith"
-              value={form.patientName}
-              onChange={(e) => setForm({ ...form, patientName: e.target.value })}
-            />
-          </div>
           <button type="submit" className="submit-btn">
-            Start Consultation
+            Start Research Session
           </button>
         </form>
       </div>
