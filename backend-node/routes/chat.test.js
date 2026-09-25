@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cacheKey } from "./chat.js";
+import { cacheKey, isEmergencyMessage } from "./chat.js";
 
 const history = [{ role: "user", content: "Earlier question" }];
 const key = (user, location) =>
@@ -10,4 +10,10 @@ test("query cache is isolated by user and location", () => {
   assert.notEqual(key("user-a", "Toronto"), key("user-b", "Toronto"));
   assert.notEqual(key("user-a", "Toronto"), key("user-a", "Boston"));
   assert.equal(key("USER-A", " Toronto "), key("user-a", "toronto"));
+});
+
+test("urgent messages are diverted from the research pipeline", () => {
+  assert.equal(isEmergencyMessage("I cannot breathe"), true);
+  assert.equal(isEmergencyMessage("I took an overdose"), true);
+  assert.equal(isEmergencyMessage("What does research say about asthma treatment?"), false);
 });

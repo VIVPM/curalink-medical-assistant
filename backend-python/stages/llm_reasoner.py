@@ -28,7 +28,7 @@ class ReasonerResult:
     parse_error: str | None = None
 
 
-REQUIRED_KEYS = {"overview", "insights", "trials", "abstain_reason"}
+REQUIRED_KEYS = {"overview", "insights", "trials", "recommendations", "abstain_reason"}
 
 
 def _validate_schema(parsed: dict) -> list[str]:
@@ -66,6 +66,18 @@ def _validate_schema(parsed: dict) -> list[str]:
             if "sources" not in trial or not isinstance(trial.get("sources"), list):
                 issues.append(f"trials[{i}] missing or invalid 'sources'")
 
+    if "recommendations" in parsed and isinstance(parsed["recommendations"], list):
+        for i, recommendation in enumerate(parsed["recommendations"]):
+            if not isinstance(recommendation, dict):
+                issues.append(f"recommendations[{i}] not a dict")
+                continue
+            if not recommendation.get("text"):
+                issues.append(f"recommendations[{i}] missing 'text'")
+            if "sources" not in recommendation or not isinstance(recommendation.get("sources"), list):
+                issues.append(f"recommendations[{i}] missing or invalid 'sources'")
+    elif "recommendations" in parsed:
+        issues.append("recommendations must be a list")
+
     return issues
 
 
@@ -75,6 +87,7 @@ def _repair_schema(parsed: dict) -> dict:
     parsed.setdefault("overview", "")
     parsed.setdefault("insights", [])
     parsed.setdefault("trials", [])
+    parsed.setdefault("recommendations", [])
     parsed.setdefault("abstain_reason", None)
 
     # Repair insights: drop entries without finding or sources
@@ -107,6 +120,20 @@ def _repair_schema(parsed: dict) -> dict:
                 trial["sources"] = []
             repaired.append(trial)
         parsed["trials"] = repaired
+
+    # Only structured, source-linked recommendations can reach assembly. Legacy
+    # strings and malformed entries are intentionally dropped.
+    if isinstance(parsed["recommendations"], list):
+        parsed["recommendations"] = [
+            recommendation
+            for recommendation in parsed["recommendations"]
+            if isinstance(recommendation, dict)
+            and recommendation.get("text")
+            and isinstance(recommendation.get("sources"), list)
+            and recommendation["sources"]
+        ]
+    else:
+        parsed["recommendations"] = []
 
     return parsed
 

@@ -115,6 +115,29 @@ export function cacheKey(userId, disease, intent, location, message, history = [
     .digest("hex");
 }
 
+export function isEmergencyMessage(message) {
+  const text = message || "";
+  return [
+    /\b(overdose|suicidal|kill myself|self[- ]harm|anaphylaxis)\b/i,
+    /\b(?:can't|cannot|unable to)\s+breathe\b/i,
+    /\b(?:chest pain|severe bleeding|stroke symptoms|unconscious|seizure)\b.*\b(?:now|currently|right now)\b/i,
+    /\b(?:now|currently|right now)\b.*\b(?:chest pain|severe bleeding|stroke symptoms|unconscious|seizure)\b/i,
+  ].some((pattern) => pattern.test(text));
+}
+
+function emergencyResponse() {
+  return {
+    overview: "This may describe an urgent or emergency situation. Contact local emergency services now or go to the nearest emergency department.",
+    insights: [],
+    trials: [],
+    recommendations: [],
+    follow_up_questions: [],
+    abstain_reason: "Curalink is not designed for emergencies or urgent medical assessment.",
+    suggestion: "Do not wait for an online research response. If it is safe to do so, stay with the person until help arrives.",
+    pipelineMeta: { safety: "emergency", warnings: [], citation_stats: { total: 0, verified: 0, unverified: 0 } },
+  };
+}
+
 // All chat routes require auth, then a per-user rate limit
 router.use(authMiddleware);
 router.use(chatLimiter);
@@ -145,6 +168,15 @@ router.post("/chat", async (req, res) => {
   const session = await Session.findOne({ _id: sessionId, userId: req.userId });
   if (!session) {
     return res.status(404).json({ ok: false, error: "session not found" });
+  }
+
+  if (isEmergencyMessage(message)) {
+    const response = emergencyResponse();
+    return res.json({
+      ok: true,
+      response,
+      assistantMessage: { role: "assistant", content: response.overview, structuredResponse: response },
+    });
   }
 
   // Daily quota: 1 credit = 1 question. Window-based — count today's messages,
@@ -315,6 +347,17 @@ router.post("/chat/stream", async (req, res) => {
   const session = await Session.findOne({ _id: sessionId, userId: req.userId });
   if (!session) {
     return res.status(404).json({ ok: false, error: "session not found" });
+  }
+
+  if (isEmergencyMessage(message)) {
+    const response = emergencyResponse();
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+    res.write(`event: metadata\ndata: ${JSON.stringify(response)}\n\n`);
+    res.write("event: done\ndata: {}\n\n");
+    return res.end();
   }
 
   // Daily quota check (same window-based logic as /chat)
