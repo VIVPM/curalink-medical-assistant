@@ -110,7 +110,7 @@ function ChatDemo() {
   );
 }
 
-export default function LandingPage({ onGetStarted, onSignIn }) {
+export default function LandingPage({ onGetStarted, onSignIn, onPrivacy, onTerms }) {
   return (
     <div className="landing">
       <nav className="l-nav">
@@ -204,9 +204,13 @@ export default function LandingPage({ onGetStarted, onSignIn }) {
 
       <footer className="l-footer">
         <div className="l-container l-footer-inner">
-          <span className="l-foot-meta">
-            © {new Date().getFullYear()} Curalink · Research information, not medical advice · Do not enter identifiable patient information.
-          </span>
+          <div className="l-foot-meta">
+            <span>© {new Date().getFullYear()} Curalink · Research information, not medical advice · Do not enter identifiable patient information.</span>
+            <span className="l-foot-links">
+              <button onClick={onPrivacy}>Privacy</button>
+              <button onClick={onTerms}>Terms</button>
+            </span>
+          </div>
         </div>
       </footer>
     </div>

@@ -229,6 +229,26 @@ export default function useChat({ onAuthExpired } = {}) {
     fetchCredits();
   }, [activeSession, loading, fetchSessions, fetchCredits, onAuthExpired]);
 
+  const deleteSession = useCallback(async (id) => {
+    const res = await fetch(`${API}/session/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    if (res.status === 401) {
+      onAuthExpired?.();
+      return false;
+    }
+    if (!res.ok) return false;
+
+    setSessions((current) => current.filter((session) => session._id !== id));
+    if (activeSession?._id === id) {
+      setActiveSession(null);
+      setMessages([]);
+      localStorage.removeItem("activeSessionId");
+    }
+    return true;
+  }, [activeSession, onAuthExpired]);
+
   const stopGeneration = useCallback(() => {
     abortRef.current?.abort();
   }, []);
@@ -247,6 +267,7 @@ export default function useChat({ onAuthExpired } = {}) {
     fetchCredits,
     createSession,
     loadSession,
+    deleteSession,
     sendMessage,
     stopGeneration,
     setActiveSession,

@@ -154,7 +154,7 @@ def wait_for_health(base, timeout=120):
 def ensure_user(base):
     """Sign up (idempotent) then log in; return (token, user_id)."""
     httpx.post(f"{base}/api/auth/signup", timeout=30,
-               json={"name": LOAD_NAME, "email": LOAD_EMAIL, "password": LOAD_PASS})
+               json={"name": LOAD_NAME, "email": LOAD_EMAIL, "password": LOAD_PASS, "acceptTerms": True})
     r = httpx.post(f"{base}/api/auth/login", timeout=30,
                    json={"email": LOAD_EMAIL, "password": LOAD_PASS})
     if r.status_code != 200:

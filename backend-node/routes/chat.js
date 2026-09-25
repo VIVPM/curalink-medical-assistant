@@ -109,10 +109,12 @@ export function cacheKey(userId, disease, intent, location, message, history = [
   const historyStr = history
     .map((m) => `${m.role}:${normKey(m.content)}`)
     .join("|");
-  return crypto
+  const digest = crypto
     .createHash("sha256")
     .update(`${normalized}||${historyStr}`)
     .digest("hex");
+  const tenant = String(userId).trim().toLowerCase();
+  return `query:${tenant}:${digest}`;
 }
 
 export function isEmergencyMessage(message) {

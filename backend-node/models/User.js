@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     password: { type: String, required: true, minlength: 8 },
+    termsAcceptedAt: { type: Date, default: null },
+    termsVersion: { type: String, default: null },
     // ponytail: credits field kept for backward compat reads; daily quota is now
     // ponytail: credits field kept for backward compat; daily quota is window-based
     // (count messages today, cap from DAILY_MESSAGE_CAP env). No decrement, no

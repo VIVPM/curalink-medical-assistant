@@ -3,13 +3,14 @@ import useAuth from "./hooks/useAuth";
 import useChat from "./hooks/useChat";
 import AuthPage from "./components/AuthPage";
 import LandingPage from "./components/LandingPage";
+import LegalPage from "./components/LegalPage";
 import Sidebar from "./components/Sidebar";
 import IntakeForm from "./components/IntakeForm";
 import ChatView from "./components/ChatView";
 import "./App.css";
 
 export default function App() {
-  const { user, loading: authLoading, error: authError, signup, login, logout, expire } = useAuth();
+  const { user, loading: authLoading, error: authError, signup, login, logout, deleteAccount, expire } = useAuth();
 
   const {
     sessions,
@@ -25,6 +26,7 @@ export default function App() {
     fetchCredits,
     createSession,
     loadSession,
+    deleteSession,
     sendMessage,
     stopGeneration,
     setActiveSession,
@@ -41,6 +43,7 @@ export default function App() {
   );
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState("login");
+  const [legalPage, setLegalPage] = useState(null);
 
   useEffect(() => {
     if (user) { fetchSessions(); fetchCredits(); }
@@ -66,6 +69,10 @@ export default function App() {
       .finally(() => setRehydrating(false));
   }, [authLoading, user, loadSession, setActiveSession, setMessages]);
 
+  if (legalPage) {
+    return <LegalPage type={legalPage} onBack={() => setLegalPage(null)} />;
+  }
+
   if (authLoading || (user && rehydrating)) {
     return (
       <div className="loading-screen">
@@ -83,6 +90,8 @@ export default function App() {
         <LandingPage
           onGetStarted={() => { setAuthMode("signup"); setShowAuth(true); }}
           onSignIn={() => { setAuthMode("login"); setShowAuth(true); }}
+          onPrivacy={() => setLegalPage("privacy")}
+          onTerms={() => setLegalPage("terms")}
         />
       );
     }
@@ -93,6 +102,8 @@ export default function App() {
         error={authError}
         initialMode={authMode}
         onBack={() => setShowAuth(false)}
+        onPrivacy={() => setLegalPage("privacy")}
+        onTerms={() => setLegalPage("terms")}
       />
     );
   }
@@ -114,16 +125,33 @@ export default function App() {
     setShowForm(false);
   };
 
+  const handleDeleteSession = async (id) => {
+    if (!window.confirm("Delete this research session and all of its messages?")) return;
+    const deleted = await deleteSession(id);
+    if (!deleted) window.alert("Session deletion failed. Please try again.");
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Permanently delete your account and all stored research sessions? This cannot be undone.")) return;
+    const deleted = await deleteAccount();
+    if (deleted) setShowAuth(false);
+    else window.alert("Account deletion failed. Please try again.");
+  };
+
   return (
     <div className="app">
       <Sidebar
         sessions={sessions}
         activeId={activeSession?._id}
         onSelect={handleSelectSession}
+        onDelete={handleDeleteSession}
         onNew={handleNewSession}
         userName={user.name}
         credits={credits}
         onLogout={logout}
+        onDeleteAccount={handleDeleteAccount}
+        onPrivacy={() => setLegalPage("privacy")}
+        onTerms={() => setLegalPage("terms")}
       />
       <main className="main-content">
         {showForm || !activeSession ? (

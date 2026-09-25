@@ -1,15 +1,16 @@
 import { useState } from "react";
 
-export default function AuthPage({ onLogin, onSignup, error, initialMode = "login", onBack }) {
+export default function AuthPage({ onLogin, onSignup, error, initialMode = "login", onBack, onPrivacy, onTerms }) {
   const [isLogin, setIsLogin] = useState(initialMode !== "signup");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isLogin) {
       onLogin(form.email, form.password);
     } else {
-      onSignup(form.name, form.email, form.password);
+      onSignup(form.name, form.email, form.password, acceptedTerms);
     }
   };
 
@@ -73,6 +74,21 @@ export default function AuthPage({ onLogin, onSignup, error, initialMode = "logi
               />
             </div>
 
+            {!isLogin && (
+              <label className="auth-consent">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(event) => setAcceptedTerms(event.target.checked)}
+                  required
+                />
+                <span>
+                  I agree to the <button type="button" onClick={onTerms}>Terms</button> and acknowledge the{" "}
+                  <button type="button" onClick={onPrivacy}>Privacy Notice</button>.
+                </span>
+              </label>
+            )}
+
             {error && <p className="auth-error">{error}</p>}
 
             <button type="submit" className="submit-btn">
@@ -93,6 +109,10 @@ export default function AuthPage({ onLogin, onSignup, error, initialMode = "logi
           an account you agree to use it for informational purposes only and to
           consult a qualified clinician for any medical decision.
         </p>
+        <div className="auth-legal-links">
+          <button onClick={onPrivacy}>Privacy</button>
+          <button onClick={onTerms}>Terms</button>
+        </div>
         <span>&copy; {new Date().getFullYear()} Curalink. All rights reserved.</span>
       </footer>
     </div>
