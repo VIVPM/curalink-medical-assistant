@@ -7,7 +7,7 @@ const auditLogSchema = new mongoose.Schema({
   resourceId: { type: String },
   metadata: { type: mongoose.Schema.Types.Mixed },
   ip: { type: String },
-  timestamp: { type: Date, default: Date.now, index: true },
+  timestamp: { type: Date, default: Date.now },
 });
 
 // Auto-expire after 1 year — compliance-friendly retention
