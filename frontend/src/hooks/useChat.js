@@ -102,6 +102,9 @@ export default function useChat({ onAuthExpired } = {}) {
       if (!res.ok) {
         gotResult = true;
         if (res.status === 401) {
+          setActiveSession(null);
+          setMessages([]);
+          localStorage.removeItem("activeSessionId");
           // Session expired — route to the login screen with a reason (UX-5)
           // rather than a dead request. Fall back to an in-chat notice.
           if (onAuthExpired) {
@@ -249,6 +252,19 @@ export default function useChat({ onAuthExpired } = {}) {
     return true;
   }, [activeSession, onAuthExpired]);
 
+  const resetChat = useCallback(() => {
+    abortRef.current?.abort();
+    setSessions([]);
+    setActiveSession(null);
+    setMessages([]);
+    setLoading(false);
+    setStreamStatus(null);
+    setPipelineStage(null);
+    setRetrievalCounts(null);
+    setWaking(false);
+    localStorage.removeItem("activeSessionId");
+  }, []);
+
   const stopGeneration = useCallback(() => {
     abortRef.current?.abort();
   }, []);
@@ -270,6 +286,7 @@ export default function useChat({ onAuthExpired } = {}) {
     deleteSession,
     sendMessage,
     stopGeneration,
+    resetChat,
     setActiveSession,
     setMessages,
   };

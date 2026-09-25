@@ -526,7 +526,7 @@ def run_smoke(args):
 
         passed = all(ok for _, ok in checks)
         for name, ok in checks:
-            print(f"  {'✓' if ok else '✗'} {name}")
+            print(f"  [{'PASS' if ok else 'FAIL'}] {name}")
         print(f"\nSmoke {'PASSED' if passed else 'FAILED'}")
         if not passed:
             sys.exit(1)

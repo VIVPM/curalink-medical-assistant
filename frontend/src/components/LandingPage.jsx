@@ -22,8 +22,8 @@ const features = [
 
 const steps = [
   { n: "01", title: "Ask", body: "Set the disease and intent once, then ask in plain language." },
-  { n: "02", title: "Retrieve & rank", body: "Three sources fetched live, de-duplicated, and ranked by a medical-domain funnel." },
-  { n: "03", title: "Grounded answer", body: "A structured, source-cited answer streams straight back to you." },
+  { n: "02", title: "Retrieve & rank", body: "Three research sources are searched, de-duplicated, and ranked by a medical-domain funnel." },
+  { n: "03", title: "Review the evidence", body: "A structured answer with linked sources streams back for you to inspect." },
 ];
 
 const prefersReducedMotion = () =>
@@ -33,9 +33,9 @@ const prefersReducedMotion = () =>
 // Fades + rises its children into view the first time they're scrolled to.
 function Reveal({ children, className = "" }) {
   const ref = useRef(null);
-  const [shown, setShown] = useState(false);
+  const [shown, setShown] = useState(prefersReducedMotion);
   useEffect(() => {
-    if (prefersReducedMotion()) { setShown(true); return; }
+    if (shown) return;
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
@@ -44,7 +44,7 @@ function Reveal({ children, className = "" }) {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [shown]);
   return <div ref={ref} className={`l-reveal ${shown ? "is-visible" : ""} ${className}`}>{children}</div>;
 }
 
@@ -57,12 +57,13 @@ const DEMO_A = [
 
 // Types the question, pauses, streams the answer, then loops.
 function ChatDemo() {
-  const [q, setQ] = useState("");
-  const [a, setA] = useState("");
-  const [phase, setPhase] = useState("typing"); // typing | thinking | streaming | done
+  const [reducedMotion] = useState(prefersReducedMotion);
+  const [q, setQ] = useState(() => reducedMotion ? DEMO_Q : "");
+  const [a, setA] = useState(() => reducedMotion ? DEMO_A : "");
+  const [phase, setPhase] = useState(() => reducedMotion ? "done" : "typing"); // typing | thinking | streaming | done
 
   useEffect(() => {
-    if (prefersReducedMotion()) { setQ(DEMO_Q); setA(DEMO_A); setPhase("done"); return; }
+    if (reducedMotion) return;
     let cancelled = false;
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     const run = async () => {
@@ -80,7 +81,7 @@ function ChatDemo() {
     };
     run();
     return () => { cancelled = true; };
-  }, []);
+  }, [reducedMotion]);
 
   const lines = a.split("\n");
   return (
