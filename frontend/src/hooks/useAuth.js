@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 
-const API = `${import.meta.env.VITE_API_URL || ""}/api/auth`;
+const API_ROOT = `${import.meta.env.VITE_API_URL || ""}/api`;
+const API = `${API_ROOT}/auth`;
 
 export default function useAuth() {
   const [user, setUser] = useState(null);
@@ -33,12 +34,12 @@ export default function useAuth() {
       .finally(() => setLoading(false));
   }, [token]);
 
-  const signup = useCallback(async (name, email, password) => {
+  const signup = useCallback(async (name, email, password, acceptTerms) => {
     setError(null);
     const res = await fetch(`${API}/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, acceptTerms }),
     });
     const data = await res.json();
     if (data.ok) {
@@ -78,6 +79,23 @@ export default function useAuth() {
     setUser(null);
   }, []);
 
+  const deleteAccount = useCallback(async () => {
+    setError(null);
+    const res = await fetch(`${API_ROOT}/account`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      setError("Account deletion failed. Please try again.");
+      return false;
+    }
+    localStorage.removeItem("token");
+    localStorage.removeItem("activeSessionId");
+    setToken(null);
+    setUser(null);
+    return true;
+  }, [token]);
+
   // Like logout, but for an expired session: routes back to the login screen
   // with a reason shown, instead of a dead in-app request (UX-5).
   const expire = useCallback(() => {
@@ -88,5 +106,5 @@ export default function useAuth() {
     setError("Your session expired. Please log in again.");
   }, []);
 
-  return { user, token, loading, error, signup, login, logout, expire };
+  return { user, token, loading, error, signup, login, logout, deleteAccount, expire };
 }

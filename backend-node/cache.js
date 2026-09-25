@@ -55,3 +55,22 @@ export async function cacheSet(key, value, ttlMs) {
     { upsert: true }
   );
 }
+
+export async function cacheDeleteUser(userId) {
+  const tenant = String(userId).toLowerCase();
+  const patterns = [`query:${tenant}:*`, `semq:${tenant}:*`];
+
+  if (redis) {
+    for (const pattern of patterns) {
+      let cursor = "0";
+      do {
+        const [next, keys] = await redis.scan(cursor, "MATCH", pattern, "COUNT", 100);
+        cursor = next;
+        if (keys.length) await redis.del(...keys);
+      } while (cursor !== "0");
+    }
+    return;
+  }
+
+  await Cache.deleteMany({ key: { $regex: `^query:${tenant}:` } });
+}
