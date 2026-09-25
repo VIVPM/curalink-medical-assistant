@@ -1,7 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Sidebar({ sessions, activeId, onSelect, onDelete, onNew, userName, credits, onLogout, onDeleteAccount, onPrivacy, onTerms }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 768px)");
+    const sync = (event) => setCollapsed(event.matches);
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  const closeMobileDrawer = () => {
+    if (window.matchMedia("(max-width: 768px)").matches) setCollapsed(true);
+  };
+
+  const handleNew = () => {
+    onNew();
+    closeMobileDrawer();
+  };
+
+  const handleSelect = (id) => {
+    onSelect(id);
+    closeMobileDrawer();
+  };
 
   return (
     <div className={`sidebar ${collapsed ? "sidebar-collapsed" : ""}`}>
@@ -17,7 +40,7 @@ export default function Sidebar({ sessions, activeId, onSelect, onDelete, onNew,
       </div>
       {!collapsed && (
         <>
-          <button className="new-session-btn" onClick={onNew}>
+          <button className="new-session-btn" onClick={handleNew}>
             + New Research Session
           </button>
           <div className="session-list">
@@ -25,7 +48,7 @@ export default function Sidebar({ sessions, activeId, onSelect, onDelete, onNew,
               <div
                 key={s._id}
                 className={`session-item ${s._id === activeId ? "active" : ""}`}
-                onClick={() => onSelect(s._id)}
+                onClick={() => handleSelect(s._id)}
               >
                 <div className="session-copy">
                   <div className="session-title">{s.title}</div>
@@ -68,7 +91,7 @@ export default function Sidebar({ sessions, activeId, onSelect, onDelete, onNew,
       )}
       {collapsed && (
         <div className="sidebar-collapsed-icons">
-          <button className="collapsed-icon-btn" onClick={onNew} title="New Research Session">+</button>
+          <button className="collapsed-icon-btn" onClick={handleNew} title="New Research Session">+</button>
           <div className="sidebar-footer">
             <span className="user-avatar">{userName?.[0]?.toUpperCase()}</span>
           </div>
