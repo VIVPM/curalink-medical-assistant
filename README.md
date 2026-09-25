@@ -8,7 +8,8 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **7-stage AI pipeline** — query expansion → parallel retrieval → normalization → hybrid re-ranking → context building → LLM reasoning → response assembly
 - **Three live medical sources** — PubMed, OpenAlex, ClinicalTrials.gov fetched in parallel (~170 unique candidates per query)
 - **Domain-specialized ranking** — BM25 + PubMedBERT embeddings fused via Reciprocal Rank Fusion, refined by MedCPT cross-encoder with source-balanced MMR selection
-- **Inspectable sources** — research findings include titles, authors, years, URLs, and supporting excerpts for verification against the original publications
+- **Inspectable sources** — research findings and personalized recommendations include titles, authors, years, URLs, and supporting excerpts for verification against the original publications
+- **Emergency boundary** — urgent-use messages are diverted from the research pipeline to immediate emergency-services guidance
 - **Real-time SSE streaming** — live pipeline progress + token-by-token LLM output through FastAPI → Express → React
 - **Multi-turn context awareness** — chat history and static form context are merged into every query expansion
 - **Clinical trial geo-filtering** — optional location input geocodes and filters trials within 100 miles via ClinicalTrials.gov geo API

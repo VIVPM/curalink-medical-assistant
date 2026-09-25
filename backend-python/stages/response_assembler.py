@@ -59,6 +59,17 @@ def _extract_snippet(abstract: str, finding: str, max_sentences: int = 2) -> str
     return " ".join(top)
 
 
+_UNSAFE_RECOMMENDATION_RE = re.compile(
+    r"\b(?:start|stop|take|increase|decrease|double|switch)\b"
+    r"|\b\d+(?:\.\d+)?\s*(?:mg|mcg|g|ml|units?)\b",
+    re.IGNORECASE,
+)
+
+
+def _recommendation_is_safe(text: str) -> bool:
+    return bool(text.strip()) and not _UNSAFE_RECOMMENDATION_RE.search(text)
+
+
 def _resolve_source(anchor: str, doc: Document, finding: str = "") -> dict:
     """Convert a Document into source_details dict with snippet."""
     return {
@@ -170,7 +181,8 @@ def assemble_response(
                 unverified = True
                 continue
             if doc.doc_type != "publication":
-                citation_stats["verified"] += 1
+                citation_stats["unverified"] += 1
+                unverified = True
                 continue
             source_details.append(_resolve_source(anchor, doc, finding))
             citation_stats["verified"] += 1
@@ -195,7 +207,7 @@ def assemble_response(
                 citation_stats["unverified"] += 1
                 continue
             if doc.doc_type != "trial":
-                citation_stats["verified"] += 1
+                citation_stats["unverified"] += 1
                 continue
             trial_entry = _resolve_trial(anchor, doc)
             trial_entry["relevance"] = trial.get("relevance", "")
@@ -203,12 +215,40 @@ def assemble_response(
             resolved_trials.append(trial_entry)
             citation_stats["verified"] += 1
 
+    # --- Resolve personalized recommendations ---
+    resolved_recommendations = []
+    for recommendation in llm_output.get("recommendations", []):
+        if not isinstance(recommendation, dict):
+            continue
+        text = recommendation.get("text", "").strip()
+        if not _recommendation_is_safe(text):
+            warnings.append("unsafe_recommendation_removed")
+            continue
+
+        source_details = []
+        for anchor in recommendation.get("sources", []):
+            citation_stats["total"] += 1
+            doc = doc_anchors.get(anchor)
+            if not doc:
+                citation_stats["unverified"] += 1
+                continue
+            source_details.append(_resolve_source(anchor, doc, text))
+            citation_stats["verified"] += 1
+
+        if source_details:
+            resolved_recommendations.append({
+                "text": text,
+                "source_details": source_details,
+            })
+        else:
+            warnings.append("uncited_recommendation_removed")
+
     # --- Assemble final JSON ---
     user_facing = {
         "overview": llm_output.get("overview", ""),
         "insights": resolved_insights,
         "trials": resolved_trials,
-        "recommendations": llm_output.get("recommendations", []),
+        "recommendations": resolved_recommendations,
         "follow_up_questions": llm_output.get("follow_up_questions", []),
         "abstain_reason": None,
         "pipelineMeta": {

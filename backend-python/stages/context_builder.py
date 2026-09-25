@@ -58,13 +58,14 @@ OUTPUT FORMAT — respond with ONLY this JSON, no prose:
     {"nct_id": "NCT...", "title": "...", "relevance": "why this trial matters", "sources": ["doc5"]}
   ],
   "recommendations": [
-    "actionable recommendation based on the research findings"
+    {"text": "research-informed point to discuss with a clinician", "sources": ["doc2"]}
   ],
   "follow_up_questions": ["question 1", "question 2"],
   "abstain_reason": null
 }
 
 PERSONALIZED RECOMMENDATIONS:
+- Every recommendation MUST cite one or more retrieved documents using its "sources" field.
 - Generate 2-3 research-informed points based on the retrieved documents and de-identified patient context.
 - Frame every point as something to discuss with a qualified healthcare professional, never as a directive.
 - Recommendations should be grounded in the research — not general advice.

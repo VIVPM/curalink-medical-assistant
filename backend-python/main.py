@@ -703,8 +703,8 @@ async def pipeline_stream(req: PipelineRequest):
 
         # Parse LLM output
         try:
-            from stages.llm_reasoner import _parse_llm_response, _fallback_output
-            parsed = _parse_llm_response(full_text)
+            from stages.llm_reasoner import _parse_llm_response, _fallback_output, _repair_schema
+            parsed = _repair_schema(_parse_llm_response(full_text))
             parsed.setdefault("overview", "")
             parsed.setdefault("insights", [])
             parsed.setdefault("trials", [])
