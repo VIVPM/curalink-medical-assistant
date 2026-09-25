@@ -1,3 +1,5 @@
+# CI workflow for validation, container builds, and gated deployment.
+
 name: CI
 
 on:
@@ -5,7 +7,6 @@ on:
     branches: [main, curalink-v012, public-beta-readiness, curalink-v0-v1-practice, curalink-v2]
   pull_request:
 
-# A second push to main should cancel the first run's deploy rather than race it.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -65,8 +66,6 @@ jobs:
       - run: npm run build
 
   docker:
-    # Build all three images without pushing, so a broken COPY or dependency
-    # fails here rather than at compose-up / on Render.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -101,8 +100,6 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    # Only after every suite passes, only for real pushes to main — never for a
-    # pull request, which would otherwise deploy unreviewed code from a fork.
     needs: [backend-node, backend-python, frontend, docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -118,7 +115,6 @@ jobs:
             echo "If Render auto-deploys on push, turn that off so deploys are gated on CI."
             exit 0
           fi
-          # --fail so a 4xx/5xx fails the job instead of passing on an error page.
           for hook in "$NODE_HOOK" "$PYTHON_HOOK" "$FRONTEND_HOOK"; do
             if [ -n "$hook" ]; then
               curl --fail --silent --show-error -X POST "$hook" > /dev/null

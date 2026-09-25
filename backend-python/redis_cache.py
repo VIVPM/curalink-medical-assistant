@@ -18,8 +18,8 @@ except ImportError:
     _redis = None
 
 REDIS_URL = os.getenv("REDIS_URL")
-EMBED_TTL = 7 * 24 * 3600   # 7 days
-PROMPT_TTL = 24 * 3600      # 1 day — LLM responses are less stable than embeddings
+EMBED_TTL = 7 * 24 * 3600
+PROMPT_TTL = 24 * 3600
 
 _client = None
 _tried = False
@@ -103,12 +103,7 @@ def set_embeddings(model: str, texts: list[str], vectors: list[list[float]]) -> 
         print(f"[cache] set failed: {e}")
 
 
-# ---------------------------------------------------------------------------
-# Prompt-level LLM cache: hash(model + system_prompt + user_prompt) -> response
-# Saves money on repeated LLM calls with identical prompts (e.g. same query
-# expansion hitting the same disease+message combo). 24h TTL.
-# ---------------------------------------------------------------------------
-
+# Builds a stable key for one model and prompt pair.
 def _prompt_key(model: str, system_prompt: str, user_prompt: str) -> str:
     blob = f"{model}|{system_prompt}|{user_prompt}"
     return "llm:" + hashlib.sha256(blob.encode("utf-8")).hexdigest()

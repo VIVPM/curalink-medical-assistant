@@ -46,23 +46,19 @@ import argparse
 import subprocess
 from datetime import datetime, timezone
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))      # backend-node/
-ROOT_DIR = os.path.dirname(BASE_DIR)                        # repo root
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(BASE_DIR)
 RESULTS_DIR = os.path.join(ROOT_DIR, "load_test_results")
 
 import httpx
 
-# A stable load-test account. Its data is its own (sessions are per-user), so a
-# run never touches real users; we still delete the seeded sessions at the end.
+
 LOAD_EMAIL = "loadtest@curalink.local"
 LOAD_PASS = "loadtest-pw-9137"
 LOAD_NAME = "Load Test"
 
 
-# =============================================================================
-# Percentiles (nearest-rank — small samples, so no interpolated precision)
-# =============================================================================
-
+# Calculates a nearest-rank percentile for latency samples.
 def pctl(xs, p):
     if not xs:
         return float("nan")
@@ -72,10 +68,7 @@ def pctl(xs, p):
     return xs[min(rank, len(xs)) - 1]
 
 
-# =============================================================================
-# Stub pipeline server — mimics FastAPI /pipeline/* with a sleep + canned answer
-# =============================================================================
-
+# Serves a delayed FastAPI-compatible pipeline for zero-cost load tests.
 def serve_stub(port, lead_seconds):
     from fastapi import FastAPI
     from fastapi.responses import StreamingResponse
@@ -90,7 +83,7 @@ def serve_stub(port, lead_seconds):
         "pipelineMeta": {"stub": True},
     }
 
-    # ponytail: minimal in-memory job store for v2 probe tests
+
     _jobs = {}
 
     @app.get("/health")
@@ -131,10 +124,6 @@ def serve_stub(port, lead_seconds):
 
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="error")
 
-
-# =============================================================================
-# HTTP helpers
-# =============================================================================
 
 def wait_for_health(base, timeout=120):
     """Generous per-request timeout: a Render free instance cold-starts for tens
@@ -189,10 +178,7 @@ def cleanup_sessions(base, token, ids):
     return n
 
 
-# =============================================================================
-# The read-path hammer
-# =============================================================================
-
+# Generates concurrent read and login traffic against one API instance.
 async def hammer(base, token, session_id, concurrency, duration, mix="read"):
     results = {"health": [], "sessions": [], "session": [], "login": []}
     errors = {"count": 0, "samples": []}
@@ -256,16 +242,12 @@ async def chat_flood(base, token, session_id, n_clients, stop_evt):
         await asyncio.gather(*[looper(client) for _ in range(n_clients)])
 
 
-# =============================================================================
-# V2 feature probes — async jobs, queue depth, webhooks, circuit breaker
-# =============================================================================
-
 async def test_job_api(base, token, session_id):
     """Submit a job, poll until terminal, then verify cancel on a second job."""
     auth = {"Authorization": f"Bearer {token}"}
     results = {"submit": None, "poll_states": [], "cancel": None, "errors": []}
     async with httpx.AsyncClient(base_url=base) as client:
-        # Submit
+
         r = await client.post("/api/jobs", timeout=30, headers=auth,
                               json={"sessionId": session_id, "message": "job api test"})
         results["submit"] = r.status_code
@@ -276,7 +258,7 @@ async def test_job_api(base, token, session_id):
         if not job_id:
             results["errors"].append("no job_id in response")
             return results
-        # Poll up to 10 times
+
         for _ in range(10):
             await asyncio.sleep(1)
             r = await client.get(f"/api/jobs/{job_id}", timeout=15, headers=auth)
@@ -284,7 +266,7 @@ async def test_job_api(base, token, session_id):
             results["poll_states"].append(state)
             if state in ("completed", "failed"):
                 break
-        # Submit + cancel a second job
+
         r = await client.post("/api/jobs", timeout=30, headers=auth,
                               json={"sessionId": session_id, "message": "cancel test"})
         if r.status_code in (200, 201, 202):
@@ -309,7 +291,7 @@ async def test_webhook_crud(base, token):
     auth = {"Authorization": f"Bearer {token}"}
     results = {"create": None, "list_count": None, "delete": None, "errors": []}
     async with httpx.AsyncClient(base_url=base) as client:
-        # Create
+
         r = await client.post("/api/webhooks", timeout=15, headers=auth,
                               json={"url": "https://httpbin.org/post",
                                     "events": ["job.completed"]})
@@ -318,21 +300,18 @@ async def test_webhook_crud(base, token):
             results["errors"].append(f"create {r.status_code}")
             return results
         wh_id = r.json().get("_id") or r.json().get("id")
-        # List
+
         r = await client.get("/api/webhooks", timeout=15, headers=auth)
         if r.status_code == 200:
             results["list_count"] = len(r.json()) if isinstance(r.json(), list) else None
-        # Delete
+
         if wh_id:
             r = await client.delete(f"/api/webhooks/{wh_id}", timeout=15, headers=auth)
             results["delete"] = r.status_code
     return results
 
 
-# =============================================================================
-# Ramp
-# =============================================================================
-
+# Runs increasing concurrency levels until the configured degradation threshold.
 def run_ramp(base, token, session_id, levels, duration, stop_pct, mix):
     rows = []
     baseline_p95 = None
@@ -415,15 +394,11 @@ def _save(name, payload):
     print("  Latency is stub-scaled — read the ratio / breaking point, not absolute ms.")
 
 
-# =============================================================================
-# Spawning the real Express + the stub
-# =============================================================================
-
 def _resolve_srv_uri(uri):
     """Rewrite mongodb+srv:// to mongodb:// with pre-resolved hosts.
     Node's c-ares DNS can fail SRV lookups in sandboxed environments even when
     the system resolver works fine.  Falls back to the original URI on error."""
-    # ponytail: only handles the Atlas SRV convention; enough for load tests
+
     import re
     m = re.match(r"mongodb\+srv://([^@]+@)?([^/]+)/(.+)", uri)
     if not m:
@@ -458,15 +433,15 @@ def spawn_express(port, stub_port):
     env.update({
         "PORT": str(port),
         "FASTAPI_URL": f"http://127.0.0.1:{stub_port}",
-        # Lift the demo guards so the test isn't throttled by its own limits.
+
         "AUTH_RATE_MAX": "1000000",
         "CHAT_RATE_MAX": "1000000",
         "SESSION_RATE_MAX": "1000000",
         "DAILY_MESSAGE_CAP": "100000000",
         "INTERNAL_API_KEY": "load-test-internal-key",
     })
-    env.pop("REDIS_URL", None)  # keep the run deterministic — Mongo-backed cache only
-    # Rewrite mongodb+srv:// → standard mongodb:// to bypass SRV DNS sandbox issue
+    env.pop("REDIS_URL", None)
+
     mongo_uri = env.get("MONGO_URI", "")
     if not mongo_uri:
         dotenv_path = os.path.join(BASE_DIR, ".env")
@@ -484,10 +459,6 @@ def spawn_express(port, stub_port):
                             stdout=log, stderr=subprocess.STDOUT)
     return proc, log
 
-
-# =============================================================================
-# Smoke — quick functional check (every endpoint once, pass/fail)
-# =============================================================================
 
 def run_smoke(args):
     """Spawn Express + stub, hit every endpoint once, report pass/fail."""
@@ -515,7 +486,7 @@ def run_smoke(args):
             r = httpx.get(f"{base}/api/session/{sids[0]}", headers=auth, timeout=10)
             checks.append(("session_get", r.status_code == 200))
 
-        # Quick chat/stream — the stub answers in lead_seconds
+
         r = httpx.post(f"{base}/api/chat/stream", headers=auth, timeout=30,
                        json={"sessionId": sids[0] if sids else "x", "message": "smoke"})
         checks.append(("chat_stream", r.status_code == 200))
@@ -543,10 +514,7 @@ def run_smoke(args):
             stub.terminate()
 
 
-# =============================================================================
-# main
-# =============================================================================
-
+# Parses CLI options and runs the selected load-test mode.
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base-url", default=None, help="hit a running server (ramp only, read-only)")
@@ -639,7 +607,7 @@ def main():
             async def saturated():
                 stop_evt = asyncio.Event()
                 flood = asyncio.create_task(chat_flood(base, token, probe, args.chat_clients, stop_evt))
-                await asyncio.sleep(2)  # let the chat streams ramp up
+                await asyncio.sleep(2)
                 res = await hammer(base, token, probe, args.concurrency, args.duration, args.mix)
                 stop_evt.set()
                 try:

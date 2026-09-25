@@ -15,18 +15,18 @@ from urllib.parse import urlparse
 logger = logging.getLogger(__name__)
 
 ALLOWED_HOSTS: frozenset[str] = frozenset({
-    # Medical data sources
+
     "eutils.ncbi.nlm.nih.gov",
     "efetch.ncbi.nlm.nih.gov",
     "api.openalex.org",
     "clinicaltrials.gov",
     "www.clinicaltrials.gov",
-    # LLM providers
+
     "api-inference.huggingface.co",
     "api.cloudflare.com",
-    # Geocoding
+
     "nominatim.openstreetmap.org",
-    # Observability (outbound export)
+
     "us.cloud.langfuse.com",
     "cloud.langfuse.com",
     "otlp-gateway-prod-ap-south-1.grafana.net",

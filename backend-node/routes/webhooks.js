@@ -1,3 +1,5 @@
+// Authenticated webhook management and delivery.
+
 import crypto from "crypto";
 import { Router } from "express";
 import Webhook from "../models/Webhook.js";
@@ -6,7 +8,7 @@ import { authMiddleware } from "../middleware/auth.js";
 const router = Router();
 router.use(authMiddleware);
 
-// POST /api/webhooks — register a webhook
+
 router.post("/", async (req, res) => {
   const { url, events } = req.body;
   if (!url) return res.status(400).json({ ok: false, error: "url required" });
@@ -25,7 +27,7 @@ router.post("/", async (req, res) => {
   });
 });
 
-// GET /api/webhooks — list user's webhooks
+
 router.get("/", async (req, res) => {
   const hooks = await Webhook.find({ userId: req.userId })
     .select("-secret")
@@ -33,7 +35,7 @@ router.get("/", async (req, res) => {
   res.json({ ok: true, webhooks: hooks });
 });
 
-// DELETE /api/webhooks/:id — remove a webhook
+
 router.delete("/:id", async (req, res) => {
   await Webhook.findOneAndDelete({ _id: req.params.id, userId: req.userId });
   res.json({ ok: true, deleted: true });
@@ -63,7 +65,7 @@ export async function dispatchWebhooks(userId, event, payload) {
           .update(body)
           .digest("hex");
 
-        // Fire-and-forget with 10s timeout
+
         fetch(hook.url, {
           method: "POST",
           headers: {
@@ -73,13 +75,9 @@ export async function dispatchWebhooks(userId, event, payload) {
           body,
           signal: AbortSignal.timeout(10_000),
         }).catch(() => {});
-      } catch {
-        // individual hook failure — skip, try next
-      }
+      } catch {}
     }
-  } catch {
-    // query failure — swallow, webhooks are best-effort
-  }
+  } catch {}
 }
 
 export default router;

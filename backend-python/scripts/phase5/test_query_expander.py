@@ -113,22 +113,22 @@ async def run_tests():
         for q in result.expanded_queries:
             print(f"    - {q}")
 
-        # Checks
+
         disease = tc["static_context"]["disease"].lower()
         checks_passed = True
 
-        # 1. expanded_queries not empty
+
         if not result.expanded_queries:
             print("  FAIL: expanded_queries is empty")
             checks_passed = False
 
-        # 2. disease present in every expanded query
+
         if not result.skip_retrieval:
             for q in result.expanded_queries:
                 if disease not in q.lower() and disease.split()[0].lower() not in q.lower():
                     print(f"  WARN: disease not found in query: \"{q}\"")
 
-        # 3. intent is valid
+
         valid_intents = {
             "treatment_overview", "drug_interaction_safety",
             "clinical_trials_search", "side_effects", "prognosis",
@@ -138,17 +138,17 @@ async def run_tests():
             print(f"  FAIL: invalid intent: {result.intent}")
             checks_passed = False
 
-        # 4. disease_focus populated
+
         if not result.disease_focus:
             print("  FAIL: disease_focus is empty")
             checks_passed = False
 
-        # 5. at most 4 queries
+
         if len(result.expanded_queries) > 4:
             print(f"  FAIL: too many queries ({len(result.expanded_queries)} > 4)")
             checks_passed = False
 
-        # 6. greeting test: skip_retrieval should be true
+
         if tc["name"] == "Greeting (should skip retrieval)":
             if result.skip_retrieval:
                 print("  PASS: correctly set skip_retrieval=true for greeting")

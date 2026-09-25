@@ -19,7 +19,7 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
-# States
+
 PENDING = "pending"
 RUNNING = "running"
 STREAMING = "streaming"
@@ -27,7 +27,7 @@ COMPLETED = "completed"
 FAILED = "failed"
 CANCELLED = "cancelled"
 
-_JOB_TTL = 3600  # 1h — completed jobs expire from Redis
+_JOB_TTL = 3600
 
 
 class Job:
@@ -63,11 +63,11 @@ class JobManager:
         self._workers: list[asyncio.Task] = []
         self._pipeline_fn = None
         self._started = False
-        # Per-tenant fairness: round-robin across users so one user's burst
-        # doesn't starve others. Maps user_id -> deque of pending jobs.
+
+
         from collections import deque
         self._tenant_queues: dict[str, deque] = {}
-        self._tenant_order: deque = deque()  # round-robin cursor
+        self._tenant_order: deque = deque()
         self._rr_lock = asyncio.Lock()
 
     def set_pipeline(self, fn):
@@ -78,7 +78,7 @@ class JobManager:
         if self._started:
             return
         self._started = True
-        # Start the round-robin dispatcher + workers
+
         asyncio.create_task(self._dispatcher())
         for i in range(self._max_workers):
             self._workers.append(asyncio.create_task(self._worker(i)))
@@ -127,7 +127,7 @@ class JobManager:
                             del self._tenant_queues[uid]
                             self._tenant_order.remove(uid)
             if not pushed:
-                await asyncio.sleep(0.05)  # idle — wait for new jobs
+                await asyncio.sleep(0.05)
 
     def get_job(self, job_id: str) -> dict | None:
         job = self._jobs.get(job_id)
@@ -185,7 +185,7 @@ class JobManager:
             if client:
                 client.set(f"job:{job.id}", json.dumps(job.to_dict()), ex=_JOB_TTL)
         except Exception:
-            pass  # ponytail: Redis down = in-memory only, still works
+            pass
 
     def _load(self, job_id: str) -> dict | None:
         try:

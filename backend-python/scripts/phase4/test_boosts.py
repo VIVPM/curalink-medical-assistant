@@ -57,10 +57,10 @@ def main():
     print("Phase 4 Step 4.4: Recency + Credibility Boosts Test")
     print("=" * 60)
 
-    # 1. Unit test boost functions
+
     print("\n[1/4] Unit testing boost functions")
 
-    # Recency
+
     assert _recency_boost(2026) == 1.0, "current year should be 1.0"
     assert _recency_boost(2016) == 0.0, "10 years old should be 0.0"
     assert _recency_boost(2010) == 0.0, ">10 years should be 0.0"
@@ -68,7 +68,7 @@ def main():
     assert _recency_boost(None) == 0.0, "None year should be 0.0"
     print("  PASS: recency_boost values correct")
 
-    # Credibility (quick mock)
+
     from schemas.document import Document
     multi = Document(doc_id="x", doc_type="publication", title="x",
                      sources=["pubmed", "openalex"])
@@ -85,7 +85,7 @@ def main():
     assert _credibility_boost(oa_only) == 0.3
     print("  PASS: credibility_boost values correct")
 
-    # 2. Load embedder + fetch
+
     print(f"\n[2/4] Loading embedder + fetching docs")
     embedder = Embedder(BIENCODER_MODEL)
     docs = asyncio.run(fetch_docs())
@@ -93,14 +93,14 @@ def main():
 
     query = "vitamin D supplementation parkinson"
 
-    # 3. Run full scoring pipeline
+
     print(f"\n[3/4] Running BM25 + cosine + RRF + boosts")
     bm25_scores = rank_bm25(query, docs)
     cosine_scores = rank_cosine(query, docs, embedder)
     rrf_scores = rrf_fuse([bm25_scores, cosine_scores])
     boosted_scores = apply_boosts(rrf_scores, docs)
 
-    # 4. Compare before/after boosts
+
     rrf_ranked = sorted(
         zip(rrf_scores, boosted_scores, docs),
         key=lambda x: x[0], reverse=True
@@ -120,7 +120,7 @@ def main():
               f"({year}, {src}) {title}")
     print("-" * 70)
 
-    # Check: order changed (boosts had effect)
+
     rrf_order = [id(x[1]) for x in sorted(
         zip(rrf_scores, docs), key=lambda x: x[0], reverse=True)]
     boosted_order = [id(x[1]) for x in sorted(
@@ -131,7 +131,7 @@ def main():
     else:
         print("\n  INFO: boosts did not change order (docs may have similar ages/sources)")
 
-    # Check: boosted scores >= rrf scores (boosts are always >= 1.0 multiplier)
+
     all_gte = all(b >= r - 1e-10 for b, r in zip(boosted_scores, rrf_scores))
     if all_gte:
         print("  PASS: all boosted scores >= rrf scores (multiplicative boost works)")

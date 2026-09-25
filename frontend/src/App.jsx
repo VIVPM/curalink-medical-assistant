@@ -1,3 +1,5 @@
+// Root application flow for landing, authentication, legal, and research views.
+
 import { useEffect, useState } from "react";
 import useAuth from "./hooks/useAuth";
 import useChat from "./hooks/useChat";
@@ -37,8 +39,7 @@ export default function App() {
   const [showForm, setShowForm] = useState(
     () => !localStorage.getItem("activeSessionId")
   );
-  // True while we're fetching a stored session on page refresh — prevents
-  // the intake form from flashing before the session loads.
+
   const [rehydrating, setRehydrating] = useState(
     () => Boolean(localStorage.getItem("token") && localStorage.getItem("activeSessionId"))
   );
@@ -75,8 +76,7 @@ export default function App() {
   }
 
   if (!user) {
-    // Landing first; the auth screen appears when they choose to sign in / get
-    // started, or when a session expiry (authError) needs a re-login.
+
     if (!showAuth && !authError) {
       return (
         <LandingPage

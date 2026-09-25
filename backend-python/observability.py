@@ -23,11 +23,11 @@ from contextlib import contextmanager
 
 logger = logging.getLogger(__name__)
 
-_llm_provider = None   # unified TracerProvider for LLM spans, or None when disabled
-_llm_tracer = None     # tracer from that provider (for the generation span)
+_llm_provider = None
+_llm_tracer = None
 _message_counter = None
-_ttft_histogram = None      # time-to-first-token histogram
-_cost_counter = None        # per-user token cost counter
+_ttft_histogram = None
+_cost_counter = None
 
 
 def _have_langfuse() -> bool:

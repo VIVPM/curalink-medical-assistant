@@ -1,3 +1,5 @@
+// MongoDB schema for user webhook registrations.
+
 import mongoose from "mongoose";
 
 const webhookSchema = new mongoose.Schema({

@@ -90,8 +90,8 @@ If you cannot answer from the documents, set:
 class PromptPayload:
     system_prompt: str
     user_prompt: str
-    token_count: int  # estimated
-    doc_anchors: dict  # {"doc1": Document, "doc2": Document, ...}
+    token_count: int
+    doc_anchors: dict
     truncations: list[str] = field(default_factory=list)
 
 
@@ -116,7 +116,7 @@ def _format_trial(doc: Document, anchor: str) -> str:
         parts.append(f"Brief Summary: {doc.abstract}")
     if doc.eligibility_criteria:
         elig = doc.eligibility_criteria
-        # Truncation priority: keep first 400 tokens (~1600 chars) of eligibility
+
         if len(elig) > 1600:
             elig = elig[:1600].rsplit(".", 1)[0] + "."
         parts.append(f"Eligibility: {elig}")
@@ -138,7 +138,7 @@ def _truncate_to_budget(text: str, max_chars: int) -> tuple[str, bool]:
     if len(text) <= max_chars:
         return text, False
     truncated = text[:max_chars]
-    # Cut at last sentence boundary
+
     last_period = truncated.rfind(".")
     if last_period > max_chars * 0.5:
         truncated = truncated[: last_period + 1]
@@ -154,7 +154,7 @@ def _format_chat_history(chat_history: list[dict] | None) -> str:
     parts = ["PREVIOUS CONVERSATION:"]
 
     if len(chat_history) > MAX_RECENT:
-        # Summarize older turns as topic hints (saves ~500 tokens per 10 old turns)
+
         older = chat_history[:-MAX_RECENT]
         topics = []
         for m in older:
@@ -170,7 +170,7 @@ def _format_chat_history(chat_history: list[dict] | None) -> str:
         role = msg.get("role", "user")
         content = msg.get("content", "")
         if role == "assistant":
-            # Condense to ~150 tokens (~600 chars)
+
             if len(content) > 600:
                 content = content[:600].rsplit(".", 1)[0] + "..."
         parts.append(f"{role.upper()}: {content}")
@@ -183,7 +183,7 @@ def build_context(
     user_message: str,
     static_context: dict,
     chat_history: list[dict] | None = None,
-    per_doc_chars: int = 1600,  # ~400 tokens (14 docs fit in context)
+    per_doc_chars: int = 1600,
 ) -> PromptPayload:
     """
     Stage 5: build the grounded prompt for the LLM.
@@ -201,7 +201,7 @@ def build_context(
     doc_anchors: dict = {}
     truncations: list[str] = []
 
-    # Format static context
+
     static_parts = ["PATIENT CONTEXT:"]
     disease = static_context.get("disease", "")
     if disease:
@@ -214,10 +214,10 @@ def build_context(
         static_parts.append(f"  Location: {location}")
     static_block = "\n".join(static_parts)
 
-    # Format chat history
+
     history_block = _format_chat_history(chat_history)
 
-    # Format docs with anchors
+
     doc_blocks: list[str] = []
     for i, doc in enumerate(top_docs):
         anchor = f"doc{i + 1}"
@@ -236,7 +236,7 @@ def build_context(
 
     docs_block = "\n\n".join(doc_blocks)
 
-    # Assemble user prompt
+
     user_prompt_parts = [static_block]
     if history_block:
         user_prompt_parts.append(history_block)
@@ -245,7 +245,7 @@ def build_context(
 
     user_prompt = "\n\n".join(user_prompt_parts)
 
-    # Rough token estimate (~4 chars per token)
+
     total_chars = len(GROUNDING_RULES) + len(user_prompt)
     token_estimate = total_chars // 4
 

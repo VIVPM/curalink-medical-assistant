@@ -45,19 +45,19 @@ def main():
     print(f"Loaded in {time.perf_counter() - t0:.1f}s (dim={embedder.dim})")
     assert embedder.dim == 768
 
-    # Test 1: empty input
+
     print("\n--- Test 1: empty input ---")
     vecs = embedder.embed_batch([])
     assert vecs == []
     print("PASS: empty list returns empty list")
 
-    # Test 2: single-element batch
+
     print("\n--- Test 2: single-element batch ---")
     vecs = embedder.embed_batch(["diabetes treatment"])
     assert len(vecs) == 1 and len(vecs[0]) == 768
     print(f"PASS: got 1 vector of length {len(vecs[0])}")
 
-    # Test 3: 50-doc batch (plan target: <5 sec on CPU)
+
     print("\n--- Test 3: 50-doc batch ---")
     corpus = make_corpus(50)
     t0 = time.perf_counter()
@@ -71,7 +71,7 @@ def main():
     else:
         print("PASS: under 5 sec on CPU")
 
-    # Test 4: 100-doc batch
+
     print("\n--- Test 4: 100-doc batch ---")
     corpus = make_corpus(100)
     t0 = time.perf_counter()
@@ -81,7 +81,7 @@ def main():
     assert len(vecs) == 100
     print("PASS")
 
-    # Test 5: output order preserved
+
     print("\n--- Test 5: output order matches input order ---")
     texts = [
         "diabetes type 2 metformin treatment outcomes",
@@ -90,13 +90,13 @@ def main():
     ]
     vecs = embedder.embed_batch(texts)
     single_vecs = [embedder.embed_text(t) for t in texts]
-    # Cosine between batch[i] and single[i] should be ~1.0
+
     for i in range(3):
         sim = float(np.dot(vecs[i], single_vecs[i]))
         assert sim > 0.9999, f"Order mismatch at index {i}: sim={sim}"
     print("PASS: batch output matches single-encode output, same order")
 
-    # Test 6: batch_size scaling
+
     print("\n--- Test 6: batch_size scaling (same 100 docs) ---")
     corpus = make_corpus(100)
     for bs in (8, 16, 32, 64):

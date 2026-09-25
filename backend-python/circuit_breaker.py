@@ -82,7 +82,7 @@ class ResilientLLM:
             self._breakers["fallback"] = CircuitBreaker(fallback.__class__.__name__)
 
     async def generate(self, prompt, **kwargs) -> str:
-        # Try primary
+
         pb = self._breakers["primary"]
         if pb.allow():
             try:
@@ -95,7 +95,7 @@ class ResilientLLM:
                 if not self.fallback:
                     raise
 
-        # Fallback
+
         if self.fallback:
             fb = self._breakers["fallback"]
             if fb.allow():
@@ -112,7 +112,7 @@ class ResilientLLM:
         raise CircuitOpen("All providers unavailable — primary: %s" % pb.status())
 
     async def generate_stream(self, prompt, **kwargs):
-        # Try primary
+
         pb = self._breakers["primary"]
         if pb.allow():
             try:
@@ -126,7 +126,7 @@ class ResilientLLM:
                 if not self.fallback:
                     raise
 
-        # Fallback
+
         if self.fallback:
             fb = self._breakers["fallback"]
             if fb.allow():

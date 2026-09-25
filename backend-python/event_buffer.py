@@ -13,7 +13,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-_BUFFER_TTL = 600  # 10 min
+_BUFFER_TTL = 600
 
 
 def buffer_event(job_id: str, event_id: int, event_type: str, data: str) -> None:
@@ -39,7 +39,7 @@ def replay_events(job_id: str, last_event_id: int | None = None) -> list[dict]:
                 for i, e in enumerate(events):
                     if e["id"] == last_event_id:
                         return events[i + 1:]
-                return events  # ID not found — replay all
+                return events
             return events
     except Exception as e:
         logger.debug("[event_buffer] replay failed: %s", e)

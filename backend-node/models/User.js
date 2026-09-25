@@ -1,3 +1,5 @@
+// MongoDB schema for user accounts and consent records.
+
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -14,10 +16,10 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, minlength: 8 },
     termsAcceptedAt: { type: Date, default: null },
     termsVersion: { type: String, default: null },
-    // ponytail: credits field kept for backward compat reads; daily quota is now
-    // ponytail: credits field kept for backward compat; daily quota is window-based
-    // (count messages today, cap from DAILY_MESSAGE_CAP env). No decrement, no
-    // nightly reset job — at midnight the count is 0 again automatically.
+
+
+
+
     credits: { type: Number, default: () => Number(process.env.DAILY_MESSAGE_CAP) || 5 },
   },
   { timestamps: true }

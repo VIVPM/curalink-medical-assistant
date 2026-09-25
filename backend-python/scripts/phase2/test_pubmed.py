@@ -48,7 +48,7 @@ async def main():
         if mesh:
             print(f"    MeSH: {mesh}")
 
-    # Sanity summary
+
     with_abstract = sum(1 for d in docs if d["abstract"])
     with_doi = sum(1 for d in docs if d["doi"])
     with_year = sum(1 for d in docs if d["year"])

@@ -76,7 +76,7 @@ async def main():
     openalex_docs = [normalize_openalex(r) for r in openalex_raw]
     trial_docs = [normalize_trial(r, disease_context=disease) for r in trials_raw]
 
-    # Show one sample of each type
+
     if pubmed_docs:
         print_doc("PubMed sample", pubmed_docs[0])
     if openalex_docs:
@@ -84,7 +84,7 @@ async def main():
     if trial_docs:
         print_doc("Trial sample", trial_docs[0])
 
-    # Stats
+
     print("\n" + "=" * 70)
     print("NORMALIZATION STATS")
     print("=" * 70)

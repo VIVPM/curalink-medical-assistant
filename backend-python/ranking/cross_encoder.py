@@ -30,7 +30,7 @@ class MedCPTReranker:
         if doc.abstract:
             parts.append(doc.abstract)
         text = " ".join(parts)
-        # MedCPT max is 512 tokens; ~4 chars/token, reserve ~60 tokens for query+SEP
+
         return text[:1800]
 
     def rerank(
@@ -48,31 +48,31 @@ class MedCPTReranker:
 
         for i in range(0, len(docs), batch_size):
             batch = docs[i : i + batch_size]
-            # Try batch call first
+
             try:
                 pairs = [f"{query} [SEP] {self._doc_text(doc)}" for doc in batch]
-                # HF text_classification can accept a list of strings
+
                 results = self.client.text_classification(pairs)
 
-                # Results could be list of lists or list of dicts
+
                 if results and isinstance(results[0], list):
-                    # Each item is a list of classifications
+
                     for result in results:
                         if result and len(result) > 0:
                             all_scores.append(result[0].score)
                         else:
                             all_scores.append(0.5)
                 elif results and hasattr(results[0], 'score'):
-                    # Flat list of classifications (one per input)
+
                     for result in results:
                         all_scores.append(result.score)
                 else:
-                    # Unknown format, fallback scores
+
                     all_scores.extend([0.5] * len(batch))
 
             except Exception as e:
                 print(f"[cross-encoder] batch failed, falling back to per-doc: {e}")
-                # Fallback: score one by one
+
                 for doc in batch:
                     try:
                         pair_text = f"{query} [SEP] {self._doc_text(doc)}"

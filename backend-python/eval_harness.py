@@ -32,12 +32,8 @@ RESULTS_DIR = os.path.join(ROOT_DIR, "eval_results")
 import httpx
 
 
-# =============================================================================
-# Gold-standard evaluation set
-# =============================================================================
-
 EVAL_SET = [
-    # --- Well-studied diseases: should return rich results ---
+
     {
         "id": "Q01",
         "disease": "Parkinson's disease",
@@ -109,7 +105,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Clinical trials focus ---
+
     {
         "id": "Q06",
         "disease": "Non-small cell lung cancer",
@@ -153,7 +149,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Rare / niche conditions ---
+
     {
         "id": "Q09",
         "disease": "Spinal muscular atrophy",
@@ -183,7 +179,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Should-abstain queries (non-medical or unanswerable) ---
+
     {
         "id": "Q11",
         "disease": "None",
@@ -213,7 +209,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Edge cases ---
+
     {
         "id": "Q13",
         "disease": "Hypertension",
@@ -271,7 +267,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Another abstain test ---
+
     {
         "id": "Q17",
         "disease": "None",
@@ -287,7 +283,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Broad queries ---
+
     {
         "id": "Q18",
         "disease": "Atopic dermatitis",
@@ -331,7 +327,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Pediatric / age-specific ---
+
     {
         "id": "Q21",
         "disease": "Acute lymphoblastic leukemia",
@@ -361,7 +357,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Surgical / procedural ---
+
     {
         "id": "Q23",
         "disease": "Obesity",
@@ -391,7 +387,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Infectious disease ---
+
     {
         "id": "Q25",
         "disease": "Tuberculosis",
@@ -421,7 +417,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Mental health ---
+
     {
         "id": "Q27",
         "disease": "PTSD",
@@ -451,7 +447,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Women's health ---
+
     {
         "id": "Q29",
         "disease": "Endometriosis",
@@ -481,7 +477,7 @@ EVAL_SET = [
         },
     },
 
-    # --- More abstain tests ---
+
     {
         "id": "Q31",
         "disease": "None",
@@ -525,7 +521,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Ophthalmology ---
+
     {
         "id": "Q34",
         "disease": "Age-related macular degeneration",
@@ -541,7 +537,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Orthopedics ---
+
     {
         "id": "Q35",
         "disease": "Osteoarthritis",
@@ -557,7 +553,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Dermatology ---
+
     {
         "id": "Q36",
         "disease": "Psoriasis",
@@ -573,7 +569,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Gastroenterology ---
+
     {
         "id": "Q37",
         "disease": "Ulcerative colitis",
@@ -589,7 +585,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Endocrinology ---
+
     {
         "id": "Q38",
         "disease": "Hypothyroidism",
@@ -605,7 +601,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Nephrology ---
+
     {
         "id": "Q39",
         "disease": "Chronic kidney disease",
@@ -621,7 +617,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Hematology ---
+
     {
         "id": "Q40",
         "disease": "Multiple myeloma",
@@ -637,7 +633,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Vague / borderline queries (should still attempt, not abstain) ---
+
     {
         "id": "Q41",
         "disease": "Diabetes",
@@ -667,7 +663,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Neurology ---
+
     {
         "id": "Q43",
         "disease": "Amyotrophic lateral sclerosis",
@@ -683,7 +679,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Cardiology ---
+
     {
         "id": "Q44",
         "disease": "Atrial fibrillation",
@@ -699,7 +695,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Pulmonology ---
+
     {
         "id": "Q45",
         "disease": "Idiopathic pulmonary fibrosis",
@@ -715,7 +711,7 @@ EVAL_SET = [
         },
     },
 
-    # --- More abstain (tricky borderline) ---
+
     {
         "id": "Q46",
         "disease": "None",
@@ -745,7 +741,7 @@ EVAL_SET = [
         },
     },
 
-    # --- Clinical trials heavy ---
+
     {
         "id": "Q48",
         "disease": "Glioblastoma",
@@ -791,10 +787,6 @@ EVAL_SET = [
 ]
 
 
-# =============================================================================
-# Scoring
-# =============================================================================
-
 def score_response(query, response):
     """Score a single pipeline response against expectations. Returns a dict of checks."""
     expect = query["expect"]
@@ -802,14 +794,14 @@ def score_response(query, response):
     is_error = "error" in response or "detail" in response
     skip_retrieval = response.get("skip_retrieval", False)
 
-    # 1. Abstention accuracy
+
     abstained = bool(response.get("abstain_reason")) or skip_retrieval or is_error
     if expect["should_abstain"]:
         checks["abstain_correct"] = abstained
     else:
         checks["abstain_correct"] = not abstained
 
-    # If it's an error/abstain and shouldn't be, mark remaining checks as failed
+
     if is_error or (skip_retrieval and not expect["should_abstain"]):
         checks["has_overview"] = False
         checks["min_insights_met"] = False
@@ -819,23 +811,23 @@ def score_response(query, response):
         checks["has_structure"] = False
         return checks
 
-    # If expected abstain and it did abstain, skip quality checks (they're N/A)
+
     if expect["should_abstain"] and abstained:
         return checks
 
-    # 2. Has overview
+
     overview = response.get("overview", "")
     checks["has_overview"] = bool(overview) and len(overview) > 30
 
-    # 3. Insight count
+
     insights = response.get("insights", [])
     checks["min_insights_met"] = len(insights) >= expect["min_insights"]
 
-    # 4. Trial count
+
     trials = response.get("trials", [])
     checks["min_trials_met"] = len(trials) >= expect["min_trials"]
 
-    # 5. Topic relevance — at least one keyword appears in overview or insight findings
+
     if expect["topic_keywords"]:
         text_blob = overview.lower()
         for ins in insights:
@@ -843,9 +835,9 @@ def score_response(query, response):
         hit = any(kw.lower() in text_blob for kw in expect["topic_keywords"])
         checks["topic_hit"] = hit
     else:
-        checks["topic_hit"] = True  # no keywords to check
+        checks["topic_hit"] = True
 
-    # 6. Citation grounding — every insight has at least one source_detail with a title
+
     if insights:
         grounded = all(
             any(sd.get("title") for sd in ins.get("source_details", []))
@@ -855,16 +847,12 @@ def score_response(query, response):
     else:
         checks["citations_grounded"] = expect["min_insights"] == 0
 
-    # 7. Structural validity — response has expected top-level keys
+
     required_keys = {"overview", "insights", "trials", "pipelineMeta"}
     checks["has_structure"] = required_keys.issubset(response.keys())
 
     return checks
 
-
-# =============================================================================
-# Runner
-# =============================================================================
 
 def run_eval(base_url, queries, delay=2.0):
     """Run all queries against the pipeline, score each, return results."""
@@ -907,7 +895,7 @@ def run_eval(base_url, queries, delay=2.0):
         status = "PASS" if passed else "FAIL"
         print(f"{status} ({n_pass}/{n_total}) [{elapsed}ms]")
 
-        # Extract pipeline meta for the report
+
         meta = response.get("pipelineMeta", {})
 
         results.append({
@@ -926,16 +914,12 @@ def run_eval(base_url, queries, delay=2.0):
             "warnings": meta.get("warnings", []),
         })
 
-        # Rate-limit courtesy: don't hammer HF free tier
+
         if i < len(queries) - 1:
             time.sleep(delay)
 
     return results
 
-
-# =============================================================================
-# Report
-# =============================================================================
 
 def print_report(results):
     """Print a summary report to stdout."""
@@ -947,7 +931,7 @@ def print_report(results):
     print("PIPELINE QUALITY EVALUATION REPORT")
     print("=" * 78)
 
-    # Per-check aggregates
+
     all_checks = {}
     for r in results:
         for check, val in r["checks"].items():
@@ -963,7 +947,7 @@ def print_report(results):
         bar = "█" * int(pct / 5) + "░" * (20 - int(pct / 5))
         print(f"    {check:25s} {counts['pass']:2d}/{counts['total']:2d}  {bar}  {pct:.0f}%")
 
-    # Latency summary
+
     medical = [r for r in results if not r["abstained"] and r["elapsed_ms"] > 0]
     if medical:
         times = sorted(r["elapsed_ms"] for r in medical)
@@ -973,7 +957,7 @@ def print_report(results):
         print(f"\n  Latency (medical queries only, {len(medical)} queries):")
         print(f"    avg {avg:.0f}ms   p50 {p50}ms   p95 {p95}ms   min {times[0]}ms   max {times[-1]}ms")
 
-    # Per-stage timing averages
+
     stage_sums = {}
     stage_counts = {}
     for r in medical:
@@ -989,7 +973,7 @@ def print_report(results):
                 avg_ms = stage_sums[stage] / stage_counts[stage]
                 print(f"    {stage:20s} {avg_ms:8.0f}ms")
 
-    # Retrieval summary
+
     if medical:
         avg_insights = sum(r["n_insights"] for r in medical) / len(medical)
         avg_trials = sum(r["n_trials"] for r in medical) / len(medical)
@@ -997,7 +981,7 @@ def print_report(results):
         print(f"    avg insights/query: {avg_insights:.1f}")
         print(f"    avg trials/query:   {avg_trials:.1f}")
 
-    # Citation grounding
+
     total_cit = sum(r["citation_stats"].get("total", 0) for r in medical)
     verified_cit = sum(r["citation_stats"].get("verified", 0) for r in medical)
     unverified_cit = sum(r["citation_stats"].get("unverified", 0) for r in medical)
@@ -1007,7 +991,7 @@ def print_report(results):
         print(f"    total: {total_cit}   verified: {verified_cit}   unverified: {unverified_cit}")
         print(f"    grounding rate: {ground_rate:.1f}%")
 
-    # Failed queries detail
+
     failures = [r for r in results if r["status"] == "FAIL"]
     if failures:
         print("\n  Failed queries:")
@@ -1036,10 +1020,7 @@ def save_results(results, args):
     print(f"\n  Detailed results: {path}")
 
 
-# =============================================================================
-# main
-# =============================================================================
-
+# Runs the selected evaluation mode and writes its report.
 def main():
     ap = argparse.ArgumentParser(description="Curalink pipeline quality evaluation")
     ap.add_argument("--base-url", default="http://127.0.0.1:8000",
@@ -1053,7 +1034,7 @@ def main():
     args = ap.parse_args()
 
     if args.selftest:
-        # Validate eval set
+
         ids = set()
         for i, q in enumerate(EVAL_SET):
             assert "id" in q, f"query {i} missing id"
@@ -1065,7 +1046,7 @@ def main():
             assert "should_abstain" in e, f"{q['id']} missing should_abstain"
             assert "min_insights" in e, f"{q['id']} missing min_insights"
         print(f"selftest ok — {len(EVAL_SET)} queries, {len(ids)} unique IDs")
-        # Count by type
+
         medical = sum(1 for q in EVAL_SET if not q["expect"]["should_abstain"])
         abstain = len(EVAL_SET) - medical
         print(f"  {medical} medical queries, {abstain} should-abstain queries")
@@ -1077,7 +1058,7 @@ def main():
             sys.exit(f"--query must be 0-{len(EVAL_SET)-1}")
         queries = [EVAL_SET[args.query]]
 
-    # Health check
+
     try:
         r = httpx.get(f"{args.base_url}/health", timeout=10)
         if r.status_code != 200:

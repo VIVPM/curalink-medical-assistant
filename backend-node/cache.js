@@ -1,5 +1,5 @@
-// Query-result cache. Uses Redis when REDIS_URL is set, else falls back to the
-// MongoDB Cache model — so the app runs identically with or without Redis.
+// Query-response cache backed by Redis with a MongoDB fallback.
+
 import Redis from "ioredis";
 import Cache from "./models/Cache.js";
 
@@ -27,7 +27,7 @@ export async function cacheGet(key) {
       return v ? JSON.parse(v) : null;
     } catch (e) {
       console.error(JSON.stringify({ level: "error", where: "redis_get", error: e.message }));
-      return null; // fail open — a cache miss just re-runs the pipeline
+      return null;
     }
   }
   const doc = await Cache.findOne({ key }).lean();

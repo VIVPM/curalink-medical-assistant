@@ -1,3 +1,5 @@
+// Tests account consent fields and data-retention indexes.
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import Message from "./Message.js";

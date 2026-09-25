@@ -13,7 +13,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-_CHECKPOINT_TTL = 600  # 10 min — checkpoints are transient
+_CHECKPOINT_TTL = 600
 
 STAGES = (
     "query_expansion", "retrieval", "normalization",

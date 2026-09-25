@@ -1,3 +1,5 @@
+// Authenticated routes for asynchronous pipeline jobs.
+
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.js";
 import { audit } from "../middleware/audit.js";
@@ -12,7 +14,7 @@ const fastApiHeaders = (extra = {}) => ({
 
 router.use(authMiddleware);
 
-// POST /api/jobs — async submit (returns 202 + job_id)
+
 router.post(
   "/",
   audit("job.submit", (req) => ({ type: "job" })),
@@ -33,7 +35,7 @@ router.post(
   }
 );
 
-// GET /api/jobs/:id — poll status
+
 router.get("/:id", async (req, res) => {
   try {
     const resp = await fetch(`${FASTAPI_URL}/jobs/${req.params.id}`, {
@@ -41,7 +43,7 @@ router.get("/:id", async (req, res) => {
     });
     const data = await resp.json();
 
-    // Dispatch webhooks on terminal states
+
     if (data.state === "completed") {
       dispatchWebhooks(req.userId, "job.completed", data).catch(() => {});
     } else if (data.state === "failed") {
@@ -56,7 +58,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// DELETE /api/jobs/:id — cancel
+
 router.delete(
   "/:id",
   audit("job.cancel", (req) => ({ type: "job", id: req.params.id })),
@@ -76,7 +78,7 @@ router.delete(
   }
 );
 
-// GET /api/jobs/:id/events — replay SSE events (reconnect support)
+
 router.get("/:id/events", async (req, res) => {
   const lastEventId = req.headers["last-event-id"];
   try {

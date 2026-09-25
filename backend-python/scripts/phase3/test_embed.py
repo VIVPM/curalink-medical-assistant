@@ -28,7 +28,7 @@ def main():
     model = SentenceTransformer(MODEL_NAME)
     print(f"Loaded in {time.perf_counter() - t0:.1f}s")
 
-    # Test 1: single embedding shape + normalization
+
     text = "Vitamin D supplementation in Parkinson's disease patients"
     vec = model.encode(text, normalize_embeddings=True, convert_to_numpy=True)
     print(f"\n--- Test 1: single embedding ---")
@@ -40,7 +40,7 @@ def main():
     assert abs(np.linalg.norm(vec) - 1.0) < 0.01, "Not normalized"
     print("PASS: shape 768, L2-normalized")
 
-    # Test 2: semantic similarity sanity check
+
     print(f"\n--- Test 2: semantic similarity ---")
     query = "vitamin D therapy for parkinson"
     candidates = [
@@ -55,7 +55,7 @@ def main():
     cand_texts = [c[0] for c in candidates]
     c_vecs = model.encode(cand_texts, normalize_embeddings=True, convert_to_numpy=True)
 
-    # Cosine = dot product for normalized vectors
+
     scores = (c_vecs @ q_vec).tolist()
 
     print(f"Query: {query!r}\n")
@@ -63,12 +63,12 @@ def main():
     for score, (text, label) in ranked:
         print(f"  {score:.4f}  [{label:<10}] {text}")
 
-    # Sanity: top hit should be a "related" one
+
     top_label = ranked[0][1][1]
     assert top_label == "related", f"Top result was {top_label!r}, expected 'related'"
     print("\nPASS: related docs scored higher than unrelated")
 
-    # Test 3: batch encoding speed
+
     print(f"\n--- Test 3: batch encoding speed ---")
     batch_size = 50
     batch = [f"Medical abstract number {i} about diabetes." for i in range(batch_size)]

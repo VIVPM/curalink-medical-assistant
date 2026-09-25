@@ -1,3 +1,5 @@
+// MongoDB schema for retained audit events.
+
 import mongoose from "mongoose";
 
 const auditLogSchema = new mongoose.Schema({
@@ -10,7 +12,7 @@ const auditLogSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
-// Auto-expire after 1 year — compliance-friendly retention
+
 auditLogSchema.index(
   { timestamp: 1 },
   { expireAfterSeconds: 365 * 24 * 60 * 60 }

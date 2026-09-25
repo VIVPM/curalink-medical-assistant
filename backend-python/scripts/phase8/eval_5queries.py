@@ -22,9 +22,9 @@ import time
 from datetime import datetime
 
 EXPRESS_URL = "http://localhost:4000"
-TIMEOUT = 180.0  # pipeline can take a while on CPU
+TIMEOUT = 180.0
 
-# --- Auth ---
+
 AUTH_EMAIL = "eval@curalink.test"
 AUTH_PASS = "eval123456"
 AUTH_NAME = "Eval Bot"
@@ -32,7 +32,7 @@ AUTH_NAME = "Eval Bot"
 
 def get_token():
     """Sign up or login to get a JWT token."""
-    # Try login first
+
     resp = httpx.post(
         f"{EXPRESS_URL}/api/auth/login",
         json={"email": AUTH_EMAIL, "password": AUTH_PASS},
@@ -42,7 +42,7 @@ def get_token():
     if data.get("ok"):
         return data["token"]
 
-    # Sign up
+
     resp = httpx.post(
         f"{EXPRESS_URL}/api/auth/signup",
         json={"name": AUTH_NAME, "email": AUTH_EMAIL, "password": AUTH_PASS},
@@ -62,7 +62,6 @@ def headers(token):
     }
 
 
-# --- Eval Queries ---
 EVAL_SET = [
     {
         "name": "Q1: Lung Cancer + Immunotherapy (New York)",
@@ -157,7 +156,7 @@ def send_message(token, session_id, message, max_retries=2):
         error = data.get("error", "unknown error")
         detail = data.get("detail", "")
 
-        # Retry on pipeline/rate-limit errors
+
         if attempt < max_retries:
             print(f"    RETRY ({attempt+1}/{max_retries}): {error} — waiting 30s...")
             time.sleep(30)
@@ -178,17 +177,17 @@ def format_response(resp, indent=4):
             lines.append(f"{prefix}DETAIL: {str(resp['detail'])[:500]}")
         return "\n".join(lines)
 
-    # Overview
+
     overview = resp.get("overview", "")
     lines.append(f"{prefix}OVERVIEW: {overview}")
 
-    # Abstain
+
     abstain = resp.get("abstain_reason")
     if abstain:
         lines.append(f"{prefix}ABSTAIN: {abstain}")
         return "\n".join(lines)
 
-    # Insights
+
     insights = resp.get("insights", [])
     lines.append(f"{prefix}INSIGHTS ({len(insights)}):")
     for i, ins in enumerate(insights):
@@ -205,7 +204,7 @@ def format_response(resp, indent=4):
             if snippet:
                 lines.append(f"{prefix}        Snippet: \"{snippet[:120]}...\"")
 
-    # Trials
+
     trials = resp.get("trials", [])
     lines.append(f"{prefix}TRIALS ({len(trials)}):")
     for t in trials:
@@ -220,7 +219,7 @@ def format_response(resp, indent=4):
         if relevance:
             lines.append(f"{prefix}    Relevance: {relevance}")
 
-    # Pipeline meta
+
     meta = resp.get("pipelineMeta", {})
     timings = meta.get("stage_timings_ms", {})
     counts = meta.get("retrieval_counts", {})
@@ -265,7 +264,7 @@ def run_eval():
         report.append(f"  Intent: {session_form.get('intent', '')}")
         report.append(f"  Location: {session_form.get('location', '')}")
 
-        # Create session
+
         session_id = create_session(token, session_form)
         report.append(f"  Session ID: {session_id}")
 
@@ -281,7 +280,7 @@ def run_eval():
             report.append(f"  Response time: {dt:.1f}s")
             report.append(format_response(resp))
 
-            # Quality checks
+
             checks = []
             if "error" in resp:
                 checks.append("FAIL: pipeline error")
@@ -322,7 +321,7 @@ def run_eval():
                 else:
                     checks.append("FAIL: no verified citations")
 
-                # Check disease context is in the response
+
                 disease_lower = session_form["disease"].lower()
                 overview_lower = overview.lower()
                 if any(word in overview_lower for word in disease_lower.split()):
@@ -337,12 +336,12 @@ def run_eval():
                 if status in ("FAIL", "WARN"):
                     print(f"    {c}")
 
-            # Sleep between questions within a session to avoid HF rate limits
+
             if qi2 < len(questions) - 1:
                 print(f"    Sleeping 15s (rate limit)...")
                 time.sleep(15)
 
-        # Sleep between sessions to avoid HF rate limits
+
         if qi < len(EVAL_SET) - 1:
             print(f"  Sleeping 30s before next session (HF rate limit)...")
             time.sleep(30)
@@ -353,7 +352,7 @@ def run_eval():
     report.append(f"TOTAL TIME: {total_time:.1f}s")
     report.append(f"{'='*70}")
 
-    # Write report
+
     report_text = "\n".join(report)
     output_file.write_text(report_text, encoding="utf-8")
     print(f"\nDone in {total_time:.1f}s. Report saved to: {output_file}")

@@ -13,7 +13,6 @@ import re
 
 from schemas.document import Document
 
-# --- Text cleaning ---
 
 _COPYRIGHT_PATTERNS = [
     re.compile(r"©\s*\d{4}[^.]*\.?", re.IGNORECASE),
@@ -37,8 +36,6 @@ def clean_abstract(text: str | None) -> str:
     return text.strip()
 
 
-# --- DOI canonicalization ---
-
 _DOI_PREFIXES = (
     "https://doi.org/",
     "http://doi.org/",
@@ -60,8 +57,6 @@ def normalize_doi(doi: str | None) -> str | None:
     return d or None
 
 
-# --- Author normalization ---
-
 def normalize_author_display_name(name: str) -> str:
     """
     Convert a display-name style author ('John A. Smith') to canonical
@@ -79,8 +74,6 @@ def normalize_author_display_name(name: str) -> str:
     initials = "".join(p[0].upper() for p in parts[:-1] if p)
     return f"{last} {initials}".strip()
 
-
-# --- Disease tag normalization ---
 
 _TAG_SUFFIXES = (" diseases", " disease", " syndrome", " disorder", " disorders")
 
@@ -102,8 +95,6 @@ def normalize_disease_tags(tags: list[str] | None) -> list[str]:
             result.add(t)
     return sorted(result)
 
-
-# --- Per-source mappers ---
 
 _MIN_ABSTRACT_LEN = 50
 _MIN_TITLE_LEN = 20
@@ -128,7 +119,7 @@ def normalize_pubmed(raw: dict) -> Document:
         doc_type="publication",
         title=title,
         abstract=abstract or None,
-        authors=list(raw.get("authors") or []),  # PubMed fetcher already "LastName Initials"
+        authors=list(raw.get("authors") or []),
         year=raw.get("year"),
         journal=raw.get("journal"),
         doi=doi,
@@ -190,11 +181,10 @@ def normalize_trial(raw: dict, disease_context: str | None = None) -> Document:
     eligibility = clean_abstract(raw.get("eligibility_criteria"))
     nct_id = raw.get("nct_id")
 
-    # Use brief summary as the primary embedding text; fall back to detailed.
+
     abstract = brief or detailed or None
 
-    # Hard filter: needs title + some description. Trials often have no
-    # classic "abstract", so we accept any of brief / detailed.
+
     is_complete = bool(
         title and len(title) >= _MIN_TITLE_LEN and (brief or detailed)
     )

@@ -1,3 +1,5 @@
+// Tests chat cache isolation and urgent-use routing.
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import { cacheKey, isEmergencyMessage } from "./chat.js";

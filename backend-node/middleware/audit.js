@@ -1,3 +1,5 @@
+// Audit middleware for recording successful user actions.
+
 import AuditLog from "../models/AuditLog.js";
 
 /**
@@ -22,7 +24,7 @@ export function audit(action, getResource) {
             path: req.originalUrl,
           },
           ip: req.ip,
-        }).catch(() => {}); // ponytail: fire-and-forget, audit must never break requests
+        }).catch(() => {});
       }
     });
     next();

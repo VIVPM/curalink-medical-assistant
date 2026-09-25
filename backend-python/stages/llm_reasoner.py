@@ -21,7 +21,7 @@ from stages.context_builder import PromptPayload
 
 @dataclass
 class ReasonerResult:
-    llm_output: dict  # parsed JSON from LLM
+    llm_output: dict
     raw_text: str = ""
     timing_ms: int = 0
     retried: bool = False
@@ -90,7 +90,7 @@ def _repair_schema(parsed: dict) -> dict:
     parsed.setdefault("recommendations", [])
     parsed.setdefault("abstain_reason", None)
 
-    # Repair insights: drop entries without finding or sources
+
     if isinstance(parsed["insights"], list):
         repaired = []
         for ins in parsed["insights"]:
@@ -98,7 +98,7 @@ def _repair_schema(parsed: dict) -> dict:
                 continue
             if not ins.get("finding"):
                 continue
-            # Coerce sources to list
+
             src = ins.get("sources", [])
             if isinstance(src, str):
                 ins["sources"] = [src]
@@ -107,7 +107,7 @@ def _repair_schema(parsed: dict) -> dict:
             repaired.append(ins)
         parsed["insights"] = repaired
 
-    # Repair trials: same treatment
+
     if isinstance(parsed["trials"], list):
         repaired = []
         for trial in parsed["trials"]:
@@ -121,8 +121,7 @@ def _repair_schema(parsed: dict) -> dict:
             repaired.append(trial)
         parsed["trials"] = repaired
 
-    # Only structured, source-linked recommendations can reach assembly. Legacy
-    # strings and malformed entries are intentionally dropped.
+
     if isinstance(parsed["recommendations"], list):
         parsed["recommendations"] = [
             recommendation
@@ -147,22 +146,22 @@ def _parse_llm_response(raw: str) -> dict:
         lines = [l for l in lines if not l.strip().startswith("```")]
         text = "\n".join(lines)
 
-    # Try direct parse first
+
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # Fix trailing commas before ] or }
+
     text = re.sub(r',\s*([}\]])', r'\1', text)
 
-    # If JSON is truncated, try to close it
+
     open_braces = text.count('{') - text.count('}')
     open_brackets = text.count('[') - text.count(']')
-    # Trim any trailing partial value (e.g. truncated string)
+
     if open_braces > 0 or open_brackets > 0:
-        # Remove trailing partial string/value after last complete entry
-        text = re.sub(r',\s*"[^"]*$', '', text)  # trailing incomplete key
+
+        text = re.sub(r',\s*"[^"]*$', '', text)
         text = re.sub(r',\s*$', '', text)
         text += ']' * open_brackets + '}' * open_braces
 
@@ -223,8 +222,7 @@ async def run_reasoner(
                 parse_error = f"schema issues: {issues}"
                 continue
 
-            # Repair: fix missing defaults + drop malformed entries (cheap,
-            # no LLM call). Only on the second attempt or when issues are minor.
+
             parsed = _repair_schema(parsed)
 
             timing_ms = round((time.perf_counter() - t0) * 1000)
@@ -241,7 +239,7 @@ async def run_reasoner(
             if attempt == 0:
                 continue
 
-    # Both attempts failed
+
     timing_ms = round((time.perf_counter() - t0) * 1000)
     return ReasonerResult(
         llm_output=_fallback_output(parse_error or "unknown error"),

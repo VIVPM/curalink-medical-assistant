@@ -34,7 +34,7 @@ def rrf_fuse(
     fused = [0.0] * n
 
     for scores in score_lists:
-        # Convert scores to ranks (0-indexed, higher score = lower rank number)
+
         indexed = sorted(range(n), key=lambda i: scores[i], reverse=True)
         for rank, doc_idx in enumerate(indexed):
             fused[doc_idx] += 1.0 / (k + rank)

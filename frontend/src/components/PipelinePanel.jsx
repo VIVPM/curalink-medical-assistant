@@ -1,3 +1,5 @@
+// Diagnostics panel for timing, retrieval, and citation metadata.
+
 export default function PipelinePanel({ meta, collapsed, onToggle }) {
   if (!meta) return null;
 
@@ -42,7 +44,7 @@ export default function PipelinePanel({ meta, collapsed, onToggle }) {
 
       {!collapsed && (
         <>
-          {/* Stage Timings */}
+
           <div className="pipeline-section">
             <h4>Stage Timings</h4>
             <div className="timing-list">
@@ -69,7 +71,6 @@ export default function PipelinePanel({ meta, collapsed, onToggle }) {
             </div>
           </div>
 
-          {/* Retrieval Counts */}
           <div className="pipeline-section">
             <h4>Retrieval Counts</h4>
             <div className="count-grid">
@@ -118,7 +119,6 @@ export default function PipelinePanel({ meta, collapsed, onToggle }) {
             </div>
           </div>
 
-          {/* Citation Stats */}
           <div className="pipeline-section">
             <h4>Citations</h4>
             <div className="citation-stats">
@@ -139,7 +139,6 @@ export default function PipelinePanel({ meta, collapsed, onToggle }) {
             </div>
           </div>
 
-          {/* Warnings */}
           {warnings.length > 0 && (
             <div className="pipeline-section pipeline-warnings">
               <h4>Warnings</h4>

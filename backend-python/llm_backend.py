@@ -54,9 +54,6 @@ class LLMBackend(ABC):
         """Yield tokens as they arrive from the model."""
 
 
-# ---------------------------------------------------------------------------
-# HuggingFace Inference API
-# ---------------------------------------------------------------------------
 class HFBackend(LLMBackend):
     """HuggingFace Inference API backend using huggingface_hub InferenceClient."""
 
@@ -93,7 +90,7 @@ class HFBackend(LLMBackend):
         if json_mode:
             sys += "\n\nYou MUST respond with ONLY valid JSON. No prose before or after."
 
-        # Prompt cache: hit = skip the LLM call entirely
+
         from redis_cache import get_prompt_cache, set_prompt_cache
         cached = get_prompt_cache(self.model, sys, prompt)
         if cached is not None:
@@ -142,9 +139,6 @@ class HFBackend(LLMBackend):
             yield token
 
 
-# ---------------------------------------------------------------------------
-# Cloudflare Workers AI (OpenAI-compatible /chat/completions)
-# ---------------------------------------------------------------------------
 class CloudflareBackend(LLMBackend):
     """Cloudflare Workers AI backend via httpx (OpenAI wire format)."""
 
@@ -173,7 +167,7 @@ class CloudflareBackend(LLMBackend):
         if json_mode:
             sys += "\n\nYou MUST respond with ONLY valid JSON. No prose before or after."
 
-        # Prompt cache
+
         from redis_cache import get_prompt_cache, set_prompt_cache
         cached = get_prompt_cache(self.model, sys, prompt)
         if cached is not None:
@@ -250,9 +244,6 @@ class CloudflareBackend(LLMBackend):
             obs.set_generation_output(span, "".join(full))
 
 
-# ---------------------------------------------------------------------------
-# Factory
-# ---------------------------------------------------------------------------
 def get_llm_backend() -> LLMBackend:
     """Return the LLM backend selected by LLM_MODEL env var.
 
@@ -279,7 +270,7 @@ def get_llm_backend() -> LLMBackend:
         logger.info("LLM provider: Cloudflare Workers AI (@cf/openai/gpt-oss-20b)")
         return CloudflareBackend(account_id=account_id, api_token=api_token)
 
-    # Default: treat LLM_MODEL as a HuggingFace model id
+
     token = os.getenv("HF_TOKEN")
     if not token:
         raise RuntimeError(f"LLM_MODEL={raw} (HuggingFace) requires HF_TOKEN in .env.")
@@ -299,7 +290,7 @@ def get_resilient_llm():
     primary = get_llm_backend()
     fallback = None
 
-    # Build fallback from the other provider if creds exist
+
     if raw == "CLOUDFLARE":
         hf_token = os.getenv("HF_TOKEN")
         hf_model = os.getenv("HF_FALLBACK_MODEL", "meta-llama/Llama-3.3-70B-Instruct")

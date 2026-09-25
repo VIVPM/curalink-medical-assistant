@@ -41,7 +41,7 @@ def make_mock_docs() -> list[Document]:
             disease_tags=["parkinson"],
         ))
 
-    # 2 trials
+
     for i in range(2):
         docs.append(Document(
             doc_id=f"nct:NCT0000000{i}",
@@ -89,21 +89,21 @@ def main():
         chat_history=chat_history,
     )
 
-    # 1. Token count check
+
     print(f"\n[2/5] Token count: {payload.token_count}")
     if payload.token_count < 7400:
         print("  PASS: under 7400 token budget")
     else:
         print(f"  WARN: {payload.token_count} tokens exceeds 7400 budget")
 
-    # 2. Doc anchors check
+
     print(f"\n[3/5] Doc anchors: {list(payload.doc_anchors.keys())}")
     if len(payload.doc_anchors) == len(docs):
         print(f"  PASS: {len(payload.doc_anchors)} anchors for {len(docs)} docs")
     else:
         print(f"  FAIL: {len(payload.doc_anchors)} anchors for {len(docs)} docs")
 
-    # Verify each anchor appears in user prompt
+
     all_anchors_present = True
     for anchor in payload.doc_anchors:
         if f"[{anchor}]" not in payload.user_prompt:
@@ -112,7 +112,7 @@ def main():
     if all_anchors_present:
         print("  PASS: all [docN] anchors present in user prompt")
 
-    # 3. Grounding rules in system prompt
+
     print(f"\n[4/5] Checking system prompt")
     if "ONLY using the documents" in payload.system_prompt:
         print("  PASS: grounding rules present")
@@ -129,7 +129,7 @@ def main():
     else:
         print("  FAIL: abstain instruction missing")
 
-    # 4. Content checks
+
     print(f"\n[5/5] Content verification")
     if "Parkinson" in payload.user_prompt:
         print("  PASS: disease context in prompt")
@@ -156,13 +156,13 @@ def main():
     else:
         print("  FAIL: trial status missing")
 
-    # Truncations
+
     if payload.truncations:
         print(f"\n  Truncations: {payload.truncations}")
     else:
         print("\n  No truncations needed")
 
-    # Print a snippet of the prompt
+
     print(f"\n--- System prompt (first 200 chars) ---")
     print(payload.system_prompt[:200])
     print(f"\n--- User prompt (first 500 chars) ---")

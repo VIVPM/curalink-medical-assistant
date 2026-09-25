@@ -1,3 +1,5 @@
+// Vite development and production build configuration.
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -7,7 +9,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        // target: 'http://localhost:4000',
+
         target: 'https://curalink-medical-assistant.onrender.com',
         changeOrigin: true,
       },

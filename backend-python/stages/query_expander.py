@@ -80,7 +80,7 @@ def _build_user_prompt(
     """Build the user prompt with context sections."""
     parts: list[str] = []
 
-    # Static context
+
     disease = static_context.get("disease", "")
     intent = static_context.get("intent", "")
     location = static_context.get("location", "")
@@ -92,9 +92,7 @@ def _build_user_prompt(
     if location:
         parts.append(f"  Location: {location}")
 
-    # Chat history — keep last 6 messages verbatim, summarize older ones to
-    # cap token growth on long sessions. Without this, a 30-turn session sends
-    # ~15k tokens of history into the query expansion prompt.
+
     if chat_history:
         parts.append("\nCHAT HISTORY (most recent last):")
         MAX_RECENT = 6
@@ -102,7 +100,7 @@ def _build_user_prompt(
             older = chat_history[:-MAX_RECENT]
             topics = set()
             for m in older:
-                # Extract first sentence of each user message as a topic hint
+
                 if m.get("role") == "user":
                     first = (m.get("content") or "").split(".")[0].strip()[:80]
                     if first:
@@ -113,7 +111,7 @@ def _build_user_prompt(
         for msg in chat_history:
             role = msg.get("role", "user")
             content = msg.get("content", "")
-            # Condense assistant answers
+
             if role == "assistant" and len(content) > 150:
                 content = content[:150] + "..."
             parts.append(f"  {role}: {content}")
@@ -125,7 +123,7 @@ def _build_user_prompt(
 
 def _parse_response(raw: str, disease_fallback: str) -> dict:
     """Parse JSON from LLM response. Handles common issues."""
-    # Strip markdown code fences if present
+
     text = raw.strip()
     if text.startswith("```"):
         lines = text.split("\n")
@@ -185,7 +183,7 @@ async def expand_query(
     t0 = time.perf_counter()
     parsed = None
 
-    # Try LLM call, retry once on JSON parse failure
+
     for attempt in range(2):
         try:
             prompt = user_prompt
@@ -204,7 +202,7 @@ async def expand_query(
         except Exception:
             if attempt == 0:
                 continue
-            # Second failure — use heuristic fallback
+
             parsed = _heuristic_fallback(user_message, static_context)
 
     if parsed is None:
@@ -212,14 +210,14 @@ async def expand_query(
 
     timing_ms = round((time.perf_counter() - t0) * 1000)
 
-    # Validate and sanitize
+
     expanded = parsed.get("expanded_queries", [])
     if not expanded:
         combined = f"{user_message} {disease}".strip()
         expanded = [combined]
-    # Cap at 4 variants
+
     expanded = expanded[:4]
-    # Ensure disease is in every query
+
     for i, q in enumerate(expanded):
         if disease.lower() not in q.lower():
             expanded[i] = f"{q} {disease}"

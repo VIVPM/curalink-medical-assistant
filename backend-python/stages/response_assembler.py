@@ -144,7 +144,7 @@ def assemble_response(
     warnings: list[str] = []
     citation_stats = {"total": 0, "verified": 0, "unverified": 0}
 
-    # --- Handle abstain case ---
+
     abstain_reason = llm_output.get("abstain_reason")
     if abstain_reason:
         return AssembledResponse(
@@ -166,7 +166,7 @@ def assemble_response(
             warnings=warnings,
         )
 
-    # --- Resolve insights (publications only) ---
+
     resolved_insights = []
     for ins in llm_output.get("insights", []):
         finding = ins.get("finding", "")
@@ -197,7 +197,7 @@ def assemble_response(
             "unverified": unverified,
         })
 
-    # --- Resolve trials (trial docs only) ---
+
     resolved_trials = []
     for trial in llm_output.get("trials", []):
         for anchor in trial.get("sources", []):
@@ -215,7 +215,7 @@ def assemble_response(
             resolved_trials.append(trial_entry)
             citation_stats["verified"] += 1
 
-    # --- Resolve personalized recommendations ---
+
     resolved_recommendations = []
     for recommendation in llm_output.get("recommendations", []):
         if not isinstance(recommendation, dict):
@@ -243,7 +243,7 @@ def assemble_response(
         else:
             warnings.append("uncited_recommendation_removed")
 
-    # --- Assemble final JSON ---
+
     user_facing = {
         "overview": llm_output.get("overview", ""),
         "insights": resolved_insights,
