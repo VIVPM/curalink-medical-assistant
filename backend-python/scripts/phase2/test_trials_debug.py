@@ -19,7 +19,7 @@ import httpx
 
 BASE = "https://clinicaltrials.gov/api/v2/studies"
 
-# Simple test: exactly what the working curl used
+
 SIMPLE_PARAMS = {
     "query.cond": "diabetes",
     "pageSize": "5",
@@ -76,11 +76,11 @@ def try_curl(params: dict, label: str) -> None:
 
 
 async def main():
-    # Test 1: no filter (the known-working shape)
+
     await try_httpx(SIMPLE_PARAMS, "simple, no filter")
     try_curl(SIMPLE_PARAMS, "simple, no filter")
 
-    # Test 2: with status filter (the failing shape)
+
     params_with_filter = {
         **SIMPLE_PARAMS,
         "filter.overallStatus": "RECRUITING,ACTIVE_NOT_RECRUITING,COMPLETED",

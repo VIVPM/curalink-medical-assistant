@@ -15,13 +15,13 @@ from huggingface_hub import InferenceClient
 HF_TOKEN = os.getenv("HF_TOKEN", "")
 
 MAX_RETRIES = 3
-RETRY_BACKOFF = 2.0  # seconds; doubles each retry
+RETRY_BACKOFF = 2.0
 
 
 class Embedder:
     def __init__(self, model_name: str):
         self.model_name = model_name
-        self._dim = 768  # PubMedBERT-MS-MARCO dimension
+        self._dim = 768
         self.client = InferenceClient(model=model_name, token=HF_TOKEN)
 
     @property
@@ -40,7 +40,7 @@ class Embedder:
         """Mean-pool token-level embeddings to sentence embedding."""
         arr = np.array(result, dtype=np.float32)
         if arr.ndim == 2:
-            # Token-level: (seq_len, hidden_dim) -> mean pool
+
             return arr.mean(axis=0).tolist()
         return arr.tolist()
 
@@ -88,7 +88,7 @@ class Embedder:
         miss_texts = [texts[i] for i in miss_idx]
         miss_vecs = self._embed_uncached(miss_texts, batch_size)
 
-        # Cache only successful (non-zero) vectors.
+
         if set_embeddings:
             good = [(t, v) for t, v in zip(miss_texts, miss_vecs) if any(v)]
             if good:
@@ -121,27 +121,27 @@ class Embedder:
         for i in range(0, len(texts), batch_size):
             batch = texts[i : i + batch_size]
             try:
-                # Send entire batch as one API call
+
                 results = self._call_with_retry(batch)
 
-                # results should be list of embeddings
+
                 arr = np.array(results, dtype=np.float32)
                 if arr.ndim == 3:
-                    # (batch, seq_len, hidden_dim) -> mean pool each
+
                     for j in range(arr.shape[0]):
                         vec = arr[j].mean(axis=0).tolist()
                         all_vecs.append(self._normalize(vec))
                 elif arr.ndim == 2:
-                    # (batch, hidden_dim) - already pooled
+
                     for j in range(arr.shape[0]):
                         all_vecs.append(self._normalize(arr[j].tolist()))
                 else:
-                    # Single text came back, shouldn't happen in batch
+
                     vec = self._pool(results)
                     all_vecs.append(self._normalize(vec))
             except Exception as e:
                 print(f"[embedder] batch call failed, falling back to per-text: {e}")
-                # Fallback: embed one by one
+
                 for text in batch:
                     try:
                         result = self._call_with_retry(text)

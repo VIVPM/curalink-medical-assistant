@@ -1,3 +1,5 @@
+// De-identified research-context form.
+
 import { useState } from "react";
 
 export default function IntakeForm({ onSubmit }) {

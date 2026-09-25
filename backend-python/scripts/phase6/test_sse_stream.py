@@ -89,7 +89,7 @@ def test_fastapi_stream():
 
     total_time = time.perf_counter() - t0
 
-    # Report
+
     print(f"  Total time: {total_time:.1f}s")
     if first_token_time:
         print(f"  First token: {first_token_time:.1f}s")
@@ -103,7 +103,7 @@ def test_fastapi_stream():
     if token_text:
         print(f"  Token preview: {token_text[:100]}...")
 
-    # Checks
+
     all_pass = True
 
     if len(events["status"]) >= 4:
@@ -143,7 +143,7 @@ def test_express_stream():
     """Test Express /api/chat/stream (SSE proxy)."""
     print("\n--- Test 2: Express /api/chat/stream (SSE proxy) ---")
 
-    # First create a session
+
     try:
         resp = httpx.post(
             f"{EXPRESS_URL}/api/session",
@@ -224,7 +224,7 @@ def test_express_stream():
     else:
         print("  WARN: no done event (stream may have closed early)")
 
-    # Verify Mongo persistence
+
     try:
         resp = httpx.get(f"{EXPRESS_URL}/api/session/{session_id}", timeout=10.0)
         messages = resp.json().get("messages", [])

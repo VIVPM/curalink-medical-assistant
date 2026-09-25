@@ -1,6 +1,5 @@
-/* ponytail: unified light theme — teal (#17b8a6) accent, Inter font, matches landing.css */
+/* Authenticated application, chat, diagnostics, legal, and responsive layout styles. */
 
-/* === Loading Screen === */
 .loading-screen {
   display: flex;
   flex-direction: column;
@@ -12,7 +11,6 @@
   background: #f7f8fa;
 }
 
-/* === Auth Page === */
 .auth-page {
   display: flex;
   flex-direction: column;
@@ -139,7 +137,6 @@
 }
 .auth-legal-links button:hover { color: #129485; }
 
-/* === Sidebar Header/Footer === */
 .sidebar-header {
   padding: 16px 12px;
   border-bottom: 1px solid #e2e5ea;
@@ -230,7 +227,6 @@
 }
 .delete-account-btn:hover { text-decoration: underline; }
 
-/* === Layout === */
 .app {
   display: flex;
   height: 100vh;
@@ -238,7 +234,6 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* === Sidebar === */
 .sidebar {
   width: 260px;
   background: #fff;
@@ -392,7 +387,6 @@
   margin-top: 40px;
 }
 
-/* === Main Content === */
 .main-content {
   flex: 1;
   display: flex;
@@ -400,7 +394,6 @@
   overflow: hidden;
 }
 
-/* === Intake Form === */
 .intake-form-container {
   flex: 1;
   display: flex;
@@ -514,7 +507,6 @@
   background: #129485;
 }
 
-/* === Chat View Wrapper (chat + pipeline panel) === */
 .chat-view-wrapper {
   flex: 1;
   display: flex;
@@ -522,7 +514,6 @@
   overflow: hidden;
 }
 
-/* === Chat View === */
 .chat-view {
   flex: 1;
   display: flex;
@@ -571,7 +562,6 @@
   padding: 20px;
 }
 
-/* === Messages === */
 .message {
   margin-bottom: 20px;
   max-width: 85%;
@@ -601,7 +591,6 @@
   font-size: 14px;
 }
 
-/* === Error Message === */
 .message-error {
   display: flex;
   align-items: flex-start;
@@ -633,7 +622,6 @@
   flex-shrink: 0;
 }
 
-/* === Warning Banner === */
 .warning-banner {
   display: flex;
   align-items: flex-start;
@@ -664,7 +652,6 @@
   flex-shrink: 0;
 }
 
-/* === Abstain === */
 .abstain-reason {
   display: flex;
   align-items: flex-start;
@@ -690,7 +677,6 @@
   flex-shrink: 0;
 }
 
-/* === Empty Section === */
 .empty-section .empty-msg {
   color: #999;
   font-style: italic;
@@ -723,7 +709,6 @@
   51%, 100% { opacity: 0; }
 }
 
-/* === Stream Status === */
 .stream-status {
   display: flex;
   align-items: center;
@@ -748,7 +733,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* === Structured Response === */
 .structured-response {
   background: #fff;
   border: 1px solid #e2e5ea;
@@ -799,7 +783,6 @@
   margin: 0;
 }
 
-/* === Insight Cards === */
 .insight-card {
   background: #fafbfc;
   border: 1px solid #e2e5ea;
@@ -918,7 +901,6 @@
   text-decoration: underline;
 }
 
-/* === Trial Cards === */
 .trial-card {
   background: #fafbfc;
   border: 1px solid #e2e5ea;
@@ -994,7 +976,6 @@
   line-height: 1.4;
 }
 
-/* === Pipeline Panel (right sidebar) === */
 .pipeline-panel {
   width: 320px;
   min-width: 320px;
@@ -1074,7 +1055,6 @@
   color: #999;
 }
 
-/* Timing rows with bars */
 .timing-list {
   display: flex;
   flex-direction: column;
@@ -1119,7 +1099,6 @@
   flex-shrink: 0;
 }
 
-/* Retrieval count grid */
 .count-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1151,7 +1130,6 @@
   letter-spacing: 0.5px;
 }
 
-/* Retrieval funnel */
 .retrieval-funnel {
   display: flex;
   flex-direction: column;
@@ -1184,7 +1162,6 @@
   color: #999;
 }
 
-/* Citation stats */
 .citation-stats {
   display: flex;
   flex-direction: column;
@@ -1219,7 +1196,6 @@
   color: #e74c3c;
 }
 
-/* Pipeline warnings */
 .pipeline-warnings ul {
   margin: 0;
   padding: 0;
@@ -1237,7 +1213,6 @@
   border-bottom: none;
 }
 
-/* === Pipeline Progress (in-chat loading bar) === */
 .pipeline-progress {
   background: #fff;
   border: 1px solid #e2e5ea;
@@ -1247,7 +1222,6 @@
   max-width: 520px;
 }
 
-/* Main progress bar */
 .pp-bar-track {
   width: 100%;
   height: 6px;
@@ -1264,7 +1238,6 @@
   transition: width 0.5s ease;
 }
 
-/* Stage steps */
 .pp-stages {
   display: flex;
   flex-direction: column;
@@ -1292,7 +1265,6 @@
   opacity: 0.3;
 }
 
-/* Dots */
 .pp-dot {
   width: 20px;
   height: 20px;
@@ -1345,7 +1317,6 @@
   font-weight: 600;
 }
 
-/* Retrieval counts inside progress */
 .pp-retrieval-counts {
   display: flex;
   gap: 8px;
@@ -1379,7 +1350,6 @@
   text-align: center;
 }
 
-/* Pipeline empty state */
 .pipeline-empty {
   flex: 1;
   display: flex;
@@ -1415,7 +1385,6 @@
   margin-top: 8px;
 }
 
-/* === Chat Input === */
 .chat-input-form {
   display: flex;
   gap: 8px;
@@ -1457,7 +1426,6 @@
   background: #9e3232;
 }
 
-/* ---------- Suggested Questions ---------- */
 .suggested-questions {
   padding: 8px 20px 14px;
   background: #fff;
@@ -1495,7 +1463,6 @@
   border-color: #17b8a6;
 }
 
-/* ---------- Personalized Recommendations ---------- */
 .recommendations-section {
   margin-top: 12px;
   padding-top: 12px;
@@ -1547,7 +1514,6 @@
   font-weight: 600;
 }
 
-/* ---------- Follow-up Questions (in response) ---------- */
 .follow-up-section {
   margin-top: 12px;
   padding-top: 12px;
@@ -1584,7 +1550,6 @@
   border-color: #17b8a6;
 }
 
-/* ---------- Footer Disclaimer ---------- */
 .chat-footer-disclaimer {
   padding: 6px 20px 10px;
   background: #fff;
@@ -1608,7 +1573,6 @@
   line-height: 1.5;
 }
 
-/* ---------- Privacy and Terms ---------- */
 .legal-page {
   min-height: 100vh;
   padding: 48px 20px;
@@ -1649,7 +1613,6 @@
   .legal-card h1 { font-size: 30px; }
 }
 
-/* ---------- Mobile application layout ---------- */
 @media (max-width: 768px) {
   .app { height: 100dvh; }
 

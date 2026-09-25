@@ -68,16 +68,16 @@ def run_ranking(
     if not docs:
         return RankingResult(top_docs=[], timings_ms={}, counts={"input": 0})
 
-    # --- Stage 4a: BM25 over ALL docs (instant, keyword-based) ---
+
     t0 = time.perf_counter()
     bm25_scores_all = rank_bm25(query, docs)
     timings["bm25_ms"] = round((time.perf_counter() - t0) * 1000)
 
-    # Split into publications and trials
+
     pub_indices = [i for i in range(len(docs)) if docs[i].doc_type == "publication"]
     trial_indices = [i for i in range(len(docs)) if docs[i].doc_type == "trial"]
 
-    # Reserve slots: top 13 publications + top 10 trials
+
     pub_sorted = sorted(pub_indices, key=lambda i: bm25_scores_all[i], reverse=True)[:13]
     trial_sorted = sorted(trial_indices, key=lambda i: bm25_scores_all[i], reverse=True)[:10]
     bm25_top_indices = pub_sorted + trial_sorted
@@ -85,25 +85,23 @@ def run_ranking(
     shortlist = [docs[i] for i in bm25_top_indices]
     bm25_scores = [bm25_scores_all[i] for i in bm25_top_indices]
 
-    # --- Stage 4a continued: cosine over shortlist ---
-    # return_vecs=True so we can reuse embeddings in MMR
+
     t0 = time.perf_counter()
     cosine_scores, shortlist_vecs = rank_cosine(query, shortlist, embedder, return_vecs=True)
     timings["cosine_ms"] = round((time.perf_counter() - t0) * 1000)
 
-    # RRF fuses BM25 + cosine rankings over the shortlist
+
     t0 = time.perf_counter()
     rrf_scores = rrf_fuse([bm25_scores, cosine_scores], k=rrf_k)
     boosted_scores = apply_boosts(rrf_scores, shortlist)
     timings["rrf_boosts_ms"] = round((time.perf_counter() - t0) * 1000)
 
-    # --- Stage 4b: MedCPT cross-encoder rerank shortlist ---
+
     t0 = time.perf_counter()
     ce_scores = reranker.rerank(query, shortlist)
     timings["cross_encoder_ms"] = round((time.perf_counter() - t0) * 1000)
 
-    # Combine RRF+boosts with cross-encoder for final scores
-    # Normalize CE scores to [0,1] and blend: 0.4*boosted + 0.6*CE
+
     ce_min = min(ce_scores) if ce_scores else 0
     ce_max = max(ce_scores) if ce_scores else 1
     ce_range = ce_max - ce_min if ce_max != ce_min else 1
@@ -116,27 +114,25 @@ def run_ranking(
 
     combined_scores = [0.4 * b + 0.6 * c for b, c in zip(b_norm, ce_norm)]
 
-    # --- Stage 4c: Source-guaranteed selection ---
-    # Select top publications and top trials separately, then merge.
-    # This guarantees minimum representation for both types.
+
     t0 = time.perf_counter()
 
-    # Split shortlist into pubs and trials with their scores
+
     sl_pub_indices = [i for i, d in enumerate(shortlist) if d.doc_type == "publication"]
     sl_trial_indices = [i for i, d in enumerate(shortlist) if d.doc_type == "trial"]
 
-    # Sort each group by combined score
+
     sl_pub_sorted = sorted(sl_pub_indices, key=lambda i: combined_scores[i], reverse=True)
     sl_trial_sorted = sorted(sl_trial_indices, key=lambda i: combined_scores[i], reverse=True)
 
-    # Pick top min_pubs publications and top min_trials trials
+
     picked_pub = sl_pub_sorted[:min_pubs]
     picked_trial = sl_trial_sorted[:min_trials]
 
-    # Merge and dedupe
+
     picked_indices = list(dict.fromkeys(picked_pub + picked_trial))
 
-    # If we have fewer than top_k, fill with remaining best docs
+
     if len(picked_indices) < top_k:
         remaining = [i for i in range(len(shortlist)) if i not in picked_indices]
         remaining_sorted = sorted(remaining, key=lambda i: combined_scores[i], reverse=True)
@@ -151,7 +147,7 @@ def run_ranking(
 
     timings["total_ms"] = sum(timings.values())
 
-    # Count sources in final selection (for observability)
+
     final_source_counts = {"pubmed": 0, "openalex": 0, "trial": 0, "multi": 0}
     for doc in final_docs:
         if doc.doc_type == "trial":

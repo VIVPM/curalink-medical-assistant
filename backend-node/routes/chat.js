@@ -1,3 +1,5 @@
+// Authenticated chat routes for cached and streamed research responses.
+
 import crypto from "crypto";
 import { Router } from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
@@ -9,15 +11,12 @@ import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
 
-const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";  // overridden by env at deploy
+const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
-const MAX_MESSAGE_LENGTH = 4000; // cap the expensive path (SEC-6)
+const MAX_MESSAGE_LENGTH = 4000;
 const DAILY_MESSAGE_CAP = Number(process.env.DAILY_MESSAGE_CAP) || 5;
 
-// Count user-role messages sent today (since UTC midnight) across all of a
-// user's sessions. This IS the credit mechanism — remaining = cap - used.
-// At midnight the window moves and the count is 0 again; no column to
-// decrement, no nightly restore job. (Pattern from multi-crew-lead-coordinator.)
+// Counts today's user questions for daily quota enforcement.
 async function messagesUsedToday(userId) {
   const since = new Date();
   since.setUTCHours(0, 0, 0, 0);
@@ -30,8 +29,6 @@ async function messagesUsedToday(userId) {
   });
 }
 
-// Per-user quota on the expensive pipeline (SEC-4). Keyed by user id (set by
-// authMiddleware) so one account can't spam costly LLM/retrieval runs.
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: Number(process.env.CHAT_RATE_MAX) || 15,
@@ -41,16 +38,12 @@ const chatLimiter = rateLimit({
   message: { ok: false, error: "rate limit exceeded, please slow down" },
 });
 
-// Conservative normalization: case, possessives, punctuation, whitespace. Lets
-// trivial re-typings share a cache entry (UX-3) — "Parkinson's?" == "parkinsons".
-// Deliberately does NOT strip stopwords (would collapse distinct questions into
-// one wrong answer) and does NOT resolve synonyms/abbreviations like "DBS" vs
-// "deep brain stimulation" — that needs a semantic cache, deferred to SCALE-1.
+// Normalizes cache-key text without collapsing distinct medical questions.
 function normKey(s) {
   return (s || "")
     .toLowerCase()
-    .replace(/['‘’]/g, "")   // possessive: parkinson's -> parkinsons
-    .replace(/[^\w\s]/g, " ")           // other punctuation -> space
+    .replace(/['‘’]/g, "")
+    .replace(/[^\w\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -59,8 +52,6 @@ export function cacheKey(userId, disease, intent, location, message, history = [
   const normalized = [userId, disease, intent, location, message]
     .map(normKey)
     .join("|");
-  // Personalized answers are never shared across users or locations. History is
-  // included because identical follow-ups can mean different things by turn.
   const historyStr = history
     .map((m) => `${m.role}:${normKey(m.content)}`)
     .join("|");
@@ -95,11 +86,9 @@ function emergencyResponse() {
   };
 }
 
-// All chat routes require auth, then a per-user rate limit
 router.use(authMiddleware);
 router.use(chatLimiter);
 
-// POST /api/chat — send message, run pipeline, return structured response
 router.post("/chat", async (req, res) => {
   const { sessionId, message } = req.body;
 
@@ -113,7 +102,6 @@ router.post("/chat", async (req, res) => {
     return res.status(400).json({ ok: false, error: "message too long" });
   }
 
-  // 1. Load session
   const session = await Session.findOne({ _id: sessionId, userId: req.userId });
   if (!session) {
     return res.status(404).json({ ok: false, error: "session not found" });
@@ -128,8 +116,6 @@ router.post("/chat", async (req, res) => {
     });
   }
 
-  // Daily quota: 1 credit = 1 question. Window-based — count today's messages,
-  // auto-resets at UTC midnight. No decrement, no nightly job.
   const used = await messagesUsedToday(req.userId);
   if (used >= DAILY_MESSAGE_CAP) {
     return res
@@ -137,7 +123,6 @@ router.post("/chat", async (req, res) => {
       .json({ ok: false, error: `Daily limit reached (${DAILY_MESSAGE_CAP} questions/day). Resets at midnight UTC.` });
   }
 
-  // 2. Load chat history
   const history = await Message.find({ sessionId })
     .sort({ createdAt: 1 })
     .select("role content")
@@ -148,14 +133,12 @@ router.post("/chat", async (req, res) => {
     content: m.content,
   }));
 
-  // 3. Save user message FIRST (survives pipeline crashes)
   const userMsg = await Message.create({
     sessionId,
     role: "user",
     content: message.trim(),
   });
 
-  // Query-result cache check
   const ckey = cacheKey(
     req.userId.toString(),
     session.staticContext.disease,
@@ -183,7 +166,6 @@ router.post("/chat", async (req, res) => {
     });
   }
 
-  // 4. Call FastAPI /pipeline/run
   const pipelineBody = {
     tenant: req.userId.toString(),
     static: {
@@ -222,7 +204,6 @@ router.post("/chat", async (req, res) => {
     return res.status(503).json({ ok: false, error: "fastapi unreachable", requestId: req.id });
   }
 
-  // 5. Save assistant message + pipeline meta
   const assistantContent =
     pipelineResult.overview || JSON.stringify(pipelineResult);
 
@@ -234,17 +215,14 @@ router.post("/chat", async (req, res) => {
     pipelineMeta: pipelineResult.pipelineMeta || null,
   });
 
-  // 6. Update session message count
   await Session.findByIdAndUpdate(sessionId, {
     $inc: { messageCount: 2 },
   });
 
-  // 7. Cache the result (skip abstain responses — they signal no useful info)
   if (!pipelineResult.abstain_reason) {
     await cacheSet(ckey, pipelineResult, CACHE_TTL_MS);
   }
 
-  // 8. Return response
   res.json({
     ok: true,
     userMessage: userMsg,
@@ -253,7 +231,6 @@ router.post("/chat", async (req, res) => {
   });
 });
 
-// POST /api/chat/stream — SSE streaming version
 router.post("/chat/stream", async (req, res) => {
   const { sessionId, message } = req.body;
 
@@ -283,7 +260,6 @@ router.post("/chat/stream", async (req, res) => {
     return res.end();
   }
 
-  // Daily quota check (same window-based logic as /chat)
   const used = await messagesUsedToday(req.userId);
   if (used >= DAILY_MESSAGE_CAP) {
     return res
@@ -301,7 +277,6 @@ router.post("/chat/stream", async (req, res) => {
     content: m.content,
   }));
 
-  // Save user message first
   await Message.create({
     sessionId,
     role: "user",
@@ -319,19 +294,14 @@ router.post("/chat/stream", async (req, res) => {
     current: { userMessage: message.trim() },
   };
 
-  // Set SSE headers
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("X-Accel-Buffering", "no");
   res.flushHeaders();
 
-  // Padding comment to bust edge-proxy buffering (Render/Cloudflare buffer
-  // small chunks until ~2KB accumulates). A comment line is valid SSE that
-  // clients ignore, but forces the proxy to flush subsequent chunks live.
   res.write(":" + " ".repeat(2048) + "\n\n");
 
-  // Query-result cache check — skip whole pipeline on hit
   const ckey = cacheKey(
     req.userId.toString(),
     session.staticContext.disease,
@@ -398,7 +368,6 @@ router.post("/chat/stream", async (req, res) => {
           try {
             metadataJson = JSON.parse(line.slice(6));
           } catch {
-            // ignore — data may be across multiple lines in rare SSE flavors
           }
           currentEvent = null;
         } else if (line === "") {
@@ -407,7 +376,6 @@ router.post("/chat/stream", async (req, res) => {
       }
     }
 
-    // Save assistant message after stream completes
     if (metadataJson) {
       await Message.create({
         sessionId,

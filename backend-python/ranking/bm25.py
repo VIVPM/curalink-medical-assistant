@@ -53,7 +53,7 @@ def rank_bm25(query: str, docs: list[Document]) -> list[float]:
     corpus = [_tokenize(_doc_text(d)) for d in docs]
     query_tokens = _tokenize(query)
 
-    # Handle edge case: all docs empty
+
     if all(len(tokens) == 0 for tokens in corpus):
         return [0.0] * len(docs)
 

@@ -43,7 +43,7 @@ async def main():
 
     total_raw = len(pubmed_docs) + len(openalex_docs) + len(trial_docs)
 
-    # Dedupe + merge. PubMed first so PubMed's abstract wins on collision.
+
     deduped = merge_and_dedupe([pubmed_docs, openalex_docs, trial_docs])
     complete = filter_complete(deduped)
 
@@ -76,9 +76,7 @@ async def main():
             print(f"  concepts:     {concepts_preview}")
             print(f"  is_complete:  {d.is_complete}")
 
-    # Health checks - the only thing that matters is "did dedupe actually
-    # collapse at least one cross-source duplicate?" Overlap rate depends
-    # heavily on query + fetch-depth; small samples (25+25) often hit 0-5%.
+
     print("\n" + "=" * 70)
     print("HEALTH CHECKS")
     print("=" * 70)

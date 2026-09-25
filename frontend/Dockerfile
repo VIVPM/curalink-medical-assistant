@@ -1,5 +1,5 @@
-# Build the Vite bundle, then serve it from nginx. The runtime stage carries no
-# node_modules or toolchain (~30MB instead of ~500MB). Build context is repo root.
+# Builds and serves the production React frontend.
+
 FROM node:22-alpine AS build
 
 WORKDIR /app
@@ -9,12 +9,9 @@ RUN npm ci
 
 COPY frontend/ ./
 
-# Vite inlines env vars at build time, so this can't be set at container start.
-# Without it, useChat/useAuth fall back to the same-origin default.
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
-
 
 FROM nginx:1.27-alpine AS runtime
 

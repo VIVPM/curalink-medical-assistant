@@ -1,3 +1,5 @@
+// ESLint configuration for the React frontend.
+
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
@@ -24,7 +26,7 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
-      // Advisory perf hint; the init/rehydrate setState patterns here are intentional.
+
       'react-hooks/set-state-in-effect': 'warn',
     },
   },

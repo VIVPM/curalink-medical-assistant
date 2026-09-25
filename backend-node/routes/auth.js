@@ -1,10 +1,12 @@
+// Authentication routes for signup, login, and current-user lookup.
+
 import { Router } from "express";
 import User from "../models/User.js";
 import { signToken } from "../middleware/auth.js";
 
 const router = Router();
 
-// POST /api/auth/signup
+
 router.post("/signup", async (req, res) => {
   const { name, email, password, acceptTerms } = req.body;
 
@@ -39,7 +41,7 @@ router.post("/signup", async (req, res) => {
   });
 });
 
-// POST /api/auth/login
+
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -66,7 +68,7 @@ router.post("/login", async (req, res) => {
   });
 });
 
-// GET /api/auth/me — verify token + get user info
+
 router.get("/me", async (req, res) => {
   const header = req.headers.authorization;
   if (!header || !header.startsWith("Bearer ")) {

@@ -59,12 +59,12 @@ def main():
     print("Phase 4 Step 4.3: Reciprocal Rank Fusion Test")
     print("=" * 60)
 
-    # 1. Load embedder
+
     print(f"\n[1/5] Loading embedder: {BIENCODER_MODEL}")
     embedder = Embedder(BIENCODER_MODEL)
     print(f"  Loaded (dim={embedder.dim})")
 
-    # 2. Fetch docs
+
     print("\n[2/5] Fetching docs (25 pubmed + 25 openalex + 10 trials)")
     t0 = time.perf_counter()
     docs = asyncio.run(fetch_docs())
@@ -76,20 +76,20 @@ def main():
 
     query = "vitamin D supplementation parkinson"
 
-    # 3. Run BM25 + cosine
+
     print(f"\n[3/5] Scoring with query: \"{query}\"")
     bm25_scores = rank_bm25(query, docs)
     cosine_scores = rank_cosine(query, docs, embedder)
     print(f"  BM25 done, cosine done")
 
-    # 4. Fuse
+
     print("\n[4/5] Fusing with RRF (k=60)")
     t0 = time.perf_counter()
     rrf_scores = rrf_fuse([bm25_scores, cosine_scores], k=60)
     dt = time.perf_counter() - t0
     print(f"  Fused in {dt * 1000:.1f}ms")
 
-    # 5. Compare top-20 from each method
+
     bm25_top20 = set(top_n_indices(bm25_scores, 20))
     cosine_top20 = set(top_n_indices(cosine_scores, 20))
     rrf_top20 = set(top_n_indices(rrf_scores, 20))
@@ -99,7 +99,7 @@ def main():
     print(f"  RRF top-20 ∩ BM25 top-20:    {len(rrf_top20 & bm25_top20)} shared")
     print(f"  RRF top-20 ∩ Cosine top-20:  {len(rrf_top20 & cosine_top20)} shared")
 
-    # RRF top 10
+
     rrf_ranked = sorted(zip(rrf_scores, docs), key=lambda x: x[0], reverse=True)
     print(f"\n  RRF Top 10:")
     print("-" * 60)
@@ -110,13 +110,13 @@ def main():
         print(f"  {i+1:2d}. [rrf={score:.5f} bm25={bm25_s:5.2f} cos={cos_s:.4f}] {title}")
     print("-" * 60)
 
-    # Checks
+
     if len(rrf_scores) == len(docs):
         print(f"\n  PASS: scores length ({len(rrf_scores)}) matches docs ({len(docs)})")
     else:
         print(f"\n  FAIL: length mismatch")
 
-    # RRF should draw from both rankings
+
     only_bm25 = rrf_top20 - cosine_top20
     only_cosine = rrf_top20 - bm25_top20
     if only_bm25 or only_cosine:

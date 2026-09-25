@@ -21,7 +21,7 @@ from stages.context_builder import PromptPayload
 
 @dataclass
 class ReasonerResult:
-    llm_output: dict  # parsed JSON from LLM
+    llm_output: dict
     raw_text: str = ""
     timing_ms: int = 0
     retried: bool = False
@@ -102,22 +102,17 @@ def _parse_llm_response(raw: str) -> dict:
         lines = [l for l in lines if not l.strip().startswith("```")]
         text = "\n".join(lines)
 
-    # Try direct parse first
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # Fix trailing commas before ] or }
     text = re.sub(r',\s*([}\]])', r'\1', text)
 
-    # If JSON is truncated, try to close it
     open_braces = text.count('{') - text.count('}')
     open_brackets = text.count('[') - text.count(']')
-    # Trim any trailing partial value (e.g. truncated string)
     if open_braces > 0 or open_brackets > 0:
-        # Remove trailing partial string/value after last complete entry
-        text = re.sub(r',\s*"[^"]*$', '', text)  # trailing incomplete key
+        text = re.sub(r',\s*"[^"]*$', '', text)
         text = re.sub(r',\s*$', '', text)
         text += ']' * open_brackets + '}' * open_braces
 
@@ -194,7 +189,6 @@ async def run_reasoner(
             if attempt == 0:
                 continue
 
-    # Both attempts failed
     timing_ms = round((time.perf_counter() - t0) * 1000)
     return ReasonerResult(
         llm_output=_fallback_output(parse_error or "unknown error"),

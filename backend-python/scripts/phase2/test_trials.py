@@ -24,7 +24,7 @@ from sources.trials import fetch_trials
 
 load_dotenv()
 
-# Toronto coordinates (hardcoded for the test; Phase 2.4+ will geocode dynamically)
+
 TORONTO = (43.6532, -79.3832)
 
 
@@ -63,7 +63,7 @@ async def run_case(name: str, **kwargs):
         print("No results.")
         return
 
-    for i, t in enumerate(trials[:5], 1):  # print first 5 only to keep output short
+    for i, t in enumerate(trials[:5], 1):
         print_trial(i, t)
     if len(trials) > 5:
         print(f"\n... ({len(trials) - 5} more trials not shown)")
@@ -84,14 +84,14 @@ async def run_case(name: str, **kwargs):
 
 
 async def main():
-    # Case 1: no location filter
+
     await run_case(
         "diabetes, no location filter",
         disease="diabetes",
         limit=20,
     )
 
-    # Case 2: near Toronto
+
     await run_case(
         "diabetes, within 100mi of Toronto",
         disease="diabetes",

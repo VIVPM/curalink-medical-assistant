@@ -1,3 +1,5 @@
+// Tests session ownership enforcement.
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import express from "express";

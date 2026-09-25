@@ -53,13 +53,13 @@ def main():
     print("Phase 4 Step 4.2: Cosine Similarity Scoring Test")
     print("=" * 60)
 
-    # 1. Load embedder
+
     print(f"\n[1/4] Loading embedder: {BIENCODER_MODEL}")
     t0 = time.perf_counter()
     embedder = Embedder(BIENCODER_MODEL)
     print(f"  Loaded in {time.perf_counter() - t0:.1f}s (dim={embedder.dim})")
 
-    # 2. Fetch docs
+
     print("\n[2/4] Fetching docs (25 pubmed + 25 openalex + 10 trials)")
     t0 = time.perf_counter()
     docs = asyncio.run(fetch_docs())
@@ -69,8 +69,7 @@ def main():
         print("  FAIL: too few docs to test ranking")
         return
 
-    # 3. Score with a PARAPHRASED query (no exact keyword overlap)
-    # BM25 would struggle here; cosine should catch the semantic match
+
     query = "supplementing with Vit D for neurological movement disorder"
     print(f"\n[3/4] Running cosine scoring with paraphrased query:")
     print(f"  \"{query}\"")
@@ -79,10 +78,10 @@ def main():
     dt = time.perf_counter() - t0
     print(f"  Scored {len(scores)} docs in {dt * 1000:.0f}ms")
 
-    # Pair and sort
+
     ranked = sorted(zip(scores, docs), key=lambda x: x[0], reverse=True)
 
-    # 4. Verify results
+
     print(f"\n[4/4] Top 10 results:")
     print("-" * 60)
     for i, (score, doc) in enumerate(ranked[:10]):
@@ -91,12 +90,12 @@ def main():
 
     print("-" * 60)
 
-    # Check score range
+
     max_score = ranked[0][0]
     min_score = ranked[-1][0]
     print(f"\n  Score range: {min_score:.4f} to {max_score:.4f}")
 
-    # Top 5 avg vs bottom 5 avg
+
     top5_avg = sum(s for s, _ in ranked[:5]) / 5
     bot5_avg = sum(s for s, _ in ranked[-5:]) / 5
     print(f"  Top 5 avg: {top5_avg:.4f}")
@@ -107,7 +106,7 @@ def main():
     else:
         print("  FAIL: scoring order looks wrong")
 
-    # Scores should be in [0, 1] range (normalized embeddings)
+
     all_in_range = all(0.0 <= s <= 1.01 for s in scores)
     if all_in_range:
         print("  PASS: all scores in [0, 1] range (normalized)")

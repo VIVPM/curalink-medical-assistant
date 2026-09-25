@@ -61,14 +61,14 @@ def _extract_pmid(ids: dict | None) -> str | None:
     pmid_url = ids.get("pmid")
     if not pmid_url:
         return None
-    # pmid value is typically a URL like "https://pubmed.ncbi.nlm.nih.gov/12345"
+
     return pmid_url.rstrip("/").split("/")[-1]
 
 
 def _extract_openalex_id(work_id: str | None) -> str | None:
     if not work_id:
         return None
-    # "https://openalex.org/W1234567890" -> "W1234567890"
+
     return work_id.rstrip("/").split("/")[-1]
 
 
@@ -143,5 +143,5 @@ async def fetch_openalex(
                     continue
                 raise
 
-    # Unreachable, but keeps the type checker happy
+
     raise last_error if last_error else RuntimeError("openalex fetch failed")

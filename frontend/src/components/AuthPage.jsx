@@ -1,3 +1,5 @@
+// Login and account-creation interface.
+
 import { useState } from "react";
 
 export default function AuthPage({ onLogin, onSignup, error, initialMode = "login", onBack, onPrivacy, onTerms }) {

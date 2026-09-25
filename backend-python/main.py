@@ -38,8 +38,6 @@ BIENCODER_MODEL = os.getenv("BIENCODER_MODEL", "pritamdeka/S-PubMedBert-MS-MARCO
 
 llm = get_llm_backend()
 
-# Model holder. With HF Inference API these are lightweight API wrappers,
-# not loaded model weights. Instantiated at startup for consistency.
 models: dict = {}
 
 
@@ -62,11 +60,10 @@ async def _load_models():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Start model loading in background — server accepts requests immediately
     asyncio.create_task(_load_models())
     yield
     import observability
-    observability.flush()  # Render can freeze the instance — flush buffered spans first
+    observability.flush()
     models.clear()
 
 
@@ -83,11 +80,10 @@ async def require_internal_api_key(request: Request, call_next):
     return await call_next(request)
 
 
-# Observability (SCALE-6) — all no-ops unless env is set (LANGFUSE_* / GRAFANA_OTLP_*):
 from observability import init_observability, init_http_tracing, init_metrics, record_message
-init_observability()    # LLM generation spans -> Langfuse + Grafana
-init_http_tracing(app)  # HTTP endpoint spans  -> Grafana
-init_metrics()          # chat_messages_total   -> Grafana
+init_observability()
+init_http_tracing(app)
+init_metrics()
 
 
 class EmbedRequest(BaseModel):
@@ -262,10 +258,6 @@ async def debug_fetch(
     return response
 
 
-# ---------------------------------------------------------------------------
-# Phase 4 integration — /debug/rank endpoint
-# ---------------------------------------------------------------------------
-
 @app.get("/debug/rank")
 async def debug_rank(
     disease: str = Query(..., description="Primary disease"),
@@ -287,7 +279,6 @@ async def debug_rank(
 
     t0 = time.perf_counter()
 
-    # Phase 2: fetch
     pubmed_raw, openalex_raw, trials_raw = await asyncio.gather(
         fetch_pubmed(query, limit=pubmed_limit),
         fetch_openalex(query, limit=openalex_limit),
@@ -309,7 +300,6 @@ async def debug_rank(
 
     t_fetch = time.perf_counter() - t0
 
-    # Phase 3: normalize + merge + filter
     pubmed_docs = [normalize_pubmed(r) for r in pubmed_raw]
     openalex_docs = [normalize_openalex(r) for r in openalex_raw]
     trial_docs = [normalize_trial(r, disease_context=disease) for r in trials_raw]
@@ -319,7 +309,6 @@ async def debug_rank(
 
     t_normalize = time.perf_counter() - t0
 
-    # Phase 4: rank
     ranking_result = run_ranking(
         query=query,
         docs=complete,
@@ -330,7 +319,6 @@ async def debug_rank(
 
     t_total = time.perf_counter() - t0
 
-    # Build response
     top_docs_summary = []
     for i, doc in enumerate(ranking_result.top_docs):
         top_docs_summary.append({
@@ -370,13 +358,7 @@ async def debug_rank(
     }
 
 
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
-# /pipeline/run — the production endpoint Express calls (inter-service contract)
-# Also aliased as /debug/pipeline for direct testing.
-# ---------------------------------------------------------------------------
-
-MAX_USER_MESSAGE_LEN = 8000  # defense-in-depth cap (SEC-6); Express caps at 4000
+MAX_USER_MESSAGE_LEN = 8000
 
 
 class PipelineRequest(BaseModel):
@@ -410,7 +392,6 @@ async def pipeline_run(req: PipelineRequest):
     user_message = req.current.get("userMessage", "")
     chat_history = req.dynamic.get("recentMessages", [])
 
-    # Semantic cache (SCALE-1): first-turn only — later turns depend on history.
     sem_emb = None
     if not chat_history:
         from semantic_cache import lookup
@@ -429,7 +410,6 @@ async def pipeline_run(req: PipelineRequest):
 
     t_pipeline = time.perf_counter()
 
-    # Stage 1 — Query expansion
     t0 = time.perf_counter()
     expander_result = await expand_query(
         user_message=user_message,
@@ -442,7 +422,6 @@ async def pipeline_run(req: PipelineRequest):
     if expander_result.skip_retrieval:
         return {"skip_retrieval": True, "message": "Non-medical query"}
 
-    # Stage 2 — Retrieval
     t0 = time.perf_counter()
     disease = req.static.get("disease", "")
     location_str = req.static.get("location", "")
@@ -474,7 +453,6 @@ async def pipeline_run(req: PipelineRequest):
         "trials": len(trials_raw),
     }
 
-    # Stage 3 — Normalization
     t0 = time.perf_counter()
     pubmed_docs = [normalize_pubmed(r) for r in pubmed_raw]
     openalex_docs = [normalize_openalex(r) for r in openalex_raw]
@@ -489,7 +467,6 @@ async def pipeline_run(req: PipelineRequest):
     if not complete:
         return {"error": "No documents retrieved"}
 
-    # Stage 4 — Ranking
     t0 = time.perf_counter()
     ranking_result = run_ranking(
         query=best_query, docs=complete,
@@ -498,7 +475,6 @@ async def pipeline_run(req: PipelineRequest):
     stage_timings["ranking"] = round((time.perf_counter() - t0) * 1000)
     retrieval_counts["after_ranking"] = len(ranking_result.top_docs)
 
-    # Stage 5 — Context build
     t0 = time.perf_counter()
     payload = build_context(
         top_docs=ranking_result.top_docs,
@@ -508,12 +484,10 @@ async def pipeline_run(req: PipelineRequest):
     )
     stage_timings["context_build"] = round((time.perf_counter() - t0) * 1000)
 
-    # Stage 6 — LLM reasoning
     t0 = time.perf_counter()
     reasoner_output = await run_reasoner(payload, llm=llm, max_tokens=4000)
     stage_timings["llm"] = round((time.perf_counter() - t0) * 1000)
 
-    # Stage 7 — Assembly
     t0 = time.perf_counter()
     assembled = assemble_response(
         llm_output=reasoner_output.llm_output,
@@ -564,7 +538,6 @@ async def pipeline_stream(req: PipelineRequest):
         user_message = req.current.get("userMessage", "")
         chat_history = req.dynamic.get("recentMessages", [])
 
-        # Semantic cache (SCALE-1): first-turn only.
         sem_emb = None
         if not chat_history:
             from semantic_cache import lookup
@@ -586,7 +559,6 @@ async def pipeline_stream(req: PipelineRequest):
 
         t_pipeline = time.perf_counter()
 
-        # Stage 1
         yield "event: status\ndata: {\"stage\":\"query_expansion\",\"message\":\"Expanding query...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
@@ -603,7 +575,6 @@ async def pipeline_stream(req: PipelineRequest):
             yield "event: done\ndata: {}\n\n"
             return
 
-        # Stage 2
         yield "event: status\ndata: {\"stage\":\"retrieval\",\"message\":\"Fetching from PubMed, OpenAlex, ClinicalTrials...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
@@ -611,7 +582,6 @@ async def pipeline_stream(req: PipelineRequest):
         location_str = req.static.get("location", "")
         best_query = expander_result.expanded_queries[0]
 
-        # Geocode location for trial geo-filter
         geo = await geocode(location_str) if location_str else None
 
         pubmed_raw, openalex_raw, trials_raw = await asyncio.gather(
@@ -638,7 +608,6 @@ async def pipeline_stream(req: PipelineRequest):
             "trials": len(trials_raw),
         }
 
-        # Send retrieval counts so frontend can show them during loading
         yield f"event: status\ndata: {{\"stage\":\"normalization\",\"message\":\"Normalizing {len(pubmed_raw)+len(openalex_raw)+len(trials_raw)} documents...\",\"retrieval_counts\":{{\"pubmed\":{len(pubmed_raw)},\"openalex\":{len(openalex_raw)},\"trials\":{len(trials_raw)}}}}}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
@@ -657,7 +626,6 @@ async def pipeline_stream(req: PipelineRequest):
             yield "event: done\ndata: {}\n\n"
             return
 
-        # Stage 4
         yield f"event: status\ndata: {{\"stage\":\"ranking\",\"message\":\"BM25 filtering {len(complete)} docs → top 20 → embedding → RRF → MedCPT → source-balanced selection → top 10\"}}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
@@ -668,7 +636,6 @@ async def pipeline_stream(req: PipelineRequest):
         stage_timings["ranking"] = round((time.perf_counter() - t0) * 1000)
         retrieval_counts["after_ranking"] = len(ranking_result.top_docs)
 
-        # Stage 5
         yield "event: status\ndata: {\"stage\":\"context_build\",\"message\":\"Building context for LLM...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
@@ -680,7 +647,6 @@ async def pipeline_stream(req: PipelineRequest):
         )
         stage_timings["context_build"] = round((time.perf_counter() - t0) * 1000)
 
-        # Stage 6 — stream LLM tokens
         yield "event: status\ndata: {\"stage\":\"llm\",\"message\":\"Generating response...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
@@ -701,7 +667,6 @@ async def pipeline_stream(req: PipelineRequest):
 
         stage_timings["llm"] = round((time.perf_counter() - t0) * 1000)
 
-        # Parse LLM output
         try:
             from stages.llm_reasoner import _parse_llm_response, _fallback_output, _repair_schema
             parsed = _repair_schema(_parse_llm_response(full_text))
@@ -713,7 +678,6 @@ async def pipeline_stream(req: PipelineRequest):
             parsed = _fallback_output(str(e))
             warnings.append(f"llm_parse_error: {e}")
 
-        # Stage 7
         t0 = time.perf_counter()
         assembled = assemble_response(
             llm_output=parsed,
@@ -726,7 +690,6 @@ async def pipeline_stream(req: PipelineRequest):
         assembled.user_facing_json["pipelineMeta"]["stage_timings_ms"] = stage_timings
         assembled.user_facing_json["pipelineMeta"]["warnings"] = warnings + assembled.warnings
 
-        # Send final metadata
         meta_json = _json.dumps(assembled.user_facing_json)
         yield f"event: metadata\ndata: {meta_json}\n\n"
         yield "event: done\ndata: {}\n\n"

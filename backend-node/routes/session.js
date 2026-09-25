@@ -1,3 +1,5 @@
+// Authenticated research-session CRUD routes.
+
 import { Router } from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import Session from "../models/Session.js";
@@ -6,7 +8,7 @@ import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
 
-// Per-user cap on session creation to prevent spam; reads stay unlimited (SEC-4).
+
 const createSessionLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: Number(process.env.SESSION_RATE_MAX) || 30,
@@ -16,10 +18,10 @@ const createSessionLimiter = rateLimit({
   message: { ok: false, error: "too many sessions created, try again later" },
 });
 
-// All session routes require auth
+
 router.use(authMiddleware);
 
-// POST /api/session — create new session (locks form)
+
 router.post("/session", createSessionLimiter, async (req, res) => {
   const { disease, intent, location } = req.body;
 
@@ -39,7 +41,7 @@ router.post("/session", createSessionLimiter, async (req, res) => {
   res.status(201).json({ ok: true, session });
 });
 
-// GET /api/sessions — list sessions for current user (sidebar)
+
 router.get("/sessions", async (req, res) => {
   const sessions = await Session.find({ userId: req.userId })
     .select("title staticContext.disease messageCount createdAt")
@@ -50,7 +52,7 @@ router.get("/sessions", async (req, res) => {
   res.json({ ok: true, sessions });
 });
 
-// GET /api/session/:id — fetch session + messages (only if owned by user)
+
 router.get("/session/:id", async (req, res) => {
   const session = await Session.findOne({
     _id: req.params.id,
@@ -68,7 +70,7 @@ router.get("/session/:id", async (req, res) => {
   res.json({ ok: true, session, messages });
 });
 
-// DELETE /api/session/:id — delete session + its messages
+
 router.delete("/session/:id", async (req, res) => {
   const session = await Session.findOne({
     _id: req.params.id,

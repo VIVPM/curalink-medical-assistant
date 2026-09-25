@@ -1,3 +1,5 @@
+// Express API entrypoint for authentication, sessions, chat, and account operations.
+
 import crypto from "crypto";
 import express from "express";
 import cors from "cors";
@@ -16,8 +18,6 @@ import User from "./models/User.js";
 dotenv.config();
 
 const app = express();
-// Behind Render's proxy: trust the first hop so req.ip is the real client IP,
-// which the rate limiters key on (SEC-4). One proxy hop on Render.
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 4000;
 const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
@@ -28,9 +28,8 @@ if (!MONGO_URI) {
   process.exit(1);
 }
 
-// Fail fast on missing secrets rather than falling back to insecure defaults.
 if (!process.env.JWT_SECRET) {
-  console.error("JWT_SECRET not set in .env"); // SEC-2
+  console.error("JWT_SECRET not set in .env");
   process.exit(1);
 }
 if (!process.env.INTERNAL_API_KEY) {
@@ -41,7 +40,6 @@ if (!process.env.INTERNAL_API_KEY) {
 mongoose
   .connect(MONGO_URI)
   .then(async () => {
-    // Data minimization: strip names stored before patientName was removed.
     await Session.collection.updateMany(
       { "staticContext.patientName": { $exists: true } },
       { $unset: { "staticContext.patientName": "" } }
@@ -53,8 +51,6 @@ mongoose
     process.exit(1);
   });
 
-// Per-request id + structured access log (REL-1). Lightweight — one JSON line
-// per request; no logging dependency for what a few lines do.
 app.use((req, res, next) => {
   req.id = crypto.randomUUID();
   const start = Date.now();
@@ -73,9 +69,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json({ limit: "16kb" })); // body cap (SEC-6)
+app.use(express.json({ limit: "16kb" }));
 
-// CORS allow-list from env (comma-separated); defaults to deployed frontend + localhost.
 const _DEFAULT_ORIGINS =
   "http://localhost:5173,https://curalink-medical-assistant-frontend.onrender.com";
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || _DEFAULT_ORIGINS)
@@ -92,7 +87,6 @@ app.get("/health", (req, res) => {
   res.json({ ok: true, service: "express", redis: redisStatus() });
 });
 
-// Strict rate limit on auth to blunt brute-force / signup spam (SEC-4).
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: Number(process.env.AUTH_RATE_MAX) || 20,
@@ -101,12 +95,10 @@ const authLimiter = rateLimit({
   message: { ok: false, error: "too many attempts, try again later" },
 });
 
-// Routes
 app.use("/api/auth", authLimiter, authRouter);
 app.use("/api", sessionRouter);
 app.use("/api", chatRouter);
 
-// Daily credits: 1 credit = 1 question, auto-resets at UTC midnight.
 const DAILY_MESSAGE_CAP = Number(process.env.DAILY_MESSAGE_CAP) || 5;
 
 app.get("/api/account/credits", authMiddleware, async (req, res) => {
@@ -123,7 +115,6 @@ app.get("/api/account/credits", authMiddleware, async (req, res) => {
   res.json({ ok: true, cap: DAILY_MESSAGE_CAP, used, remaining: Math.max(0, DAILY_MESSAGE_CAP - used) });
 });
 
-// DELETE /api/account — delete the authenticated user + all their data.
 app.delete("/api/account", authMiddleware, async (req, res) => {
   const userId = req.userId;
   const sessionIds = await Session.find({ userId }).distinct("_id");
@@ -156,9 +147,6 @@ app.get("/api/ping", async (req, res) => {
   }
 });
 
-// Central error handler (REL-1). Logs the error with its request id and returns
-// a generic message + id — never a stack trace to the client (also helps SEC-7).
-// Express 5 forwards rejected async route handlers here too.
 app.use((err, req, res, next) => {
   console.error(
     JSON.stringify({

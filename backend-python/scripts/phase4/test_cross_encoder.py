@@ -58,7 +58,7 @@ def main():
     print("Phase 4 Step 4.5: MedCPT Cross-Encoder Rerank Test")
     print("=" * 60)
 
-    # 1. Load models
+
     print(f"\n[1/5] Loading bi-encoder: {BIENCODER_MODEL}")
     embedder = Embedder(BIENCODER_MODEL)
 
@@ -67,41 +67,41 @@ def main():
     reranker = MedCPTReranker()
     print(f"  Cross-encoder loaded in {time.perf_counter() - t0:.1f}s")
 
-    # 2. Fetch docs
+
     print("\n[2/5] Fetching docs")
     docs = asyncio.run(fetch_docs())
     print(f"  Got {len(docs)} docs")
 
     query = "vitamin D supplementation parkinson"
 
-    # 3. Run BM25+cosine+RRF+boosts to get top-20
+
     print(f"\n[3/5] Running BM25+cosine+RRF+boosts")
     bm25_scores = rank_bm25(query, docs)
     cosine_scores = rank_cosine(query, docs, embedder)
     rrf_scores = rrf_fuse([bm25_scores, cosine_scores])
     boosted_scores = apply_boosts(rrf_scores, docs)
 
-    # Get top-20 by boosted score
+
     indexed = sorted(range(len(docs)), key=lambda i: boosted_scores[i], reverse=True)
     top20_indices = indexed[:20]
     top20_docs = [docs[i] for i in top20_indices]
 
     print(f"  Top-20 selected from {len(docs)} docs")
 
-    # 4. Rerank top-20 with MedCPT
+
     print(f"\n[4/5] Reranking top-20 with MedCPT cross-encoder")
     t0 = time.perf_counter()
     ce_scores = reranker.rerank(query, top20_docs)
     dt = time.perf_counter() - t0
     print(f"  Reranked in {dt * 1000:.0f}ms")
 
-    # 5. Compare before vs after
+
     print(f"\n[5/5] Before vs after cross-encoder:")
     print("-" * 70)
     print(f"  {'Rank':>4}  {'Before (boosted)':>16}  {'After (CE)':>10}  Title")
     print("-" * 70)
 
-    # Before order (already sorted by boosted)
+
     ce_ranked = sorted(range(len(top20_docs)), key=lambda i: ce_scores[i], reverse=True)
 
     for new_rank, i in enumerate(ce_ranked[:10]):
@@ -113,7 +113,7 @@ def main():
 
     print("-" * 70)
 
-    # Check: did CE reorder?
+
     before_order = list(range(len(top20_docs)))
     after_order = ce_ranked
     reordered = before_order != after_order
@@ -122,13 +122,13 @@ def main():
     else:
         print("\n  INFO: cross-encoder kept same order (unusual)")
 
-    # Check: scores length
+
     if len(ce_scores) == len(top20_docs):
         print(f"  PASS: scores length ({len(ce_scores)}) matches top-20 ({len(top20_docs)})")
     else:
         print(f"  FAIL: length mismatch")
 
-    # Check: score variance (CE should produce spread, not flat scores)
+
     score_range = max(ce_scores) - min(ce_scores)
     print(f"  Score range: {min(ce_scores):.3f} to {max(ce_scores):.3f} (spread={score_range:.3f})")
     if score_range > 0.1:

@@ -1,3 +1,5 @@
+// MongoDB schema for expiring cached responses.
+
 import mongoose from "mongoose";
 
 const cacheSchema = new mongoose.Schema(

@@ -121,13 +121,13 @@ def test_normal_response():
     result = assemble_response(llm_output, doc_anchors)
     uf = result.user_facing_json
 
-    # Checks
+
     assert uf["overview"], "overview should be populated"
     assert len(uf["insights"]) == 4, f"expected 4 insights, got {len(uf['insights'])}"
     assert len(uf["trials"]) == 2, f"expected 2 trials, got {len(uf['trials'])}"
     assert uf["abstain_reason"] is None
 
-    # Check source_details resolved
+
     for ins in uf["insights"]:
         assert ins["source_details"], f"source_details empty for: {ins['finding'][:40]}"
         for sd in ins["source_details"]:
@@ -136,13 +136,13 @@ def test_normal_response():
             assert sd["snippet"], "snippet missing in source_details"
         assert ins["unverified"] is False
 
-    # Check trials resolved
+
     for trial in uf["trials"]:
         assert trial["nct_id"], "nct_id missing"
         assert trial["status"], "status missing"
         assert trial["location"], "location missing"
 
-    # Check citation stats
+
     stats = uf["pipelineMeta"]["citation_stats"]
     assert stats["verified"] > 0
     assert stats["unverified"] == 0
@@ -171,9 +171,9 @@ def test_hallucinated_citations():
     result = assemble_response(llm_output, doc_anchors)
     uf = result.user_facing_json
 
-    # First insight should be verified
+
     assert uf["insights"][0]["unverified"] is False
-    # Second should be unverified (hallucinated anchors)
+
     assert uf["insights"][1]["unverified"] is True
     assert len(uf["insights"][1]["source_details"]) == 0
 

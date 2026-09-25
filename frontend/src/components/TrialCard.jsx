@@ -1,3 +1,5 @@
+// Clinical-trial summary card.
+
 export default function TrialCard({ trial }) {
   return (
     <div className="trial-card">

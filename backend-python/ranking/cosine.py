@@ -50,14 +50,14 @@ def rank_cosine(
 
     texts = [_doc_text(d) for d in docs]
 
-    # Embed query + all docs in one batch for efficiency
+
     all_texts = [query] + texts
     all_vecs = embedder.embed_batch(all_texts)
 
     query_vec = np.array(all_vecs[0])
     doc_vecs = np.array(all_vecs[1:])
 
-    # Cosine similarity (vectors are already L2-normalized by Embedder)
+
     scores = doc_vecs @ query_vec
 
     if return_vecs:

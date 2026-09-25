@@ -138,7 +138,7 @@ async def run_test():
         {"role": "assistant", "content": "Deep brain stimulation has shown significant benefits..."},
     ]
 
-    # Build context (Stage 5)
+
     print("\n[1/3] Building prompt payload")
     payload = build_context(
         top_docs=docs,
@@ -149,7 +149,7 @@ async def run_test():
     print(f"  Token estimate: {payload.token_count}")
     print(f"  Doc anchors: {list(payload.doc_anchors.keys())}")
 
-    # Run reasoner (Stage 6)
+
     print("\n[2/3] Sending to LLM (HF Inference)")
     result = await run_reasoner(payload, llm)
     print(f"  Timing: {result.timing_ms}ms")
@@ -157,11 +157,11 @@ async def run_test():
     if result.parse_error:
         print(f"  Parse error: {result.parse_error}")
 
-    # Validate output
+
     print(f"\n[3/3] Validating output")
     output = result.llm_output
 
-    # 1. Required keys
+
     required = {"overview", "insights", "trials", "abstain_reason"}
     missing = required - set(output.keys())
     if not missing:
@@ -169,14 +169,14 @@ async def run_test():
     else:
         print(f"  FAIL: missing keys: {missing}")
 
-    # 2. Overview
+
     overview = output.get("overview", "")
     if overview and len(overview) > 20:
         print(f"  PASS: overview present ({len(overview)} chars)")
     else:
         print(f"  WARN: overview too short or missing")
 
-    # 3. Insights with citations
+
     insights = output.get("insights", [])
     print(f"  Insights: {len(insights)}")
     cited_anchors = set()
@@ -192,7 +192,7 @@ async def run_test():
     else:
         print("  WARN: no insights returned")
 
-    # 4. Trials
+
     trials = output.get("trials", [])
     print(f"  Trials: {len(trials)}")
     for t in trials:
@@ -202,7 +202,7 @@ async def run_test():
         cited_anchors.update(sources)
         print(f"    - {nct}: {title} (sources: {sources})")
 
-    # 5. Citations reference valid anchors
+
     valid_anchors = set(payload.doc_anchors.keys())
     invalid = cited_anchors - valid_anchors
     if not invalid:
@@ -210,7 +210,7 @@ async def run_test():
     else:
         print(f"  WARN: invalid citations: {invalid} (not in {valid_anchors})")
 
-    # 6. Abstain
+
     abstain = output.get("abstain_reason")
     if abstain is None:
         print("  PASS: abstain_reason is null (LLM answered the question)")

@@ -45,7 +45,7 @@ def main():
     print("Phase 4 Step 4.1: BM25 Scoring Test")
     print("=" * 60)
 
-    # 1. Fetch docs
+
     print("\n[1/3] Fetching docs (25 pubmed + 25 openalex + 10 trials)")
     t0 = time.perf_counter()
     docs = asyncio.run(fetch_docs())
@@ -55,7 +55,7 @@ def main():
         print("  FAIL: too few docs to test ranking")
         return
 
-    # 2. Run BM25 with a specific query
+
     query = "vitamin D supplementation"
     print(f"\n[2/3] Running BM25 with query: \"{query}\"")
     t0 = time.perf_counter()
@@ -63,10 +63,10 @@ def main():
     dt = time.perf_counter() - t0
     print(f"  Scored {len(scores)} docs in {dt * 1000:.0f}ms")
 
-    # Pair docs with scores, sort descending
+
     ranked = sorted(zip(scores, docs), key=lambda x: x[0], reverse=True)
 
-    # 3. Verify top results
+
     print(f"\n[3/3] Top 10 results:")
     print("-" * 60)
     query_terms = {"vitamin", "d", "supplementation"}
@@ -83,7 +83,7 @@ def main():
 
     print("-" * 60)
 
-    # Check: bottom 5 should have lower scores
+
     top5_avg = sum(s for s, _ in ranked[:5]) / 5
     bot5_avg = sum(s for s, _ in ranked[-5:]) / 5
     print(f"\n  Top 5 avg score: {top5_avg:.2f}")
@@ -99,7 +99,7 @@ def main():
     else:
         print(f"  WARN: only {top5_hits}/5 top docs contain query terms")
 
-    # Sanity: scores list length matches docs
+
     if len(scores) == len(docs):
         print(f"  PASS: scores length ({len(scores)}) matches docs ({len(docs)})")
     else:

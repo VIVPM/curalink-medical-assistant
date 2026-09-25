@@ -1,3 +1,5 @@
+// Frontend authentication and account lifecycle state.
+
 import { useState, useCallback, useEffect } from "react";
 
 const API_ROOT = `${import.meta.env.VITE_API_URL || ""}/api`;
@@ -9,7 +11,6 @@ export default function useAuth() {
   const [loading, setLoading] = useState(() => Boolean(localStorage.getItem("token")));
   const [error, setError] = useState(null);
 
-  // Check token on mount
   useEffect(() => {
     if (!token) return;
     fetch(`${API}/me`, {
@@ -93,8 +94,6 @@ export default function useAuth() {
     return true;
   }, [token]);
 
-  // Like logout, but for an expired session: routes back to the login screen
-  // with a reason shown, instead of a dead in-app request (UX-5).
   const expire = useCallback(() => {
     localStorage.removeItem("token");
     localStorage.removeItem("activeSessionId");

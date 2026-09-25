@@ -17,16 +17,16 @@ DocType = Literal["publication", "trial"]
 
 @dataclass
 class Document:
-    # === Identity ===
-    doc_id: str  # "pubmed:12345" | "openalex:W1234" | "nct:NCT04567890"
+
+    doc_id: str
     doc_type: DocType
 
-    # === Core content ===
+
     title: str
     abstract: str | None = None
-    full_text: str | None = None  # trials only (detailed description)
+    full_text: str | None = None
 
-    # === Publication fields ===
+
     authors: list[str] = field(default_factory=list)
     year: int | None = None
     journal: str | None = None
@@ -34,7 +34,7 @@ class Document:
     pmid: str | None = None
     url: str = ""
 
-    # === Trial fields ===
+
     nct_id: str | None = None
     status: str | None = None
     eligibility_criteria: str | None = None
@@ -46,13 +46,13 @@ class Document:
     locations: list[dict] = field(default_factory=list)
     contacts: list[dict] = field(default_factory=list)
 
-    # === Provenance (matters for ranking) ===
-    sources: list[str] = field(default_factory=list)  # ["pubmed","openalex"] if multi
+
+    sources: list[str] = field(default_factory=list)
     mesh_terms: list[str] = field(default_factory=list)
     openalex_concepts: list[str] = field(default_factory=list)
     disease_tags: list[str] = field(default_factory=list)
 
-    # === Quality (hard filter only - no soft multiplier, see MVP cuts) ===
+
     is_complete: bool = True
 
     def to_dict(self) -> dict:
