@@ -78,7 +78,7 @@ jobs:
           file: backend-node/Dockerfile
           push: false
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,ignore-error=true
 
       - name: Build FastAPI image
         uses: docker/build-push-action@v6
@@ -87,7 +87,7 @@ jobs:
           file: backend-python/Dockerfile
           push: false
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,ignore-error=true
 
       - name: Build frontend image
         uses: docker/build-push-action@v6
@@ -97,7 +97,7 @@ jobs:
           push: false
           build-args: VITE_API_URL=http://localhost:4000
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,ignore-error=true
 
   deploy:
     needs: [backend-node, backend-python, frontend, docker]
