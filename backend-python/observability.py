@@ -92,12 +92,8 @@ def init_observability():
 
 
 @contextmanager
-def llm_generation(model: str, input_text: str):
-    """Wrap one HF LLM call as a Langfuse GENERATION. Yields the span, or None if off.
-
-    Uses Langfuse v4-native OTEL attributes. This span is the root observation
-    for the Langfuse trace, so the request input/output live on it directly.
-    """
+def llm_generation(model: str, _input_text: str):
+    """Wrap an LLM call as a generation span without recording prompt content."""
     if _llm_tracer is None:
         yield None
         return
@@ -109,21 +105,15 @@ def llm_generation(model: str, input_text: str):
                                os.getenv("DEPLOYMENT_ENV", "development"))
             span.set_attribute("langfuse.observation.model.name", model or "")
             span.set_attribute("gen_ai.request.model", model or "")
-            span.set_attribute("langfuse.observation.input", (input_text or "")[:8000])
             yield span
     except Exception as e:
         logger.warning("llm_generation failed — continuing untraced: %s", e)
         yield None
 
 
-def set_generation_output(span, text: str):
-    """Attach the model's output to the generation span."""
-    if span is None:
-        return
-    try:
-        span.set_attribute("langfuse.observation.output", (text or "")[:12000])
-    except Exception as e:
-        logger.debug("set_generation_output failed: %s", e)
+def set_generation_output(_span, _text: str):
+    """Intentionally omit generated content from third-party telemetry."""
+    return
 
 
 def flush():
