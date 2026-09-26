@@ -1431,7 +1431,14 @@
 .recommendations-section h3 {
   font-size: 15px;
   color: #1a1a2e;
+  margin: 0 0 6px;
+}
+
+.recommendations-note {
   margin: 0 0 10px;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .recommendations-list {

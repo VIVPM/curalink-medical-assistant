@@ -14,9 +14,9 @@ const Zap = (p) => <Svg {...p}><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z" /></Svg
 const Arrow = (p) => <Svg {...p}><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></Svg>;
 
 const features = [
-  { icon: Layers, title: "Three live sources", body: "Every question fans out to PubMed, OpenAlex, and ClinicalTrials.gov in parallel — ~170 de-duplicated studies per query, never a stale index." },
+  { icon: Layers, title: "Three research sources", body: "Curalink searches PubMed, OpenAlex, and ClinicalTrials.gov, then de-duplicates and ranks the most relevant studies for your question." },
   { icon: Sliders, title: "Domain-tuned ranking", body: "BM25 + PubMedBERT embeddings fused by RRF, re-ranked by NCBI's MedCPT cross-encoder, then source-balanced — the right studies rise to the top." },
-  { icon: Shield, title: "Cite or abstain", body: "Every claim carries its title, authors, year, and a supporting snippet. If the evidence isn't there, Curalink says so instead of inventing it." },
+  { icon: Shield, title: "Sources you can inspect", body: "Research findings include titles, authors, years, links, and supporting excerpts so you can verify the underlying evidence." },
   { icon: Zap, title: "Real-time streaming", body: "Watch the pipeline work — expansion, retrieval, ranking, reasoning — and read the answer token by token as it's written." },
 ];
 
@@ -130,9 +130,9 @@ export default function LandingPage({ onGetStarted, onSignIn }) {
         <div className="l-eyebrow">AI MEDICAL RESEARCH ASSISTANT</div>
         <h1 className="l-display">Research answers,<br />backed by sources.</h1>
         <p className="l-lead">
-          Ask about any disease. Curalink retrieves live studies from PubMed, OpenAlex, and
-          ClinicalTrials.gov, reasons over them, and streams back structured, source-cited
-          answers — or abstains rather than guess.
+          Ask about any disease. Curalink searches PubMed, OpenAlex, and
+          ClinicalTrials.gov, reasons over relevant studies, and streams back a structured
+          answer with sources you can inspect.
         </p>
         <div className="l-hero-cta">
           <button className="l-btn l-btn-primary l-btn-lg" onClick={onGetStarted}>
@@ -205,7 +205,7 @@ export default function LandingPage({ onGetStarted, onSignIn }) {
       <footer className="l-footer">
         <div className="l-container l-footer-inner">
           <span className="l-foot-meta">
-            © {new Date().getFullYear()} Curalink · Research information, not medical advice.
+            © {new Date().getFullYear()} Curalink · Research information, not medical advice · Do not enter identifiable patient information.
           </span>
         </div>
       </footer>
