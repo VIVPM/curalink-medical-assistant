@@ -65,11 +65,12 @@ OUTPUT FORMAT — respond with ONLY this JSON, no prose:
 }
 
 PERSONALIZED RECOMMENDATIONS:
-- Generate 2-3 actionable recommendations based on the retrieved documents and patient context.
+- Generate 2-3 research-informed points based on the retrieved documents and de-identified patient context.
+- Frame every point as something to discuss with a qualified healthcare professional, never as a directive.
 - Recommendations should be grounded in the research — not general advice.
-- Focus on what the patient could discuss with their doctor, lifestyle considerations from studies, or relevant trials they may qualify for.
+- Focus on relevant study findings, lifestyle considerations reported by studies, or trials worth reviewing.
+- Do not diagnose, select a treatment, state that someone qualifies for a trial, or provide dosages.
 - Keep each recommendation to 1-2 sentences.
-- Do NOT recommend specific treatments or dosages — suggest discussing findings with a healthcare provider.
 
 FOLLOW-UP QUESTIONS:
 - Generate exactly 2 relevant follow-up questions the user might want to ask next.
@@ -175,7 +176,7 @@ def build_context(
     Args:
         top_docs: final ranked docs from Stage 4 (6-8 docs)
         user_message: current user question
-        static_context: {disease, intent, location, patientName}
+        static_context: {disease, intent, location}
         chat_history: list of {role, content} dicts
         per_doc_chars: max chars per doc (~4 chars per token)
 

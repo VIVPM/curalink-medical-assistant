@@ -75,7 +75,6 @@ def main():
         "disease": "Parkinson's disease",
         "intent": "Deep Brain Stimulation",
         "location": "Toronto, Canada",
-        "patientName": "John Smith",
     }
     chat_history = [
         {"role": "user", "content": "Latest treatment options for DBS"},

@@ -364,7 +364,7 @@ MAX_USER_MESSAGE_LEN = 8000  # defense-in-depth cap (SEC-6); Express caps at 400
 
 
 class PipelineRequest(BaseModel):
-    static: dict = Field(..., description="Static form context: disease, intent, location, patientName")
+    static: dict = Field(..., description="De-identified context: disease, intent, location")
     dynamic: dict = Field(default_factory=dict, description="Chat history and entities")
     current: dict = Field(..., description="Current user message: {userMessage}")
 
