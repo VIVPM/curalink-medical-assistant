@@ -35,7 +35,12 @@ if (!process.env.JWT_SECRET) {
 
 mongoose
   .connect(MONGO_URI)
-  .then(() => {
+  .then(async () => {
+    // Data minimization: strip names stored before patientName was removed.
+    await Session.collection.updateMany(
+      { "staticContext.patientName": { $exists: true } },
+      { $unset: { "staticContext.patientName": "" } }
+    );
     console.log("MongoDB connected");
   })
   .catch((err) => {
