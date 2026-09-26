@@ -212,6 +212,7 @@ cp backend-node/.env.example backend-node/.env
 | Variable | Description |
 |----------|-------------|
 | `LLM_MODEL` | **Required.** `CLOUDFLARE` or a HuggingFace model id (e.g. `meta-llama/Llama-3.1-8B-Instruct`) |
+| `INTERNAL_API_KEY` | **Required.** Shared secret for authenticated Express → FastAPI calls |
 | `HF_TOKEN` | HuggingFace API token (when `LLM_MODEL` is a HF model id) |
 | `CLOUDFLARE_ACCOUNT_ID` | CF account ID (when `LLM_MODEL=CLOUDFLARE`) |
 | `CLOUDFLARE_API_TOKEN` | CF API token (when `LLM_MODEL=CLOUDFLARE`) |
@@ -227,6 +228,7 @@ cp backend-node/.env.example backend-node/.env
 | `MONGO_URI` | MongoDB Atlas connection string |
 | `FASTAPI_URL` | FastAPI orchestrator URL (default: `http://localhost:8000`) |
 | `JWT_SECRET` | Secret for signing JWT tokens |
+| `INTERNAL_API_KEY` | **Required.** Same shared secret configured on FastAPI |
 | `ALLOWED_ORIGINS` | Comma-separated CORS allow-list of frontend origins (default: deployed frontend + `localhost:5173`) |
 | `PORT` | Express server port (default: `4000`) |
 
