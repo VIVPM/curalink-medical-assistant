@@ -6,7 +6,7 @@ const router = Router();
 
 // POST /api/auth/signup
 router.post("/signup", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, acceptTerms } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({ ok: false, error: "name, email, and password required" });
@@ -14,13 +14,22 @@ router.post("/signup", async (req, res) => {
   if (password.length < 8) {
     return res.status(400).json({ ok: false, error: "password must be at least 8 characters" });
   }
+  if (acceptTerms !== true) {
+    return res.status(400).json({ ok: false, error: "terms and privacy notice must be accepted" });
+  }
 
   const existing = await User.findOne({ email: email.toLowerCase() });
   if (existing) {
     return res.status(409).json({ ok: false, error: "email already registered" });
   }
 
-  const user = await User.create({ name, email, password });
+  const user = await User.create({
+    name,
+    email,
+    password,
+    termsAcceptedAt: new Date(),
+    termsVersion: "2026-09-25",
+  });
   const token = signToken(user._id);
 
   res.status(201).json({

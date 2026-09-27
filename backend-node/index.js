@@ -7,10 +7,11 @@ import mongoose from "mongoose";
 import authRouter from "./routes/auth.js";
 import sessionRouter from "./routes/session.js";
 import chatRouter from "./routes/chat.js";
-import { redisStatus } from "./cache.js";
+import { cacheDeleteUser, redisStatus } from "./cache.js";
 import { authMiddleware } from "./middleware/auth.js";
-import Session from "./models/Session.js";
 import Message from "./models/Message.js";
+import Session from "./models/Session.js";
+import User from "./models/User.js";
 
 dotenv.config();
 
@@ -120,6 +121,20 @@ app.get("/api/account/credits", authMiddleware, async (req, res) => {
       })
     : 0;
   res.json({ ok: true, cap: DAILY_MESSAGE_CAP, used, remaining: Math.max(0, DAILY_MESSAGE_CAP - used) });
+});
+
+// DELETE /api/account — delete the authenticated user + all their data.
+app.delete("/api/account", authMiddleware, async (req, res) => {
+  const userId = req.userId;
+  const sessionIds = await Session.find({ userId }).distinct("_id");
+
+  await cacheDeleteUser(userId);
+  await Promise.all([
+    sessionIds.length ? Message.deleteMany({ sessionId: { $in: sessionIds } }) : null,
+    Session.deleteMany({ userId }),
+  ]);
+  await User.findByIdAndDelete(userId);
+  res.json({ ok: true, deleted: true });
 });
 
 app.get("/api/ping", async (req, res) => {

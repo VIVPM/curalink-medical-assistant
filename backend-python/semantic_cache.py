@@ -15,6 +15,7 @@ with question B's cached result.
 
 from __future__ import annotations
 
+import hashlib
 import json
 
 import numpy as np
@@ -28,10 +29,11 @@ BUCKET_TTL = 24 * 3600    # 24h
 
 def _bucket(tenant: str, disease: str, intent: str, location: str) -> str:
     t = (tenant or "").strip().lower()
-    d = (disease or "").strip().lower()
-    i = (intent or "").strip().lower()
-    loc = (location or "").strip().lower()
-    return f"semq:{t}|{d}|{i}|{loc}"
+    context = "|".join(
+        value.strip().lower() for value in (disease or "", intent or "", location or "")
+    )
+    digest = hashlib.sha256(context.encode("utf-8")).hexdigest()
+    return f"semq:{t}:{digest}"
 
 
 def lookup(embedder, tenant: str, disease: str, intent: str, location: str, user_message: str):
