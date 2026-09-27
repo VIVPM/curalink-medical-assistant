@@ -41,8 +41,8 @@ cd backend-node && npm run dev
 cd frontend && npm run dev
 
 # Test
-cd backend-python && python -m py_compile main.py
-cd backend-node && node --check index.js
+cd backend-python && python -m ruff check . ../backend-node/load_test.py && python -m compileall -q . && python -m unittest discover -p "test_*.py"
+cd backend-node && npm test
 cd frontend && npm run lint && npm run build
 
 # Load test (spawns Express + stub FastAPI, zero HF cost)
@@ -61,6 +61,7 @@ cd backend-python && python eval_harness.py --selftest # validate eval set only
 ## Environment
 
 - `.env` files in `backend-python/` and `backend-node/` (gitignored)
+- `INTERNAL_API_KEY` is required and must match in both backend services
 - Redis: Upstash (`rediss://...`)
 - `CLOUDFLARE_MAX_TOKENS` is hardcoded to 4096 in `llm_backend.py`, not an env var
 
