@@ -13,6 +13,7 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **Real-time SSE streaming** — live pipeline progress + token-by-token LLM output through FastAPI → Express → React
 - **Multi-turn context awareness** — chat history and static form context are merged into every query expansion
 - **Clinical trial geo-filtering** — optional location input geocodes and filters trials within 100 miles via ClinicalTrials.gov geo API
+- **Privacy controls** — de-identified-use policy, 90-day session/message retention, per-session deletion, and complete account deletion from the UI
 - **JWT authentication** — signup/login with session persistence across page refreshes
 - **ChatGPT-style session sidebar** — click any past session to reopen it and keep asking; new messages append to that session's history
 - **Landing page** — a Linear-styled marketing page with an animated demo, gating into the app on sign-up
@@ -102,7 +103,8 @@ curalink-medical-assistant/
 │       ├── components/
 │       │   ├── AuthPage.jsx       # Login / signup form
 │       │   ├── Sidebar.jsx        # Session list sidebar
-│       │   ├── IntakeForm.jsx     # Patient intake form (disease, intent, location)
+│       │   ├── IntakeForm.jsx     # De-identified patient context (disease, intent, general location)
+│       │   ├── LegalPage.jsx      # Privacy notice + terms of use
 │       │   ├── ChatView.jsx       # Chat interface with message bubbles
 │       │   ├── StructuredResponse.jsx  # Renders overview + insights + trials
 │       │   ├── InsightCard.jsx    # Individual research insight with sources

@@ -141,7 +141,10 @@
 /* ---- Footer ---- */
 .l-footer { border-top: 1px solid var(--l-hairline); padding: 40px 0; }
 .l-footer-inner { display: flex; align-items: center; justify-content: center; }
-.l-foot-meta { font-size: 12px; color: var(--l-ink-subtle); text-align: center; }
+.l-foot-meta { display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 12px; color: var(--l-ink-subtle); text-align: center; }
+.l-foot-links { display: flex; gap: 14px; }
+.l-foot-links button { background: none; border: none; color: var(--l-ink-muted); font: inherit; cursor: pointer; padding: 2px; }
+.l-foot-links button:hover { color: var(--l-primary); }
 
 /* ---- Scroll reveal ---- */
 .l-reveal {
