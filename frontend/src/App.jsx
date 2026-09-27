@@ -29,6 +29,7 @@ export default function App() {
     deleteSession,
     sendMessage,
     stopGeneration,
+    resetChat,
     setActiveSession,
     setMessages,
   } = useChat({ onAuthExpired: expire });
@@ -39,7 +40,7 @@ export default function App() {
   // True while we're fetching a stored session on page refresh — prevents
   // the intake form from flashing before the session loads.
   const [rehydrating, setRehydrating] = useState(
-    () => !!localStorage.getItem("activeSessionId")
+    () => Boolean(localStorage.getItem("token") && localStorage.getItem("activeSessionId"))
   );
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState("login");
@@ -51,23 +52,14 @@ export default function App() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) {
-      setRehydrating(false);
-      return;
-    }
+    if (!user) return;
     const lastId = localStorage.getItem("activeSessionId");
-    if (!lastId) {
-      setActiveSession(null);
-      setMessages([]);
-      setShowForm(true);
-      setRehydrating(false);
-      return;
-    }
+    if (!lastId) return;
     loadSession(lastId)
       .then(() => setShowForm(false))
       .catch(() => setShowForm(true))
       .finally(() => setRehydrating(false));
-  }, [authLoading, user, loadSession, setActiveSession, setMessages]);
+  }, [authLoading, user, loadSession]);
 
   if (legalPage) {
     return <LegalPage type={legalPage} onBack={() => setLegalPage(null)} />;
@@ -115,6 +107,12 @@ export default function App() {
     localStorage.removeItem("activeSessionId");
   };
 
+  const handleLogout = () => {
+    resetChat();
+    setShowForm(true);
+    logout();
+  };
+
   const handleFormSubmit = async (form) => {
     const session = await createSession(form);
     if (session) setShowForm(false);
@@ -134,8 +132,11 @@ export default function App() {
   const handleDeleteAccount = async () => {
     if (!window.confirm("Permanently delete your account and all stored research sessions? This cannot be undone.")) return;
     const deleted = await deleteAccount();
-    if (deleted) setShowAuth(false);
-    else window.alert("Account deletion failed. Please try again.");
+    if (deleted) {
+      resetChat();
+      setShowForm(true);
+      setShowAuth(false);
+    } else window.alert("Account deletion failed. Please try again.");
   };
 
   return (
@@ -148,7 +149,7 @@ export default function App() {
         onNew={handleNewSession}
         userName={user.name}
         credits={credits}
-        onLogout={logout}
+        onLogout={handleLogout}
         onDeleteAccount={handleDeleteAccount}
         onPrivacy={() => setLegalPage("privacy")}
         onTerms={() => setLegalPage("terms")}

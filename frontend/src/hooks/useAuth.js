@@ -6,15 +6,12 @@ const API = `${API_ROOT}/auth`;
 export default function useAuth() {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem("token"));
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem("token")));
   const [error, setError] = useState(null);
 
   // Check token on mount
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    if (!token) return;
     fetch(`${API}/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
