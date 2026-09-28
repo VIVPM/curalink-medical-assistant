@@ -13,23 +13,44 @@ export default function useAuth() {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API}/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.ok) {
+    let cancelled = false;
+    let retryTimer;
+
+    // Only a 401 means the token is invalid. Rate limits, server errors, and
+    // network failures keep the token and retry with backoff.
+    const checkSession = (attempt) => {
+      fetch(`${API}/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then(async (res) => {
+          if (cancelled) return;
+          if (res.status === 401) {
+            localStorage.removeItem("token");
+            setToken(null);
+            setLoading(false);
+            return;
+          }
+          const data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(`session check failed: ${res.status}`);
           setUser(data.user);
-        } else {
-          localStorage.removeItem("token");
-          setToken(null);
-        }
-      })
-      .catch(() => {
-        localStorage.removeItem("token");
-        setToken(null);
-      })
-      .finally(() => setLoading(false));
+          setLoading(false);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          if (attempt < 4) {
+            retryTimer = setTimeout(() => checkSession(attempt + 1), 1000 * 2 ** attempt);
+            return;
+          }
+          setError("Could not verify your session. Please refresh the page.");
+          setLoading(false);
+        });
+    };
+
+    checkSession(0);
+    return () => {
+      cancelled = true;
+      clearTimeout(retryTimer);
+    };
   }, [token]);
 
   const signup = useCallback(async (name, email, password, acceptTerms) => {
