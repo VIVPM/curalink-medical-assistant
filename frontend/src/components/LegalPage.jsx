@@ -1,3 +1,5 @@
+// Privacy and terms content for the public beta.
+
 const policies = {
   privacy: {
     title: "Privacy Notice",

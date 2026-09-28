@@ -1,3 +1,5 @@
+// Responsive session navigation and account controls.
+
 import { useEffect, useState } from "react";
 
 export default function Sidebar({ sessions, activeId, onSelect, onDelete, onNew, userName, credits, onLogout, onDeleteAccount, onPrivacy, onTerms }) {

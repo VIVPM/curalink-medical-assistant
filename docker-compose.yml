@@ -1,8 +1,4 @@
-# Local stack: Express + FastAPI + frontend. Mongo (Atlas), Redis (Upstash),
-# and HF stay remote, so the two backend .env files must point at real services.
-#
-#   docker compose up --build
-#   frontend -> http://localhost:5173,  Express -> :4000,  FastAPI -> :8000
+# Local three-service Curalink development stack.
 
 services:
   api-python:
@@ -19,8 +15,6 @@ services:
       context: .
       dockerfile: backend-node/Dockerfile
     env_file: backend-node/.env
-    # FASTAPI_URL in .env is localhost (local dev); inside the compose network the
-    # Python service is reachable by its service name, not localhost.
     environment:
       FASTAPI_URL: "http://api-python:8000"
     ports:
@@ -34,8 +28,6 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        # Vite bakes this in at build time; localhost resolves in the browser,
-        # not the container.
         VITE_API_URL: "http://localhost:4000"
     ports:
       - "5173:80"

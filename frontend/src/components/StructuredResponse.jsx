@@ -1,3 +1,5 @@
+// Structured research answer with citations, trials, and recommendations.
+
 import { useState } from "react";
 import InsightCard from "./InsightCard";
 import TrialCard from "./TrialCard";
@@ -67,8 +69,8 @@ export default function StructuredResponse({ data, onFollowUp }) {
       await navigator.clipboard.writeText(toMarkdown(data));
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {
-      /* clipboard blocked (non-secure context) — ignore */
+    } catch (error) {
+      void error;
     }
   };
   const handleDownload = () => {
@@ -81,7 +83,6 @@ export default function StructuredResponse({ data, onFollowUp }) {
     URL.revokeObjectURL(url);
   };
 
-  // Abstain state
   if (abstain_reason) {
     return (
       <div className="structured-response abstain">
@@ -108,7 +109,6 @@ export default function StructuredResponse({ data, onFollowUp }) {
         </button>
       </div>
 
-      {/* Source warnings banner */}
       {hasSourceWarnings && (
         <div className="warning-banner">
           <span className="warning-icon">!</span>
@@ -140,7 +140,6 @@ export default function StructuredResponse({ data, onFollowUp }) {
         </div>
       )}
 
-      {/* Empty insights state */}
       {(!insights || insights.length === 0) && !abstain_reason && (
         <div className="section empty-section">
           <h3>Research Insights</h3>
@@ -157,7 +156,6 @@ export default function StructuredResponse({ data, onFollowUp }) {
         </div>
       )}
 
-      {/* Empty trials state */}
       {(!trials || trials.length === 0) && !abstain_reason && (
         <div className="section empty-section">
           <h3>Clinical Trials</h3>

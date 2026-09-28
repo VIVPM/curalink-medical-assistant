@@ -1,9 +1,11 @@
+// Research conversation, response, and diagnostics layout.
+
 import { useState, useRef, useEffect, useMemo } from "react";
 import StructuredResponse from "./StructuredResponse";
 import PipelinePanel from "./PipelinePanel";
 import PipelineProgress from "./PipelineProgress";
 
-/* ---------- Suggested questions generator ---------- */
+// Builds contextual questions from the session disease and intent.
 function getSuggestedQuestions(disease, intent) {
   if (!disease) return [];
 
@@ -16,12 +18,10 @@ function getSuggestedQuestions(disease, intent) {
     `What lifestyle changes are recommended for ${disease}?`,
   ];
 
-  // Add intent-specific questions
   if (intent) {
     questions.unshift(`What does current research say about ${intent} for ${disease}?`);
   }
 
-  // Return first 4 suggestions
   return questions.slice(0, 4);
 }
 
@@ -54,7 +54,6 @@ export default function ChatView({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamStatus, pipelineStage]);
 
-  // Extract the latest pipelineMeta from the most recent assistant message
   const latestMeta = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const meta = messages[i]?.structuredResponse?.pipelineMeta;
@@ -63,7 +62,6 @@ export default function ChatView({
     return null;
   }, [messages]);
 
-  // Generate contextual suggestions
   const suggestions = useMemo(() => {
     return getSuggestedQuestions(
       session.staticContext?.disease,
@@ -71,7 +69,6 @@ export default function ChatView({
     );
   }, [session.staticContext?.disease, session.staticContext?.intent]);
 
-  // Hide static suggestions once any response has follow-up questions
   const hasFollowUps = messages.some(
     (m) => m.structuredResponse?.follow_up_questions?.length >= 2
   );
@@ -108,7 +105,7 @@ export default function ChatView({
 
         <div className="chat-messages">
           {messages.map((msg) => {
-            // Hide the empty streaming placeholder while progress bar is visible
+
             if (msg.streaming && !msg.content && pipelineStage) return null;
 
             return (

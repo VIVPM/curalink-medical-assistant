@@ -1,3 +1,5 @@
+// In-chat progress display for pipeline stages.
+
 const STAGES = [
   { key: "query_expansion", label: "Expanding query" },
   { key: "retrieval", label: "Fetching sources" },
@@ -17,19 +19,17 @@ export default function PipelineProgress({ stage, retrievalCounts }) {
   const activeIdx = getStageIndex(stage);
   const progressPct = Math.max(((activeIdx + 1) / STAGES.length) * 100, 3);
 
-  // Show retrieval counts once retrieval is done (activeIdx > 1 means past retrieval)
   const showCounts = retrievalCounts && activeIdx >= 2;
-  // Show retrieval as actively loading (stage is retrieval)
+
   const retrievalActive = activeIdx === 1;
 
   return (
     <div className="pipeline-progress">
-      {/* Progress bar */}
+
       <div className="pp-bar-track">
         <div className="pp-bar-fill" style={{ width: `${progressPct}%` }} />
       </div>
 
-      {/* Stage steps */}
       <div className="pp-stages">
         {STAGES.map((s, i) => {
           let status = "pending";
@@ -46,7 +46,6 @@ export default function PipelineProgress({ stage, retrievalCounts }) {
                 <span className="pp-label">{s.label}</span>
               </div>
 
-              {/* Retrieval counts shown under "Fetching sources" once done */}
               {s.key === "retrieval" && (showCounts || retrievalActive) && (
                 <div className="pp-retrieval-counts">
                   <div className={`pp-rc-item ${retrievalCounts?.pubmed != null ? "loaded" : ""}`}>

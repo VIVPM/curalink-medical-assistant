@@ -1,3 +1,5 @@
+// Public Curalink landing page and animated research demonstration.
+
 import { useEffect, useRef, useState } from "react";
 import "./landing.css";
 
@@ -60,7 +62,7 @@ function ChatDemo() {
   const [reducedMotion] = useState(prefersReducedMotion);
   const [q, setQ] = useState(() => reducedMotion ? DEMO_Q : "");
   const [a, setA] = useState(() => reducedMotion ? DEMO_A : "");
-  const [phase, setPhase] = useState(() => reducedMotion ? "done" : "typing"); // typing | thinking | streaming | done
+  const [phase, setPhase] = useState(() => reducedMotion ? "done" : "typing");
 
   useEffect(() => {
     if (reducedMotion) return;

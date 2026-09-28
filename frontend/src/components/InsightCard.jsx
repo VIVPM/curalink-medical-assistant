@@ -1,3 +1,5 @@
+// Expandable research finding with source details.
+
 import { useState } from "react";
 
 function dedupeSources(sources) {
@@ -5,16 +7,16 @@ function dedupeSources(sources) {
 
   const seen = new Map();
   for (const src of sources) {
-    // Key by normalized title to catch same paper from different platforms
+
     const key = (src.title || "").toLowerCase().trim().slice(0, 80);
     if (seen.has(key)) {
-      // Merge platforms
+
       const existing = seen.get(key);
       const existingPlatforms = existing.platform.toLowerCase().split(", ");
       const newPlatforms = (src.platform || "").toLowerCase().split(", ");
       const allPlatforms = [...new Set([...existingPlatforms, ...newPlatforms])];
       existing.platform = allPlatforms.join(", ");
-      // Keep longer snippet
+
       if ((src.snippet || "").length > (existing.snippet || "").length) {
         existing.snippet = src.snippet;
       }

@@ -1,3 +1,5 @@
+// Frontend session, streaming chat, and credit state.
+
 import { useState, useCallback, useRef } from "react";
 
 const API = `${import.meta.env.VITE_API_URL || ""}/api`;
@@ -15,10 +17,10 @@ export default function useChat({ onAuthExpired } = {}) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [streamStatus, setStreamStatus] = useState(null);
-  const [pipelineStage, setPipelineStage] = useState(null); // current stage name from SSE
-  const [retrievalCounts, setRetrievalCounts] = useState(null); // live retrieval counts
-  const [waking, setWaking] = useState(false); // true during cold-start wait for a sleeping free-tier server
-  const [credits, setCredits] = useState(null); // { cap, used, remaining }
+  const [pipelineStage, setPipelineStage] = useState(null);
+  const [retrievalCounts, setRetrievalCounts] = useState(null);
+  const [waking, setWaking] = useState(false);
+  const [credits, setCredits] = useState(null);
   const abortRef = useRef(null);
 
   const fetchCredits = useCallback(async () => {
@@ -26,7 +28,9 @@ export default function useChat({ onAuthExpired } = {}) {
       const res = await fetch(`${API}/account/credits`, { headers: getAuthHeaders() });
       const data = await res.json();
       if (data.ok) setCredits(data);
-    } catch { /* non-critical */ }
+    } catch (error) {
+      void error;
+    }
   }, []);
 
   const fetchSessions = useCallback(async () => {
@@ -75,8 +79,6 @@ export default function useChat({ onAuthExpired } = {}) {
     const assistantId = (Date.now() + 1).toString();
     let gotResult = false;
 
-    // Free-tier services sleep after ~15 min idle; the first request then waits
-    // 30-60s for a cold boot. Show an honest notice if headers don't arrive fast.
     let wakeTimer = setTimeout(() => setWaking(true), 5000);
 
     const controller = new AbortController();
@@ -93,20 +95,16 @@ export default function useChat({ onAuthExpired } = {}) {
         }),
       });
 
-      // Response headers arrived -> server is awake; drop the cold-start notice.
       clearTimeout(wakeTimer);
       setWaking(false);
 
-      // An error response (401/404/5xx) is JSON/HTML, not SSE. Feeding it to the
-      // parser fails silently and looks like "no response" (BUG-2) — handle it.
       if (!res.ok) {
         gotResult = true;
         if (res.status === 401) {
           setActiveSession(null);
           setMessages([]);
           localStorage.removeItem("activeSessionId");
-          // Session expired — route to the login screen with a reason (UX-5)
-          // rather than a dead request. Fall back to an in-chat notice.
+
           if (onAuthExpired) {
             onAuthExpired();
           } else {
@@ -154,7 +152,9 @@ export default function useChat({ onAuthExpired } = {}) {
                 setStreamStatus(info.message || info.stage);
                 if (info.stage) setPipelineStage(info.stage);
                 if (info.retrieval_counts) setRetrievalCounts(info.retrieval_counts);
-              } catch { /* ignore malformed SSE data */ }
+              } catch (error) {
+                void error;
+              }
             } else if (currentEvent === "metadata") {
               try {
                 const meta = JSON.parse(data);
@@ -168,7 +168,9 @@ export default function useChat({ onAuthExpired } = {}) {
                     _id: assistantId,
                   },
                 ]);
-              } catch { /* ignore malformed SSE data */ }
+              } catch (error) {
+                void error;
+              }
             } else if (currentEvent === "error") {
               try {
                 const errData = JSON.parse(data);
@@ -182,7 +184,9 @@ export default function useChat({ onAuthExpired } = {}) {
                     error: true,
                   },
                 ]);
-              } catch { /* ignore malformed SSE data */ }
+              } catch (error) {
+                void error;
+              }
             }
             currentEvent = null;
           }
@@ -203,7 +207,7 @@ export default function useChat({ onAuthExpired } = {}) {
     } catch (err) {
       clearTimeout(wakeTimer);
       if (err.name === "AbortError") {
-        // User pressed Stop — not an error.
+
         setMessages((prev) => [
           ...prev,
           { role: "assistant", content: "⏹ Generation stopped.", _id: assistantId },
