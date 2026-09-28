@@ -6,8 +6,8 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 
 - **Structured intake + natural chat** — fill disease/intent once, then chat naturally; follow-ups inherit context automatically
 - **7-stage AI pipeline** — query expansion → parallel retrieval → normalization → hybrid re-ranking → context building → LLM reasoning → response assembly
-- **Three live medical sources** — PubMed, OpenAlex, ClinicalTrials.gov fetched in parallel (~170 unique candidates per query)
-- **Domain-specialized ranking** — BM25 + PubMedBERT embeddings fused via Reciprocal Rank Fusion, refined by MedCPT cross-encoder with source-balanced MMR selection
+- **Three current medical sources** — cache misses query PubMed, OpenAlex, and ClinicalTrials.gov in parallel (~170 unique candidates per query)
+- **Domain-specialized ranking** — BM25 + PubMedBERT embeddings fused via Reciprocal Rank Fusion, refined by a MedCPT cross-encoder with source-balanced selection
 - **Inspectable sources** — research findings and personalized recommendations include titles, authors, years, URLs, and supporting excerpts for verification against the original publications
 - **Emergency boundary** — urgent-use messages are diverted from the research pipeline to immediate emergency-services guidance
 - **Real-time SSE streaming** — live pipeline progress + token-by-token LLM output through FastAPI → Express → React
@@ -16,11 +16,13 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **Privacy controls** — de-identified-use policy, 90-day session/message retention, per-session deletion, and complete account deletion from the UI
 - **JWT authentication** — signup/login with session persistence across page refreshes
 - **ChatGPT-style session sidebar** — click any past session to reopen it and keep asking; new messages append to that session's history
-- **Landing page** — a Linear-styled marketing page with an animated demo, gating into the app on sign-up
-- **Redis caching** — exact + semantic (near-duplicate first-turn) query cache and a document-embedding cache on Upstash, with graceful Mongo / no-cache fallback
-- **Per-user credits + rate limiting** — 3 credits (1 credit = 1 question) plus per-IP / per-user limits on auth, chat, and session creation
-- **Observability** — LLM generation traces to Langfuse, HTTP spans + a `chat_messages_total` metric to Grafana, over OTLP
-- **CI/CD + Docker** — GitHub Actions (lint, syntax, build, image builds, gated Render deploy) and Dockerfiles for all three services
+- **Landing page** — a light, source-focused marketing page with an animated demo and account entry
+- **Responsive authenticated UI** — collapsed mobile navigation and diagnostics overlays verified at 390px and 430px widths
+- **Private service boundary** — a shared `INTERNAL_API_KEY` protects non-health FastAPI endpoints from direct public use
+- **Redis caching** — tenant-isolated exact + semantic query caches and a document-embedding cache on Upstash, with a Mongo query-cache fallback
+- **Per-user credits + rate limiting** — 5 questions/day (DAILY_MESSAGE_CAP) plus per-IP / per-user limits on auth, chat, and session creation
+- **Observability** — content-free LLM metadata to Langfuse plus HTTP spans and metrics to Grafana over OTLP
+- **CI/CD + Docker** — GitHub Actions (lint, unit tests, syntax, build, image builds, gated Render deploy) and Dockerfiles for all three services
 
 ## 🏗️ Architecture
 
@@ -46,7 +48,7 @@ graph TD
         S1["1 · Query expansion (LLM)"]
         S2["2 · Parallel retrieval"]
         S3["3 · Normalize + dedupe"]
-        S4["4 · Hybrid ranking · BM25 · PubMedBERT · RRF · MedCPT · MMR"]
+        S4["4 · Hybrid ranking · BM25 · PubMedBERT · RRF · MedCPT · source balance"]
         S5["5 · Context build"]
         S6["6 · Grounded reasoning (LLM)"]
         S7["7 · Response assembly · cite-or-abstain"]
@@ -64,7 +66,7 @@ graph TD
     end
 
     Cache["🗄️ Caching · cross-cutting<br>exact + semantic query cache · doc-embedding cache"]
-    OBS["📈 Observability · cross-cutting<br>Langfuse (LLM traces) + Grafana (HTTP · metrics)"]
+    OBS["📈 Observability · cross-cutting<br>Content-free LLM metadata (Langfuse) · HTTP/metrics (Grafana)"]
 
     User --> CLIENT
     CLIENT -->|HTTP + JWT + SSE| API
@@ -89,7 +91,7 @@ graph TD
 | 1 | `query_expander.py` | LLM rewrites user message with context injection, synonym expansion, intent classification |
 | 2 | `pubmed.py` `openalex.py` `trials.py` | Parallel retrieval from 3 sources (~210 raw → ~170 after dedupe) |
 | 3 | `normalizer.py` `merger.py` | Unify schemas into `Document[]`, dedupe by DOI/PMID/NCT-ID, quality filter |
-| 4 | `ranker.py` | BM25 pre-filter → PubMedBERT cosine → RRF fusion → MedCPT cross-encoder → MMR selection → top 10 |
+| 4 | `ranker.py` | BM25 pre-filter → PubMedBERT cosine → RRF fusion → MedCPT cross-encoder → source-balanced top 14 |
 | 5 | `context_builder.py` | Token-budgeted prompt with citation anchors `[doc1]`, grounding rules, output schema |
 | 6 | `llm_reasoner.py` | Llama 3.3 70B via HF Inference API — source-constrained structured generation |
 | 7 | `response_assembler.py` | Citation resolution, snippet extraction, hallucination flags, structured JSON assembly |
@@ -126,7 +128,7 @@ curalink-medical-assistant/
 │   │   ├── User.js                # Mongoose user schema (bcrypt hashed)
 │   │   ├── Session.js             # Static context + metadata
 │   │   ├── Message.js             # Chat history + structured responses
-│   │   └── Cache.js               # Query-result cache (SHA-256 key, 24h TTL)
+│   │   └── Cache.js               # Tenant-isolated query-response cache fallback (24h TTL)
 │   └── middleware/
 │       └── auth.js                # JWT verification middleware
 │
@@ -259,11 +261,11 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **Frontend** | React + Vite | Chat UI, intake form, structured response rendering |
-| **API Layer** | Express.js | Auth, sessions, SSE proxy, MongoDB CRUD |
+| **Frontend** | React + Vite | Responsive research chat, de-identified intake, structured source rendering |
+| **API Layer** | Express.js | Auth, tenant isolation, sessions, SSE proxy, MongoDB CRUD |
 | **Orchestrator** | FastAPI (Python) | 7-stage AI pipeline, stateless |
-| **Database** | MongoDB Atlas | Sessions, messages, query-result cache |
-| **LLM** | Llama 3.3 70B via HF Inference API | Query expansion + grounded reasoning |
+| **Database** | MongoDB Atlas | Accounts, consent, sessions, messages, query-cache fallback |
+| **LLM** | HF Inference API or Cloudflare Workers AI | Query expansion + grounded reasoning (multi-provider) |
 | **Bi-Encoder** | PubMedBERT-MS-MARCO via HF API | Domain-specialized dense retrieval |
 | **Cross-Encoder** | MedCPT (NCBI) via HF API | Precision re-ranking on PubMed click logs |
 | **Data Sources** | PubMed, OpenAlex, ClinicalTrials.gov | Live medical research APIs |
@@ -300,7 +302,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
    MedCPT cross-encoder precision rerank
         │
         ▼
-   Source-balanced MMR selection → top 10
+   Source-balanced publication/trial selection → top 14
         │
         ▼
    Token-budgeted context → LLM
@@ -424,12 +426,13 @@ python eval_harness.py --selftest
 
 ## Key Design Decisions
 
-- **Thin Express, fat FastAPI** — routing and DB in Node, entire AI pipeline in Python where the LLM/retrieval/ranking ecosystem is strongest
-- **Live-APIs-only RAG** — no pre-indexed vector store; every query hits live sources for freshest results
-- **Stateless pipeline** — FastAPI holds no state; context is passed in each request from Express
+- **Thin Express, fat FastAPI** — routing and DB in Node; retrieval, ranking, and generation in Python
+- **Live-source RAG on cache misses** — uncached queries retrieve current PubMed, OpenAlex, and ClinicalTrials.gov records; tenant-isolated caches accelerate repeats
+- **Stateless pipeline** — FastAPI holds no request state; context is passed in each request from Express
 - **RRF over linear combination** — BM25 and cosine scores live on different scales; RRF uses rank position only, sidesteps normalization
 - **Cite-or-abstain intent** — prompts instruct the model to cite retrieved documents and abstain when they are insufficient; users must still verify the original sources
-- **Mongo query-result cache** — `SHA-256(disease|intent|message)` key with 24h TTL skips the entire pipeline on exact-match repeats
+- **Tenant-isolated result cache** — `query:<userId>:SHA-256(user|disease|intent|location|message|history)` with 24h TTL and Redis-to-Mongo fallback
+- **Public-beta boundary** — de-identified research assistance only; no diagnosis, prescribing, treatment selection, trial-eligibility determination, or emergency assessment
 
 ## 📜 License
 

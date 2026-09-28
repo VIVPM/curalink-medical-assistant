@@ -19,17 +19,21 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 |------|---------|
 | `backend-python/llm_backend.py` | LLMBackend ABC, HFBackend, CloudflareBackend, factory |
 | `backend-python/redis_cache.py` | Embedding cache (Upstash Redis) |
-| `backend-python/main.py` | FastAPI app, /pipeline/run, /pipeline/stream |
-| `backend-python/stages/` | 7-stage RAG pipeline (query expansion → response assembly) |
-| `backend-node/index.js` | Express server, health, CORS |
-| `backend-node/routes/chat.js` | POST /chat/stream (SSE proxy to FastAPI) |
+| `backend-python/main.py` | FastAPI app, /pipeline/run, /pipeline/stream, `X-Internal-API-Key` middleware |
+| `backend-python/stages/` | 7-stage RAG pipeline (query expansion → response assembly); recommendations must cite sources |
+| `backend-python/semantic_cache.py` | Tenant-isolated semantic query cache (`semq:<userId>:<hash>`) |
+| `backend-python/observability.py` | Content-free LLM/HTTP telemetry and metrics exporters |
+| `backend-node/index.js` | Express server, health, CORS, credits, DELETE /api/account |
+| `backend-node/routes/chat.js` | POST /chat, /chat/stream (SSE proxy), tenant cache keys, urgent-use diversion |
+| `backend-node/cache.js` | Query cache (Redis or Mongo fallback) + per-user cache deletion |
+| `frontend/src/components/LegalPage.jsx` | Privacy Notice + Terms of Use |
 | `backend-node/load_test.py` | Load test harness (spawns Express + stub FastAPI) |
-| `.github/workflows/ci.yml` | CI: lint, syntax, build, Docker images, gated Render deploy |
+| `.github/workflows/ci.yml` | CI: lint, unit tests, syntax, build, Docker images, gated Render deploy |
 
 ## Caching Layers
 
-1. **Mongo query-result cache** — SHA-256(disease|intent|message+history), 24h TTL, skips entire pipeline
-2. **Semantic query cache** — cosine ≥0.97 on first-turn embeddings in Redis, skips pipeline
+1. **Query-result cache** — `query:<userId>:SHA-256(user|disease|intent|location|message|history)`, 24h TTL, Redis with Mongo fallback, skips entire pipeline
+2. **Semantic query cache** — cosine ≥0.97 on first-turn embeddings in Redis, bucketed per user + hashed disease/intent/location, skips pipeline
 3. **Embedding cache** — per (model, text) in Redis, 7-day TTL
 
 ## Commands
@@ -53,7 +57,7 @@ cd backend-node && python load_test.py --v2-probes     # job API, queue depth, w
 cd backend-node && python load_test.py --selftest      # CI smoke test
 
 # Pipeline quality eval (needs FastAPI running on :8000, hits real LLM — $0 on free tier)
-cd backend-python && python eval_harness.py            # full 50-query eval
+cd backend-python && python eval_harness.py            # full 50-query eval (needs INTERNAL_API_KEY)
 cd backend-python && python eval_harness.py --query 0  # single query by index
 cd backend-python && python eval_harness.py --selftest # validate eval set only
 ```
@@ -67,5 +71,6 @@ cd backend-python && python eval_harness.py --selftest # validate eval set only
 
 ## Branch Strategy
 
-- `main` — v0 core + bug fixes
+- `main` — v0 core + bug fixes + public-beta safeguards (de-identified context, tenant-isolated caches,
+  internal service auth, cited recommendations, urgent-use diversion, consent, retention/deletion, mobile UI)
 - `curalink-v012` — v0 + v1 + v2 (all features)
