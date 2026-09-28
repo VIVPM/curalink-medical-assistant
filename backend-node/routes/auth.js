@@ -1,13 +1,24 @@
 // Authentication routes for signup, login, and current-user lookup.
 
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import User from "../models/User.js";
 import { signToken } from "../middleware/auth.js";
 
 const router = Router();
 
+// Brute-force limit applies to credential endpoints only, so session checks
+// on page load (GET /me) never exhaust it and log users out.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: Number(process.env.AUTH_RATE_MAX) || 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false, error: "too many attempts, try again later" },
+});
 
-router.post("/signup", async (req, res) => {
+
+router.post("/signup", authLimiter, async (req, res) => {
   const { name, email, password, acceptTerms } = req.body;
 
   if (!name || !email || !password) {
@@ -42,7 +53,7 @@ router.post("/signup", async (req, res) => {
 });
 
 
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {

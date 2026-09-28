@@ -29,3 +29,28 @@ test("signup requires explicit terms acceptance", async () => {
     assert.equal((await response.json()).error, "terms and privacy notice must be accepted");
   });
 });
+
+test("session checks are not throttled by the credential rate limit", async () => {
+  await withServer(async (port) => {
+    const limit = Number(process.env.AUTH_RATE_MAX) || 20;
+    for (let i = 0; i < limit + 5; i++) {
+      const response = await fetch(`http://127.0.0.1:${port}/me`);
+      assert.equal(response.status, 401);
+    }
+  });
+});
+
+test("signup is still rate limited", async () => {
+  await withServer(async (port) => {
+    const limit = Number(process.env.AUTH_RATE_MAX) || 20;
+    let last;
+    for (let i = 0; i <= limit; i++) {
+      last = await fetch(`http://127.0.0.1:${port}/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+    }
+    assert.equal(last.status, 429);
+  });
+});

@@ -3,7 +3,6 @@
 import crypto from "crypto";
 import express from "express";
 import cors from "cors";
-import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from "./routes/auth.js";
@@ -97,17 +96,7 @@ app.get("/health", (req, res) => {
   res.json({ ok: true, service: "express", redis: redisStatus() });
 });
 
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: Number(process.env.AUTH_RATE_MAX) || 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { ok: false, error: "too many attempts, try again later" },
-});
-
-
-app.use("/api/auth", authLimiter, authRouter);
+app.use("/api/auth", authRouter);
 app.use("/api", sessionRouter);
 app.use("/api", chatRouter);
 app.use("/api/jobs", jobsRouter);
