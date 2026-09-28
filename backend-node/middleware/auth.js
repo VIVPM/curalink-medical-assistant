@@ -1,7 +1,9 @@
+// JWT creation and authentication middleware.
+
 import jwt from "jsonwebtoken";
 
-// Read at call time (after dotenv has loaded) with NO fallback. A missing secret
-// is a hard boot failure in index.js (SEC-2), so this is always set at runtime.
+
+// Returns the required JWT signing secret.
 function jwtSecret() {
   const s = process.env.JWT_SECRET;
   if (!s) throw new Error("JWT_SECRET is not set");
