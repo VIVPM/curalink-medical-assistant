@@ -1,3 +1,5 @@
+"""Tests FastAPI internal service authentication boundaries."""
+
 import importlib
 import os
 import unittest

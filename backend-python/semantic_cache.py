@@ -23,8 +23,8 @@ import numpy as np
 from redis_cache import _get_client
 
 SIM_THRESHOLD = 0.97
-BUCKET_MAX = 50           # keep the most recent N questions per disease|intent
-BUCKET_TTL = 24 * 3600    # 24h
+BUCKET_MAX = 50
+BUCKET_TTL = 24 * 3600
 
 
 def _bucket(tenant: str, disease: str, intent: str, location: str) -> str:
@@ -46,7 +46,7 @@ def lookup(embedder, tenant: str, disease: str, intent: str, location: str, user
     if client is None:
         return None, None
 
-    emb = embedder.embed_text(user_message)  # L2-normalized -> dot == cosine
+    emb = embedder.embed_text(user_message)
     try:
         raw = client.lrange(_bucket(tenant, disease, intent, location), 0, BUCKET_MAX - 1)
     except Exception as e:

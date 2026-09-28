@@ -18,7 +18,7 @@ except ImportError:
     _redis = None
 
 REDIS_URL = os.getenv("REDIS_URL")
-EMBED_TTL = 7 * 24 * 3600  # 7 days
+EMBED_TTL = 7 * 24 * 3600
 
 _client = None
 _tried = False

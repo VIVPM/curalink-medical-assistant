@@ -1,3 +1,5 @@
+"""Tests semantic-cache tenant and context isolation."""
+
 import unittest
 
 from semantic_cache import _bucket

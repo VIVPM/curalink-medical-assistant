@@ -73,20 +73,20 @@ def main():
     print("Phase 4 Step 4.6: MMR Diversity Selection Test")
     print("=" * 60)
 
-    # 1. Load models
+
     print(f"\n[1/5] Loading models")
     embedder = Embedder(BIENCODER_MODEL)
     reranker = MedCPTReranker()
     print("  Loaded bi-encoder + cross-encoder")
 
-    # 2. Fetch docs
+
     print("\n[2/5] Fetching docs")
     docs = asyncio.run(fetch_docs())
     print(f"  Got {len(docs)} docs")
 
     query = "vitamin D supplementation parkinson"
 
-    # 3. Full pipeline to get top-20
+
     print(f"\n[3/5] Running BM25+cosine+RRF+boosts -> top-20 -> MedCPT")
     bm25_scores = rank_bm25(query, docs)
     cosine_scores = rank_cosine(query, docs, embedder)
@@ -101,17 +101,17 @@ def main():
     ce_scores = reranker.rerank(query, top20_docs)
     print(f"  Top-20 scored with cross-encoder")
 
-    # 4. MMR selection
+
     print(f"\n[4/5] Running MMR (lambda=0.7, top_k=8)")
     t0 = time.perf_counter()
     mmr_indices = mmr_select(top20_docs, ce_scores, embedder, top_k=8, lambda_=0.7)
     dt = time.perf_counter() - t0
     print(f"  Selected 8 docs in {dt * 1000:.0f}ms")
 
-    # Greedy top-8 (no diversity)
+
     greedy_indices = sorted(range(len(ce_scores)), key=lambda i: ce_scores[i], reverse=True)[:8]
 
-    # 5. Compare
+
     print(f"\n[5/5] MMR top-8 vs Greedy top-8:")
     print("-" * 60)
     print("  MMR selection:")
@@ -129,7 +129,7 @@ def main():
         print(f"    {rank+1}. [{ce_scores[i]:7.3f}] ({src}) {title}")
     print("-" * 60)
 
-    # Diversity check: avg pairwise cosine among selected
+
     mmr_sim = avg_pairwise_sim(mmr_indices, embedder, top20_docs)
     greedy_sim = avg_pairwise_sim(greedy_indices, embedder, top20_docs)
     print(f"\n  Avg pairwise similarity — MMR: {mmr_sim:.4f}, Greedy: {greedy_sim:.4f}")
@@ -139,19 +139,19 @@ def main():
     else:
         print("  INFO: MMR set not more diverse (might happen with very diverse candidates)")
 
-    # MMR should still include some high-scoring docs
+
     mmr_set = set(mmr_indices)
     greedy_set = set(greedy_indices)
     overlap = mmr_set & greedy_set
     print(f"  Overlap with greedy: {len(overlap)}/8")
 
-    # Check: correct count
+
     if len(mmr_indices) == 8:
         print(f"  PASS: selected exactly 8 docs")
     else:
         print(f"  FAIL: selected {len(mmr_indices)} instead of 8")
 
-    # Check: no duplicates
+
     if len(set(mmr_indices)) == len(mmr_indices):
         print("  PASS: no duplicate selections")
     else:

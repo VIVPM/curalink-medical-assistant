@@ -24,10 +24,10 @@ if not (os.getenv("LANGFUSE_PUBLIC_KEY") and os.getenv("LANGFUSE_SECRET_KEY")):
     sys.exit("LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY not set — nothing to send.")
 
 print(f"Target project host: {host}")
-obs.init_observability()          # prints "LLM tracing enabled via OTLP: ..." if keys are good
+obs.init_observability()
 
 with obs.llm_generation("verify-script/test-model", "ping: is Langfuse v4 receiving traces?") as span:
     obs.set_generation_output(span, "pong: if you can read this in the Langfuse UI, v4 ingestion works.")
 
-obs.flush()                       # force the BatchSpanProcessor to send now
+obs.flush()
 print("Sent 1 generation span. Open Langfuse -> Tracing and look for 'llm-generation'.")

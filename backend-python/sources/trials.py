@@ -20,19 +20,15 @@ TRIALS_URL = "https://clinicaltrials.gov/api/v2/studies"
 DEFAULT_TIMEOUT = 10.0
 MAX_RETRIES = 2
 
-# ClinicalTrials.gov is behind Cloudflare which blocks Python's native HTTP
-# client TLS fingerprints. curl_cffi impersonates a real Chrome TLS handshake
-# so the WAF lets us through.
+
 BROWSER_IMPERSONATE = "chrome120"
 
-# Intent-driven status filter. Set by Stage 1's query expander output.
-# ClinicalTrials.gov v2 API expects comma-separated values here (NOT pipe-separated).
+
 STATUS_FILTERS: dict[str, str] = {
     "clinical_trials_search": "RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION",
     "treatment_overview": "RECRUITING,ACTIVE_NOT_RECRUITING,COMPLETED",
     "default": "RECRUITING,ACTIVE_NOT_RECRUITING,COMPLETED",
 }
-
 
 
 def _get(d: Any, path: str, default: Any = None) -> Any:
@@ -170,9 +166,8 @@ async def fetch_trials(
     last_error: Exception | None = None
     for attempt in range(MAX_RETRIES + 1):
         try:
-            # curl_cffi's async API mirrors requests. impersonate="chrome120"
-            # makes the TLS fingerprint look like real Chrome, bypassing
-            # Cloudflare bot detection that blocks httpx/requests.
+
+
             resp = await asyncio.to_thread(
                 curl_requests.get,
                 TRIALS_URL,

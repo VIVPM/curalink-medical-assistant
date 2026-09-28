@@ -32,23 +32,23 @@ def _merge_into(existing: Document, incoming: Document) -> None:
     Mutates `existing` in place. The first-seen doc remains the "base"
     (its title, abstract, authors win), but provenance and tags merge.
     """
-    # Provenance: union of sources, dedupe
+
     for src in incoming.sources:
         if src not in existing.sources:
             existing.sources.append(src)
 
-    # PubMed has MeSH tags, OpenAlex has concepts - both are useful metadata
+
     if incoming.mesh_terms and not existing.mesh_terms:
         existing.mesh_terms = list(incoming.mesh_terms)
     if incoming.openalex_concepts and not existing.openalex_concepts:
         existing.openalex_concepts = list(incoming.openalex_concepts)
 
-    # Recompute disease_tags from the merged metadata
+
     existing.disease_tags = normalize_disease_tags(
         existing.mesh_terms + existing.openalex_concepts
     )
 
-    # Fill in missing cross-references
+
     if not existing.pmid and incoming.pmid:
         existing.pmid = incoming.pmid
     if not existing.doi and incoming.doi:
@@ -56,13 +56,11 @@ def _merge_into(existing: Document, incoming: Document) -> None:
     if not existing.journal and incoming.journal:
         existing.journal = incoming.journal
 
-    # If the base doc had no abstract but the incoming one does, adopt it.
-    # This handles the case where OpenAlex (seen first) lacked an abstract
-    # but PubMed (seen second) has one.
+
     if (not existing.abstract) and incoming.abstract:
         existing.abstract = incoming.abstract
-        # A doc that just gained an abstract might now pass the completeness
-        # check that previously failed it.
+
+
         if incoming.is_complete:
             existing.is_complete = True
 

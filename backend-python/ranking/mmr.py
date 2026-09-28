@@ -55,7 +55,7 @@ def mmr_select(
     if len(docs) <= top_k:
         return list(range(len(docs)))
 
-    # Normalize scores to [0, 1] for fair combination with cosine
+
     max_s = max(scores)
     min_s = min(scores)
     if max_s == min_s:
@@ -63,14 +63,14 @@ def mmr_select(
     else:
         norm_scores = [(s - min_s) / (max_s - min_s) for s in scores]
 
-    # Use precomputed embeddings if available, otherwise embed
+
     if precomputed_vecs is not None:
         vecs = precomputed_vecs
     else:
         texts = [_doc_text(d) for d in docs]
         vecs = np.array(embedder.embed_batch(texts))
 
-    # Pairwise cosine similarity matrix (embeddings already normalized)
+
     sim_matrix = vecs @ vecs.T
 
     selected: list[int] = []

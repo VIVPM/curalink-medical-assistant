@@ -1,3 +1,5 @@
+"""Tests citation and recommendation safety in assembled responses."""
+
 import unittest
 
 from schemas.document import Document

@@ -106,7 +106,7 @@ def _parse_year(article: Any) -> int | None:
             return int(year_elem.text.strip())
         except ValueError:
             pass
-    # MedlineDate fallback, e.g. "2023 Jan-Feb"
+
     ml = article.find(".//PubDate/MedlineDate")
     if ml is not None and ml.text:
         for token in ml.text.split():
