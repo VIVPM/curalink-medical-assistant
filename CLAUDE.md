@@ -28,6 +28,11 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 | `backend-node/cache.js` | Query cache (Redis or Mongo fallback) + per-user cache deletion |
 | `frontend/src/components/LegalPage.jsx` | Privacy Notice + Terms of Use |
 | `backend-node/load_test.py` | Load test harness (spawns Express + stub FastAPI) |
+| `backend-node/middleware/auth.js` | Access (1h) and refresh (7d) JWTs; `authVersion` revokes refresh on logout |
+| `backend-node/own_keys.js` | Parses, validates, and forwards user-supplied provider keys |
+| `backend-python/own_keys.py` | Verifies HF / Cloudflare keys; builds per-request inference clients |
+| `frontend/src/session.js` | Tab-scoped `sessionStorage` tokens, auto-refresh, own-key headers |
+| `frontend/src/components/ApiKeySettings.jsx` | Own-API-key settings popup |
 | `.github/workflows/ci.yml` | CI: lint, unit tests, syntax, build, Docker images, gated Render deploy |
 
 ## Caching Layers
@@ -35,6 +40,15 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 1. **Query-result cache** — `query:<userId>:SHA-256(user|disease|intent|location|message|history)`, 24h TTL, Redis with Mongo fallback, skips entire pipeline
 2. **Semantic query cache** — cosine ≥0.97 on first-turn embeddings in Redis, bucketed per user + hashed disease/intent/location, skips pipeline
 3. **Embedding cache** — per (model, text) in Redis, 7-day TTL
+
+## Sessions and Own API Keys
+
+- Login is tab-scoped (`sessionStorage`); closing the tab logs out. Access tokens renew every 45 min and on 401 while the tab is open; logout increments `User.authVersion` to revoke refresh tokens
+- Auth rate limit applies only to signup/login; `/me` session checks are not throttled and only a 401 clears the session
+- Users may add their own keys in Settings: HF token always (embeddings + MedCPT + HF LLM); Cloudflare account ID + token also when `LLM_MODEL=CLOUDFLARE`
+- Keys are verified via `/keys/validate` (HF `whoami-v2`, Cloudflare account token verify), stored only in the browser tab, forwarded as `X-Provider-*` headers, never persisted or logged
+- Own-key requests skip the daily message cap and the exact/semantic caches, and mark user messages `ownKey: true` so they never count toward the free quota
+- Landing hero metrics: 98% scope-routing accuracy (`abstain_correct`), 93% citation coverage (`citations_grounded`), 2.3 s p95 API latency at 100 concurrent users (Render, stubbed pipeline)
 
 ## Commands
 
