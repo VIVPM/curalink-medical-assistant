@@ -1,17 +1,15 @@
 // Frontend session, streaming chat, and credit state.
 
 import { useState, useCallback, useRef } from "react";
+import { authFetch, getOwnKeys, ownKeyHeaders, removeSession, saveSession } from "../session";
 
 const API = `${import.meta.env.VITE_API_URL || ""}/api`;
 
 function getAuthHeaders() {
-  const token = localStorage.getItem("token");
-  const headers = { "Content-Type": "application/json" };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-  return headers;
+  return { "Content-Type": "application/json" };
 }
 
-export default function useChat({ onAuthExpired } = {}) {
+export default function useChat({ onAuthExpired, onOwnKeysRejected } = {}) {
   const [sessions, setSessions] = useState([]);
   const [activeSession, setActiveSession] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -25,7 +23,7 @@ export default function useChat({ onAuthExpired } = {}) {
 
   const fetchCredits = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/account/credits`, { headers: getAuthHeaders() });
+      const res = await authFetch(`${API}/account/credits`, { headers: getAuthHeaders() });
       const data = await res.json();
       if (data.ok) setCredits(data);
     } catch (error) {
@@ -34,13 +32,13 @@ export default function useChat({ onAuthExpired } = {}) {
   }, []);
 
   const fetchSessions = useCallback(async () => {
-    const res = await fetch(`${API}/sessions`, { headers: getAuthHeaders() });
+    const res = await authFetch(`${API}/sessions`, { headers: getAuthHeaders() });
     const data = await res.json();
     if (data.ok) setSessions(data.sessions);
   }, []);
 
   const createSession = useCallback(async (form) => {
-    const res = await fetch(`${API}/session`, {
+    const res = await authFetch(`${API}/session`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(form),
@@ -48,7 +46,7 @@ export default function useChat({ onAuthExpired } = {}) {
     const data = await res.json();
     if (data.ok) {
       setActiveSession(data.session);
-      localStorage.setItem("activeSessionId", data.session._id);
+      saveSession("activeSessionId", data.session._id);
       setMessages([]);
       fetchSessions();
       return data.session;
@@ -57,11 +55,11 @@ export default function useChat({ onAuthExpired } = {}) {
   }, [fetchSessions]);
 
   const loadSession = useCallback(async (id) => {
-    const res = await fetch(`${API}/session/${id}`, { headers: getAuthHeaders() });
+    const res = await authFetch(`${API}/session/${id}`, { headers: getAuthHeaders() });
     const data = await res.json();
     if (data.ok) {
       setActiveSession(data.session);
-      localStorage.setItem("activeSessionId", data.session._id);
+      saveSession("activeSessionId", data.session._id);
       setMessages(data.messages);
     }
   }, []);
@@ -85,9 +83,9 @@ export default function useChat({ onAuthExpired } = {}) {
     abortRef.current = controller;
 
     try {
-      const res = await fetch(`${API}/chat/stream`, {
+      const res = await authFetch(`${API}/chat/stream`, {
         method: "POST",
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), ...ownKeyHeaders() },
         signal: controller.signal,
         body: JSON.stringify({
           sessionId: activeSession._id,
@@ -103,20 +101,27 @@ export default function useChat({ onAuthExpired } = {}) {
         if (res.status === 401) {
           setActiveSession(null);
           setMessages([]);
-          localStorage.removeItem("activeSessionId");
+          removeSession("activeSessionId");
 
           if (onAuthExpired) {
             onAuthExpired();
           } else {
-            localStorage.removeItem("token");
+            removeSession("token");
             setMessages((prev) => [
               ...prev,
               { role: "assistant", content: "Your session expired. Please refresh the page and log in again.", _id: assistantId, error: true },
             ]);
           }
         } else {
+          const rejectedOwnKeys = res.status === 400 && Boolean(getOwnKeys());
+          if (rejectedOwnKeys) {
+            removeSession("ownKeys");
+            onOwnKeysRejected?.();
+          }
           const msg =
-            res.status === 402
+            rejectedOwnKeys
+              ? "API keys were rejected. Update them in Settings."
+              : res.status === 402
               ? "Daily limit reached. Resets at midnight UTC."
               : res.status === 404
               ? "This session no longer exists."
@@ -234,10 +239,10 @@ export default function useChat({ onAuthExpired } = {}) {
     abortRef.current = null;
     fetchSessions();
     fetchCredits();
-  }, [activeSession, loading, fetchSessions, fetchCredits, onAuthExpired]);
+  }, [activeSession, loading, fetchSessions, fetchCredits, onAuthExpired, onOwnKeysRejected]);
 
   const deleteSession = useCallback(async (id) => {
-    const res = await fetch(`${API}/session/${id}`, {
+    const res = await authFetch(`${API}/session/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });
@@ -251,7 +256,7 @@ export default function useChat({ onAuthExpired } = {}) {
     if (activeSession?._id === id) {
       setActiveSession(null);
       setMessages([]);
-      localStorage.removeItem("activeSessionId");
+      removeSession("activeSessionId");
     }
     return true;
   }, [activeSession, onAuthExpired]);
@@ -266,7 +271,7 @@ export default function useChat({ onAuthExpired } = {}) {
     setPipelineStage(null);
     setRetrievalCounts(null);
     setWaking(false);
-    localStorage.removeItem("activeSessionId");
+    removeSession("activeSessionId");
   }, []);
 
   const stopGeneration = useCallback(() => {

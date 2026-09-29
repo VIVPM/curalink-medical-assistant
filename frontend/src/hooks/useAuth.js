@@ -1,31 +1,28 @@
-// Frontend authentication and account lifecycle state.
+// Frontend authentication scoped to a browser tab with renewable access tokens.
 
 import { useState, useCallback, useEffect } from "react";
+import { authFetch, clearPrivateSession, readSession, refreshAccess, saveSession } from "../session";
 
 const API_ROOT = `${import.meta.env.VITE_API_URL || ""}/api`;
 const API = `${API_ROOT}/auth`;
 
 export default function useAuth() {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
-  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem("token")));
+  const [token, setToken] = useState(() => readSession("token"));
+  const [loading, setLoading] = useState(() => Boolean(readSession("token") || readSession("refreshToken")));
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token && !readSession("refreshToken")) return;
     let cancelled = false;
     let retryTimer;
 
-    // Only a 401 means the token is invalid. Rate limits, server errors, and
-    // network failures keep the token and retry with backoff.
     const checkSession = (attempt) => {
-      fetch(`${API}/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      authFetch(`${API}/me`)
         .then(async (res) => {
           if (cancelled) return;
           if (res.status === 401) {
-            localStorage.removeItem("token");
+            clearPrivateSession();
             setToken(null);
             setLoading(false);
             return;
@@ -33,6 +30,7 @@ export default function useAuth() {
           const data = await res.json();
           if (!res.ok || !data.ok) throw new Error(`session check failed: ${res.status}`);
           setUser(data.user);
+          setToken(readSession("token"));
           setLoading(false);
         })
         .catch(() => {
@@ -53,6 +51,17 @@ export default function useAuth() {
     };
   }, [token]);
 
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(refreshAccess, 45 * 60 * 1000);
+    const onVisible = () => { if (document.visibilityState === "visible") refreshAccess(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [user]);
+
   const signup = useCallback(async (name, email, password, acceptTerms) => {
     setError(null);
     const res = await fetch(`${API}/signup`, {
@@ -62,8 +71,9 @@ export default function useAuth() {
     });
     const data = await res.json();
     if (data.ok) {
-      localStorage.setItem("token", data.token);
-      localStorage.removeItem("activeSessionId");
+      clearPrivateSession();
+      saveSession("token", data.token);
+      saveSession("refreshToken", data.refreshToken);
       setToken(data.token);
       setUser(data.user);
       return true;
@@ -81,8 +91,9 @@ export default function useAuth() {
     });
     const data = await res.json();
     if (data.ok) {
-      localStorage.setItem("token", data.token);
-      localStorage.removeItem("activeSessionId");
+      clearPrivateSession();
+      saveSession("token", data.token);
+      saveSession("refreshToken", data.refreshToken);
       setToken(data.token);
       setUser(data.user);
       return true;
@@ -91,33 +102,28 @@ export default function useAuth() {
     return false;
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("activeSessionId");
+  const logout = useCallback(async () => {
+    try { await authFetch(`${API}/logout`, { method: "POST" }); } catch (error) { void error; }
+    clearPrivateSession();
     setToken(null);
     setUser(null);
   }, []);
 
   const deleteAccount = useCallback(async () => {
     setError(null);
-    const res = await fetch(`${API_ROOT}/account`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await authFetch(`${API_ROOT}/account`, { method: "DELETE" });
     if (!res.ok) {
       setError("Account deletion failed. Please try again.");
       return false;
     }
-    localStorage.removeItem("token");
-    localStorage.removeItem("activeSessionId");
+    clearPrivateSession();
     setToken(null);
     setUser(null);
     return true;
-  }, [token]);
+  }, []);
 
   const expire = useCallback(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("activeSessionId");
+    clearPrivateSession();
     setToken(null);
     setUser(null);
     setError("Your session expired. Please log in again.");
