@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function Sidebar({ sessions, activeId, onSelect, onDelete, onNew, userName, credits, onLogout, onDeleteAccount, onPrivacy, onTerms }) {
+export default function Sidebar({ sessions, activeId, onSelect, onDelete, onNew, userName, credits, usingOwnKeys, onSettings, onLogout, onDeleteAccount, onPrivacy, onTerms }) {
   const [collapsed, setCollapsed] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
   );
@@ -73,15 +73,17 @@ export default function Sidebar({ sessions, activeId, onSelect, onDelete, onNew,
             )}
           </div>
           <div className="sidebar-footer">
-            {credits && (
+            {!usingOwnKeys && credits && (
               <div className="credits-badge" title="Daily questions — resets at midnight UTC">
                 {credits.remaining}/{credits.cap} questions today
               </div>
             )}
+            {usingOwnKeys && <div className="own-keys-badge">Using your API keys</div>}
             <div className="user-info">
               <span className="user-avatar">{userName?.[0]?.toUpperCase()}</span>
               <span className="user-name">{userName}</span>
             </div>
+            <button className="settings-btn" onClick={onSettings}>API key settings</button>
             <div className="sidebar-legal-links">
               <button onClick={onPrivacy}>Privacy</button>
               <button onClick={onTerms}>Terms</button>
@@ -95,6 +97,7 @@ export default function Sidebar({ sessions, activeId, onSelect, onDelete, onNew,
         <div className="sidebar-collapsed-icons">
           <button className="collapsed-icon-btn" onClick={handleNew} title="New Research Session">+</button>
           <div className="sidebar-footer">
+            <button className="collapsed-settings-btn" onClick={onSettings} title="API key settings" aria-label="API key settings">⚙</button>
             <span className="user-avatar">{userName?.[0]?.toUpperCase()}</span>
           </div>
         </div>
