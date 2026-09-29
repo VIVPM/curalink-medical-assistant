@@ -16,13 +16,14 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **Multi-turn context awareness** — chat history and static form context are merged into every query expansion
 - **Clinical trial geo-filtering** — optional location input geocodes and filters trials within 100 miles via ClinicalTrials.gov geo API
 - **Privacy controls** — de-identified-use policy, 90-day session/message retention, per-session deletion, and complete account deletion from the UI
-- **JWT authentication** — signup/login with session persistence across page refreshes
+- **Tab-scoped sessions** — login lives only in the current browser tab (`sessionStorage`); closing the tab logs out, 1-hour access tokens renew automatically while the tab is open, and logout revokes renewal tokens
+- **Bring your own API keys** — a Settings popup accepts the user's own Hugging Face token (plus a Cloudflare account ID and token when Cloudflare is the LLM provider); keys are verified with the provider, kept only in the browser tab, and then power every AI stage, so daily credits are hidden and those questions never count against the free limit
 - **ChatGPT-style session sidebar** — click any past session to reopen it and keep asking; new messages append to that session's history
-- **Landing page** — a light, source-focused marketing page with an animated demo and account entry
+- **Landing page** — two-column hero with the pitch and sign-up on the left, and the animated research demo plus headline metrics (scope-routing accuracy, citation coverage, p95 API latency) on the right
 - **Responsive authenticated UI** — collapsed mobile navigation and diagnostics overlays verified at 390px and 430px widths
 - **Private service boundary** — a shared `INTERNAL_API_KEY` protects non-health FastAPI endpoints from direct public use
 - **Redis caching** — tenant-isolated exact + semantic query caches, document embeddings, and prompt-level responses on Upstash with a Mongo query-cache fallback
-- **Per-user credits + rate limiting** — 5 questions/day (DAILY_MESSAGE_CAP) plus per-IP / per-user limits on auth, chat, and session creation
+- **Per-user credits + rate limiting** — 5 questions/day (DAILY_MESSAGE_CAP) on platform keys, waived for users who bring their own keys, plus per-IP / per-user limits on auth, chat, and session creation
 - **Observability** — content-free LLM metadata to Langfuse plus HTTP spans and metrics to Grafana over OTLP
 - **CI/CD + Docker** — GitHub Actions (lint, syntax, build, image builds, gated Render deploy) and Dockerfiles for all three services
 - **Reliability (v1)** — Retry-After headers, graceful shutdown, idempotency keys, history summarization, user account deletion, 90-day data retention, structured output validation with repair, jittered retries, prompt-level LLM cache
@@ -111,6 +112,7 @@ curalink-medical-assistant/
 │       │   ├── Sidebar.jsx        # Session list sidebar
 │       │   ├── IntakeForm.jsx     # De-identified patient context (disease, intent, general location)
 │       │   ├── LegalPage.jsx      # Privacy notice + terms of use
+│       │   ├── ApiKeySettings.jsx # Own-API-key settings popup
 │       │   ├── ChatView.jsx       # Chat interface with message bubbles
 │       │   ├── StructuredResponse.jsx  # Renders overview + insights + trials
 │       │   ├── InsightCard.jsx    # Individual research insight with sources
@@ -120,12 +122,14 @@ curalink-medical-assistant/
 │       ├── hooks/
 │       │   ├── useAuth.js         # JWT auth state management
 │       │   └── useChat.js         # Chat + SSE streaming logic
+│       ├── session.js             # Tab-scoped tokens, token renewal, own-key headers
 │       └── App.jsx                # Root component with routing
 │
 ├── backend-node/                  # Express API (thin layer)
 │   ├── index.js                   # Server entry, health check, CORS
+│   ├── own_keys.js                # Validates and forwards user-supplied provider keys
 │   ├── routes/
-│   │   ├── auth.js                # POST /api/auth/signup, /login
+│   │   ├── auth.js                # Signup, login, token refresh, logout, current user
 │   │   ├── session.js             # POST /api/session, GET /api/sessions
 │   │   └── chat.js                # POST /api/chat/stream (SSE proxy to FastAPI)
 │   ├── models/
@@ -138,6 +142,7 @@ curalink-medical-assistant/
 │
 ├── backend-python/                # FastAPI orchestrator (AI pipeline)
 │   ├── main.py                    # FastAPI app, /pipeline/run, /pipeline/stream
+│   ├── own_keys.py                # Verifies user-supplied provider keys
 │   ├── llm_backend.py             # LLMBackend abstraction (HF + Cloudflare, multi-provider)
 │   ├── sources/
 │   │   ├── pubmed.py              # PubMed E-utilities (esearch + efetch)
@@ -422,6 +427,8 @@ Job API lifecycle (submit → poll → cancel) works end-to-end. Queue-depth met
 
 ### Bottom Line
 
+Headline figure: **2.3 s p95 API latency at 100 concurrent users** on Render production. This measures the Express API with the AI pipeline stubbed, not time to a research answer.
+
 The Express API layer handles **~50 concurrent users at < 1 s p95** before latency starts climbing, with **zero errors all the way to 300 users** both locally and on Render free tier. DB-backed routes actually speed up under load thanks to connection pool warming. V2 scale features (async jobs, webhooks) are functional and exercised by the test harness.
 
 ### Commands
@@ -452,13 +459,13 @@ python load_test.py --selftest
 
 | Check | Pass Rate | Description |
 |-------|-----------|-------------|
-| `abstain_correct` | 98% (49/50) | Non-medical queries correctly refused |
+| Scope-routing accuracy (`abstain_correct`) | 98% (49/50) | Declines non-medical queries and answers medical ones |
 | `has_overview` | 98% (41/42) | Response includes an overview paragraph |
 | `has_structure` | 98% (41/42) | Response has required top-level keys |
 | `min_trials_met` | 98% (41/42) | ≥1 clinical trial returned |
 | `topic_hit` | 98% (41/42) | Response addresses the queried topic |
 | `min_insights_met` | 93% (39/42) | ≥2 research insights with sources |
-| `citations_grounded` | 93% (39/42) | Every insight has a titled source |
+| Citation coverage (`citations_grounded`) | 93% (39/42) | Every insight is linked to a titled source (presence check, not entailment) |
 
 **Retrieval:** avg 6.4 insights/query, 5.7 trials/query, 656 resolved citation references. This structural metric does not verify that every claim is medically correct or entailed by its source.
 
