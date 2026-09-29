@@ -3,7 +3,7 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import User from "../models/User.js";
-import { signToken } from "../middleware/auth.js";
+import { signToken, signRefreshToken, verifyRefreshToken, authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -43,11 +43,12 @@ router.post("/signup", authLimiter, async (req, res) => {
     termsAcceptedAt: new Date(),
     termsVersion: "2026-09-25",
   });
-  const token = signToken(user._id);
+  const token = signToken(user._id, user.authVersion);
 
   res.status(201).json({
     ok: true,
     token,
+    refreshToken: signRefreshToken(user._id, user.authVersion),
     user: { _id: user._id, name: user.name, email: user.email },
   });
 });
@@ -70,34 +71,43 @@ router.post("/login", authLimiter, async (req, res) => {
     return res.status(401).json({ ok: false, error: "invalid credentials" });
   }
 
-  const token = signToken(user._id);
+  const token = signToken(user._id, user.authVersion);
 
   res.json({
     ok: true,
     token,
+    refreshToken: signRefreshToken(user._id, user.authVersion),
     user: { _id: user._id, name: user.name, email: user.email },
   });
 });
 
 
-router.get("/me", async (req, res) => {
-  const header = req.headers.authorization;
-  if (!header || !header.startsWith("Bearer ")) {
-    return res.status(401).json({ ok: false, error: "not authenticated" });
-  }
-
+router.post("/refresh", async (req, res) => {
   try {
-    const jwt = await import("jsonwebtoken");
-    const decoded = jwt.default.verify(
-      header.slice(7),
-      process.env.JWT_SECRET
-    );
-    const user = await User.findById(decoded.userId).select("-password");
-    if (!user) return res.status(401).json({ ok: false, error: "user not found" });
-    res.json({ ok: true, user });
+    const decoded = verifyRefreshToken(req.body.refreshToken);
+    const user = await User.findById(decoded.userId);
+    if (!user || user.authVersion !== decoded.authVersion) {
+      return res.status(401).json({ ok: false, error: "session expired" });
+    }
+    res.json({
+      ok: true,
+      token: signToken(user._id, user.authVersion),
+      refreshToken: signRefreshToken(user._id, user.authVersion),
+    });
   } catch {
-    return res.status(401).json({ ok: false, error: "invalid token" });
+    res.status(401).json({ ok: false, error: "session expired" });
   }
+});
+
+router.post("/logout", authMiddleware, async (req, res) => {
+  await User.updateOne({ _id: req.userId }, { $inc: { authVersion: 1 } });
+  res.json({ ok: true });
+});
+
+router.get("/me", authMiddleware, async (req, res) => {
+  const user = await User.findById(req.userId).select("-password");
+  if (!user) return res.status(401).json({ ok: false, error: "user not found" });
+  res.json({ ok: true, user });
 });
 
 export default router;

@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, minlength: 8 },
     termsAcceptedAt: { type: Date, default: null },
     termsVersion: { type: String, default: null },
+    authVersion: { type: Number, default: 0 },
 
 
 
