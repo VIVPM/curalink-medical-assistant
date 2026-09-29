@@ -9,7 +9,8 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from dotenv import load_dotenv
 
-from llm_backend import get_llm_backend
+from llm_backend import CloudflareBackend, HFBackend, get_llm_backend
+from own_keys import OwnKeys, credentials_from_headers, provider_name, validate_keys
 from embeddings.embedder import Embedder
 from sources.pubmed import fetch_pubmed
 from sources.openalex import fetch_openalex
@@ -375,17 +376,45 @@ class PipelineRequest(BaseModel):
         return v
 
 
+@app.get("/keys/provider")
+async def keys_provider():
+    """Report which user credentials cover every inference stage."""
+    return {"provider": provider_name()}
+
+
+@app.post("/keys/validate")
+async def keys_validate(keys: OwnKeys):
+    """Verify ephemeral user credentials with the selected providers."""
+    return {"ok": True, "provider": await validate_keys(keys)}
+
+
+def pipeline_clients(request: Request):
+    """Choose server or user-owned inference clients for one pipeline request."""
+    own = credentials_from_headers(request.headers)
+    if own is None:
+        embedder = models.get("embedder")
+        reranker = models.get("reranker")
+        if embedder is None or reranker is None:
+            raise HTTPException(status_code=503, detail="models not loaded")
+        return embedder, reranker, llm, False
+
+    embedder = Embedder(BIENCODER_MODEL, token=own.hf_token)
+    reranker = MedCPTReranker(token=own.hf_token)
+    if provider_name() == "cloudflare":
+        selected_llm = CloudflareBackend(own.cf_account_id, own.cf_token)
+    else:
+        selected_llm = HFBackend(own.hf_token, os.environ["LLM_MODEL"])
+    return embedder, reranker, selected_llm, True
+
+
 @app.post("/pipeline/run")
-async def pipeline_run(req: PipelineRequest):
+async def pipeline_run(req: PipelineRequest, request: Request):
     """
     Non-streaming version of the pipeline. Returns a single JSON response.
     Same logic as /pipeline/stream but without SSE.
     """
 
-    embedder = models.get("embedder")
-    reranker = models.get("reranker")
-    if embedder is None or reranker is None:
-        raise HTTPException(status_code=503, detail="models not loaded")
+    embedder, reranker, request_llm, uses_own_keys = pipeline_clients(request)
 
     stage_timings: dict = {}
     warnings: list[str] = []
@@ -393,7 +422,7 @@ async def pipeline_run(req: PipelineRequest):
     chat_history = req.dynamic.get("recentMessages", [])
 
     sem_emb = None
-    if not chat_history:
+    if not chat_history and not uses_own_keys:
         from semantic_cache import lookup
         hit, sem_emb = lookup(
             embedder,
@@ -415,7 +444,7 @@ async def pipeline_run(req: PipelineRequest):
         user_message=user_message,
         static_context=req.static,
         chat_history=chat_history,
-        llm=llm,
+        llm=request_llm,
     )
     stage_timings["query_expansion"] = round((time.perf_counter() - t0) * 1000)
 
@@ -485,7 +514,7 @@ async def pipeline_run(req: PipelineRequest):
     stage_timings["context_build"] = round((time.perf_counter() - t0) * 1000)
 
     t0 = time.perf_counter()
-    reasoner_output = await run_reasoner(payload, llm=llm, max_tokens=4000)
+    reasoner_output = await run_reasoner(payload, llm=request_llm, max_tokens=4000)
     stage_timings["llm"] = round((time.perf_counter() - t0) * 1000)
 
     t0 = time.perf_counter()
@@ -516,7 +545,7 @@ async def pipeline_run(req: PipelineRequest):
 
 
 @app.post("/pipeline/stream")
-async def pipeline_stream(req: PipelineRequest):
+async def pipeline_stream(req: PipelineRequest, request: Request):
     """
     SSE streaming version of /pipeline/run.
     Events:
@@ -527,10 +556,7 @@ async def pipeline_stream(req: PipelineRequest):
     """
     import json as _json
 
-    embedder = models.get("embedder")
-    reranker = models.get("reranker")
-    if embedder is None or reranker is None:
-        raise HTTPException(status_code=503, detail="models not loaded")
+    embedder, reranker, request_llm, uses_own_keys = pipeline_clients(request)
 
     async def event_generator():
         stage_timings: dict = {}
@@ -539,7 +565,7 @@ async def pipeline_stream(req: PipelineRequest):
         chat_history = req.dynamic.get("recentMessages", [])
 
         sem_emb = None
-        if not chat_history:
+        if not chat_history and not uses_own_keys:
             from semantic_cache import lookup
             hit, sem_emb = lookup(
                 embedder,
@@ -566,7 +592,7 @@ async def pipeline_stream(req: PipelineRequest):
             user_message=user_message,
             static_context=req.static,
             chat_history=chat_history,
-            llm=llm,
+            llm=request_llm,
         )
         stage_timings["query_expansion"] = round((time.perf_counter() - t0) * 1000)
 
@@ -652,7 +678,7 @@ async def pipeline_stream(req: PipelineRequest):
         t0 = time.perf_counter()
         full_text = ""
         try:
-            async for token in llm.generate_stream(
+            async for token in request_llm.generate_stream(
                 payload.user_prompt,
                 system_prompt=payload.system_prompt,
                 max_tokens=4000,
