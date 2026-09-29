@@ -22,6 +22,12 @@ const features = [
   { icon: Zap, title: "Real-time streaming", body: "Watch the pipeline work — expansion, retrieval, ranking, reasoning — and read the answer token by token as it's written." },
 ];
 
+const metrics = [
+  { value: "98%", label: "Scope-routing accuracy" },
+  { value: "93%", label: "Citation coverage" },
+  { value: "2.3 s", label: "p95 API latency at 100 concurrent users" },
+];
+
 const steps = [
   { n: "01", title: "Ask", body: "Set the disease and intent once, then ask in plain language." },
   { n: "02", title: "Retrieve & rank", body: "Three research sources are searched, de-duplicated, and ranked by a medical-domain funnel." },
@@ -130,26 +136,38 @@ export default function LandingPage({ onGetStarted, onSignIn, onPrivacy, onTerms
       </nav>
 
       <header className="l-container l-hero">
-        <div className="l-eyebrow">AI MEDICAL RESEARCH ASSISTANT</div>
-        <h1 className="l-display">Research answers,<br />backed by sources.</h1>
-        <p className="l-lead">
-          Ask about any disease. Curalink searches PubMed, OpenAlex, and
-          ClinicalTrials.gov, reasons over relevant studies, and streams back a structured
-          answer with sources you can inspect.
-        </p>
-        <div className="l-hero-cta">
-          <button className="l-btn l-btn-primary l-btn-lg" onClick={onGetStarted}>
-            Get started <Arrow size={16} />
-          </button>
-          <button className="l-btn l-btn-secondary l-btn-lg" onClick={onSignIn}>Sign in</button>
+        <div className="l-hero-copy">
+          <div className="l-eyebrow">AI MEDICAL RESEARCH ASSISTANT</div>
+          <h1 className="l-display">Research answers,<br />backed by sources.</h1>
+          <p className="l-lead">
+            Ask about any disease. Curalink searches PubMed, OpenAlex, and
+            ClinicalTrials.gov, reasons over relevant studies, and streams back a structured
+            answer with sources you can inspect.
+          </p>
+          <div className="l-hero-cta">
+            <button className="l-btn l-btn-primary l-btn-lg" onClick={onGetStarted}>
+              Get started <Arrow size={16} />
+            </button>
+            <button className="l-btn l-btn-secondary l-btn-lg" onClick={onSignIn}>Sign in</button>
+          </div>
         </div>
 
-        <div className="l-mock">
-          <div className="l-mock-bar">
-            <span className="l-dot" /><span className="l-dot" /><span className="l-dot" />
-            <span className="l-mock-title">Curalink Research Assistant</span>
+        <div className="l-hero-demo">
+          <div className="l-mock">
+            <div className="l-mock-bar">
+              <span className="l-dot" /><span className="l-dot" /><span className="l-dot" />
+              <span className="l-mock-title">Curalink Research Assistant</span>
+            </div>
+            <ChatDemo />
           </div>
-          <ChatDemo />
+          <div className="l-metrics">
+            {metrics.map((m) => (
+              <div className="l-metric" key={m.label}>
+                <strong>{m.value}</strong>
+                <span>{m.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </header>
 
