@@ -40,6 +40,21 @@ test("session checks are not throttled by the credential rate limit", async () =
   });
 });
 
+test("refresh rejects access tokens and malformed refresh tokens", async () => {
+  process.env.JWT_SECRET = "auth-refresh-test-secret";
+  const { signToken } = await import("../middleware/auth.js");
+  await withServer(async (port) => {
+    for (const refreshToken of [signToken("user-a"), "not-a-token"]) {
+      const response = await fetch(`http://127.0.0.1:${port}/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
+      assert.equal(response.status, 401);
+    }
+  });
+});
+
 test("signup is still rate limited", async () => {
   await withServer(async (port) => {
     const limit = Number(process.env.AUTH_RATE_MAX) || 20;
