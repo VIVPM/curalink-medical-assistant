@@ -57,9 +57,10 @@ class LLMBackend(ABC):
 class HFBackend(LLMBackend):
     """HuggingFace Inference API backend using huggingface_hub InferenceClient."""
 
-    def __init__(self, token: str, model: str):
+    def __init__(self, token: str, model: str, use_cache: bool = True):
         self.token = token
         self.model = model
+        self.use_cache = use_cache
         from huggingface_hub import InferenceClient
         self.client = InferenceClient(model=model, token=token)
         self._sem = asyncio.Semaphore(_LLM_CONCURRENCY)
@@ -92,7 +93,7 @@ class HFBackend(LLMBackend):
 
 
         from redis_cache import get_prompt_cache, set_prompt_cache
-        cached = get_prompt_cache(self.model, sys, prompt)
+        cached = get_prompt_cache(self.model, sys, prompt) if self.use_cache else None
         if cached is not None:
             logger.info("[hf] prompt cache hit (%d chars)", len(cached))
             return cached
@@ -110,7 +111,8 @@ class HFBackend(LLMBackend):
             text = resp.choices[0].message.content or ""
             obs.set_generation_output(span, text)
 
-        set_prompt_cache(self.model, sys, prompt, text)
+        if self.use_cache:
+            set_prompt_cache(self.model, sys, prompt, text)
         return text
 
     async def generate_stream(self, prompt, *, system_prompt=None, max_tokens=800,
@@ -142,9 +144,10 @@ class HFBackend(LLMBackend):
 class CloudflareBackend(LLMBackend):
     """Cloudflare Workers AI backend via httpx (OpenAI wire format)."""
 
-    def __init__(self, account_id: str, api_token: str):
+    def __init__(self, account_id: str, api_token: str, use_cache: bool = True):
         import httpx as _httpx
         self.model = "@cf/openai/gpt-oss-20b"
+        self.use_cache = use_cache
         self._max_tokens = 4096
         self._base = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1"
         self._headers = {
@@ -169,7 +172,7 @@ class CloudflareBackend(LLMBackend):
 
 
         from redis_cache import get_prompt_cache, set_prompt_cache
-        cached = get_prompt_cache(self.model, sys, prompt)
+        cached = get_prompt_cache(self.model, sys, prompt) if self.use_cache else None
         if cached is not None:
             logger.info("[cf] prompt cache hit (%d chars)", len(cached))
             return cached
@@ -195,7 +198,8 @@ class CloudflareBackend(LLMBackend):
                             r.raise_for_status()
                             text = (r.json()["choices"][0]["message"].get("content") or "").strip()
                             obs.set_generation_output(span, text)
-                            set_prompt_cache(self.model, sys, prompt, text)
+                            if self.use_cache:
+                                set_prompt_cache(self.model, sys, prompt, text)
                             return text
                     except Exception as e:
                         if attempt == _MAX_RETRIES:
