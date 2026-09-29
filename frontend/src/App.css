@@ -1706,3 +1706,40 @@
   .timing-label { width: 90px; }
   .timing-value { width: 48px; }
 }
+
+.own-keys-badge { color: #129485; font-size: 11px; text-align: center; }
+.settings-btn, .collapsed-settings-btn {
+  background: none; border: 1px solid #cdd2d9; color: #555;
+  border-radius: 6px; padding: 6px 10px; cursor: pointer;
+  font: inherit; font-size: 12px;
+}
+.settings-btn:hover, .collapsed-settings-btn:hover { border-color: #17b8a6; color: #129485; }
+.collapsed-settings-btn { padding: 5px; width: 28px; margin-bottom: 8px; }
+.api-keys-dialog {
+  width: min(460px, calc(100vw - 32px)); max-height: calc(100dvh - 32px);
+  margin: auto; padding: 24px; overflow-y: auto;
+  border: 1px solid #e2e5ea; border-radius: 16px;
+  background: #fff; color: #1a1a2e;
+  box-shadow: 0 16px 48px rgba(26, 26, 46, 0.18);
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+}
+.api-keys-dialog::backdrop { background: rgba(20, 28, 36, 0.52); }
+.api-keys-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.api-keys-heading h2 { font-size: 21px; }
+.api-keys-heading button { border: 0; background: none; cursor: pointer; font-size: 25px; color: #777; }
+.api-keys-dialog p { margin: 12px 0; font-size: 13px; line-height: 1.5; color: #555; }
+.api-keys-dialog label:not(.api-keys-reveal) { display: block; margin: 16px 0 6px; font-size: 13px; font-weight: 600; }
+.api-keys-dialog label span { font-weight: 400; color: #777; }
+.api-keys-dialog input:not([type="checkbox"]) {
+  width: 100%; padding: 10px 12px; border: 1px solid #cdd2d9; border-radius: 8px;
+  color: #1a1a2e; background: #fff; font: inherit; font-size: 14px;
+}
+.api-keys-dialog input:focus-visible, .api-keys-dialog button:focus-visible { outline: 2px solid #129485; outline-offset: 2px; }
+.api-keys-reveal { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; }
+.api-keys-dialog .api-keys-error { color: #b23b3b; }
+.api-keys-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.api-keys-actions button { padding: 9px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.api-keys-save { background: #17b8a6; color: #fff; border: 1px solid #17b8a6; }
+.api-keys-save:disabled { opacity: 0.5; cursor: not-allowed; }
+.api-keys-cancel { background: #fff; color: #333; border: 1px solid #cdd2d9; }
+.api-keys-remove { background: #fff; color: #b23b3b; border: 1px solid #e4baba; margin-right: auto; }

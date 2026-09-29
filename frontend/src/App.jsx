@@ -1,6 +1,6 @@
 // Root application flow for landing, authentication, legal, and research views.
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useAuth from "./hooks/useAuth";
 import useChat from "./hooks/useChat";
 import AuthPage from "./components/AuthPage";
@@ -9,10 +9,19 @@ import LegalPage from "./components/LegalPage";
 import Sidebar from "./components/Sidebar";
 import IntakeForm from "./components/IntakeForm";
 import ChatView from "./components/ChatView";
+import ApiKeySettings from "./components/ApiKeySettings";
+import { getOwnKeys, readSession, removeSession, saveSession } from "./session";
 import "./App.css";
 
 export default function App() {
   const { user, loading: authLoading, error: authError, signup, login, logout, deleteAccount, expire } = useAuth();
+  const [ownKeys, setOwnKeys] = useState(getOwnKeys);
+  const [showKeySettings, setShowKeySettings] = useState(false);
+  const clearOwnKeyState = useCallback(() => setOwnKeys(null), []);
+  const handleExpire = useCallback(() => {
+    setOwnKeys(null);
+    expire();
+  }, [expire]);
 
   const {
     sessions,
@@ -34,14 +43,14 @@ export default function App() {
     resetChat,
     setActiveSession,
     setMessages,
-  } = useChat({ onAuthExpired: expire });
+  } = useChat({ onAuthExpired: handleExpire, onOwnKeysRejected: clearOwnKeyState });
 
   const [showForm, setShowForm] = useState(
-    () => !localStorage.getItem("activeSessionId")
+    () => !readSession("activeSessionId")
   );
 
   const [rehydrating, setRehydrating] = useState(
-    () => Boolean(localStorage.getItem("token") && localStorage.getItem("activeSessionId"))
+    () => Boolean(readSession("token") && readSession("activeSessionId"))
   );
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState("login");
@@ -54,7 +63,7 @@ export default function App() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) return;
-    const lastId = localStorage.getItem("activeSessionId");
+    const lastId = readSession("activeSessionId");
     if (!lastId) return;
     loadSession(lastId)
       .then(() => setShowForm(false))
@@ -100,15 +109,29 @@ export default function App() {
     );
   }
 
+  const saveOwnKeys = (keys) => {
+    if (!saveSession("ownKeys", JSON.stringify(keys))) return false;
+    setOwnKeys(keys);
+    fetchCredits();
+    return true;
+  };
+
+  const removeOwnKeys = () => {
+    removeSession("ownKeys");
+    setOwnKeys(null);
+    fetchCredits();
+  };
+
   const handleNewSession = () => {
     setActiveSession(null);
     setMessages([]);
     setShowForm(true);
-    localStorage.removeItem("activeSessionId");
+    removeSession("activeSessionId");
   };
 
   const handleLogout = () => {
     resetChat();
+    setOwnKeys(null);
     setShowForm(true);
     logout();
   };
@@ -134,6 +157,7 @@ export default function App() {
     const deleted = await deleteAccount();
     if (deleted) {
       resetChat();
+      setOwnKeys(null);
       setShowForm(true);
       setShowAuth(false);
     } else window.alert("Account deletion failed. Please try again.");
@@ -149,6 +173,8 @@ export default function App() {
         onNew={handleNewSession}
         userName={user.name}
         credits={credits}
+        usingOwnKeys={Boolean(ownKeys)}
+        onSettings={() => setShowKeySettings(true)}
         onLogout={handleLogout}
         onDeleteAccount={handleDeleteAccount}
         onPrivacy={() => setLegalPage("privacy")}
@@ -172,6 +198,14 @@ export default function App() {
           />
         )}
       </main>
+      {showKeySettings && (
+        <ApiKeySettings
+          current={ownKeys}
+          onSave={saveOwnKeys}
+          onRemove={removeOwnKeys}
+          onClose={() => setShowKeySettings(false)}
+        />
+      )}
     </div>
   );
 }
