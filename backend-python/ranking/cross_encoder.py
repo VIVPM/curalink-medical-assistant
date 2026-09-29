@@ -19,9 +19,9 @@ HF_TOKEN = os.getenv("HF_TOKEN", "")
 class MedCPTReranker:
     """Calls MedCPT cross-encoder via HF Inference API."""
 
-    def __init__(self, model_name: str = DEFAULT_MODEL):
+    def __init__(self, model_name: str = DEFAULT_MODEL, token: str | None = None):
         self.model_name = model_name
-        self.client = InferenceClient(model=model_name, token=HF_TOKEN)
+        self.client = InferenceClient(model=model_name, token=token or HF_TOKEN)
 
     def _doc_text(self, doc: Document) -> str:
         parts: list[str] = []

@@ -19,10 +19,10 @@ RETRY_BACKOFF = 2.0
 
 
 class Embedder:
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, token: str | None = None):
         self.model_name = model_name
         self._dim = 768
-        self.client = InferenceClient(model=model_name, token=HF_TOKEN)
+        self.client = InferenceClient(model=model_name, token=token or HF_TOKEN)
 
     @property
     def dim(self) -> int:
