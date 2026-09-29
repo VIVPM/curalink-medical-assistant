@@ -10,8 +10,18 @@ function jwtSecret() {
   return s;
 }
 
-export function signToken(userId) {
-  return jwt.sign({ userId }, jwtSecret(), { expiresIn: "1h" });
+export function signToken(userId, authVersion = 0) {
+  return jwt.sign({ userId, authVersion, type: "access" }, jwtSecret(), { expiresIn: "1h" });
+}
+
+export function signRefreshToken(userId, authVersion = 0) {
+  return jwt.sign({ userId, authVersion, type: "refresh" }, jwtSecret(), { expiresIn: "7d" });
+}
+
+export function verifyRefreshToken(token) {
+  const decoded = jwt.verify(token, jwtSecret());
+  if (decoded.type !== "refresh") throw new Error("invalid refresh token");
+  return decoded;
 }
 
 export function authMiddleware(req, res, next) {
@@ -23,6 +33,7 @@ export function authMiddleware(req, res, next) {
   try {
     const token = header.slice(7);
     const decoded = jwt.verify(token, jwtSecret());
+    if (decoded.type !== "access") throw new Error("invalid access token");
     req.userId = decoded.userId;
     next();
   } catch {
