@@ -8,6 +8,7 @@ import Message from "../models/Message.js";
 import User from "../models/User.js";
 import { cacheGet, cacheSet } from "../cache.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { ownKeysFromRequest, providerHeaders, validateOwnKeys } from "../own_keys.js";
 
 const router = Router();
 
@@ -25,6 +26,7 @@ async function messagesUsedToday(userId) {
   return Message.countDocuments({
     sessionId: { $in: sessionIds },
     role: "user",
+    ownKey: { $ne: true },
     createdAt: { $gte: since },
   });
 }
@@ -86,6 +88,17 @@ function emergencyResponse() {
   };
 }
 
+async function checkedOwnKeys(req, res) {
+  try {
+    const keys = ownKeysFromRequest(req);
+    if (keys) await validateOwnKeys(keys);
+    return { keys };
+  } catch (error) {
+    res.status(error.status || 503).json({ ok: false, error: error.message });
+    return null;
+  }
+}
+
 router.use(authMiddleware);
 router.use(chatLimiter);
 
@@ -116,8 +129,12 @@ router.post("/chat", async (req, res) => {
     });
   }
 
-  const used = await messagesUsedToday(req.userId);
-  if (used >= DAILY_MESSAGE_CAP) {
+  const checked = await checkedOwnKeys(req, res);
+  if (!checked) return;
+  const ownKeys = checked.keys;
+
+  const used = ownKeys ? 0 : await messagesUsedToday(req.userId);
+  if (!ownKeys && used >= DAILY_MESSAGE_CAP) {
     return res
       .status(402)
       .json({ ok: false, error: `Daily limit reached (${DAILY_MESSAGE_CAP} questions/day). Resets at midnight UTC.` });
@@ -137,6 +154,7 @@ router.post("/chat", async (req, res) => {
     sessionId,
     role: "user",
     content: message.trim(),
+    ownKey: Boolean(ownKeys),
   });
 
   const ckey = cacheKey(
@@ -147,7 +165,7 @@ router.post("/chat", async (req, res) => {
     message,
     recentMessages
   );
-  const cachedResponse = await cacheGet(ckey);
+  const cachedResponse = ownKeys ? null : await cacheGet(ckey);
   if (cachedResponse) {
     const assistantMsg = await Message.create({
       sessionId,
@@ -188,6 +206,7 @@ router.post("/chat", async (req, res) => {
       headers: {
         "Content-Type": "application/json",
         "X-Internal-API-Key": process.env.INTERNAL_API_KEY,
+        ...providerHeaders(ownKeys),
       },
       body: JSON.stringify(pipelineBody),
     });
@@ -219,7 +238,7 @@ router.post("/chat", async (req, res) => {
     $inc: { messageCount: 2 },
   });
 
-  if (!pipelineResult.abstain_reason) {
+  if (!ownKeys && !pipelineResult.abstain_reason) {
     await cacheSet(ckey, pipelineResult, CACHE_TTL_MS);
   }
 
@@ -260,8 +279,12 @@ router.post("/chat/stream", async (req, res) => {
     return res.end();
   }
 
-  const used = await messagesUsedToday(req.userId);
-  if (used >= DAILY_MESSAGE_CAP) {
+  const checked = await checkedOwnKeys(req, res);
+  if (!checked) return;
+  const ownKeys = checked.keys;
+
+  const used = ownKeys ? 0 : await messagesUsedToday(req.userId);
+  if (!ownKeys && used >= DAILY_MESSAGE_CAP) {
     return res
       .status(402)
       .json({ ok: false, error: `Daily limit reached (${DAILY_MESSAGE_CAP} questions/day). Resets at midnight UTC.` });
@@ -281,6 +304,7 @@ router.post("/chat/stream", async (req, res) => {
     sessionId,
     role: "user",
     content: message.trim(),
+    ownKey: Boolean(ownKeys),
   });
 
   const pipelineBody = {
@@ -310,7 +334,7 @@ router.post("/chat/stream", async (req, res) => {
     message,
     recentMessages
   );
-  const cachedResponse = await cacheGet(ckey);
+  const cachedResponse = ownKeys ? null : await cacheGet(ckey);
   if (cachedResponse) {
     res.write(`event: status\ndata: {"stage":"cache_hit","message":"Served from cache"}\n\n`);
     res.write(`event: metadata\ndata: ${JSON.stringify(cachedResponse)}\n\n`);
@@ -333,6 +357,7 @@ router.post("/chat/stream", async (req, res) => {
       headers: {
         "Content-Type": "application/json",
         "X-Internal-API-Key": process.env.INTERNAL_API_KEY,
+        ...providerHeaders(ownKeys),
       },
       body: JSON.stringify(pipelineBody),
     });
@@ -389,7 +414,7 @@ router.post("/chat/stream", async (req, res) => {
         $inc: { messageCount: 2 },
       });
 
-      if (!metadataJson.abstain_reason) {
+      if (!ownKeys && !metadataJson.abstain_reason) {
         await cacheSet(ckey, metadataJson, CACHE_TTL_MS);
       }
     }

@@ -10,6 +10,7 @@ import sessionRouter from "./routes/session.js";
 import chatRouter from "./routes/chat.js";
 import { cacheDeleteUser, redisStatus } from "./cache.js";
 import { authMiddleware } from "./middleware/auth.js";
+import { validateOwnKeys } from "./own_keys.js";
 import Message from "./models/Message.js";
 import Session from "./models/Session.js";
 import User from "./models/User.js";
@@ -92,6 +93,27 @@ app.use("/api", chatRouter);
 
 const DAILY_MESSAGE_CAP = Number(process.env.DAILY_MESSAGE_CAP) || 5;
 
+app.get("/api/account/keys/provider", authMiddleware, async (req, res) => {
+  try {
+    const response = await fetch(`${FASTAPI_URL}/keys/provider`, {
+      headers: { "X-Internal-API-Key": process.env.INTERNAL_API_KEY },
+    });
+    if (!response.ok) return res.status(503).json({ ok: false, error: "Provider unavailable" });
+    res.json(await response.json());
+  } catch {
+    res.status(503).json({ ok: false, error: "Provider unavailable" });
+  }
+});
+
+app.post("/api/account/keys/validate", authMiddleware, async (req, res) => {
+  try {
+    await validateOwnKeys(req.body);
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(error.status || 503).json({ ok: false, error: error.message });
+  }
+});
+
 app.get("/api/account/credits", authMiddleware, async (req, res) => {
   const since = new Date();
   since.setUTCHours(0, 0, 0, 0);
@@ -100,6 +122,7 @@ app.get("/api/account/credits", authMiddleware, async (req, res) => {
     ? await Message.countDocuments({
         sessionId: { $in: sessionIds },
         role: "user",
+        ownKey: { $ne: true },
         createdAt: { $gte: since },
       })
     : 0;

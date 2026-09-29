@@ -16,6 +16,7 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
     content: { type: String, required: true },
+    ownKey: { type: Boolean, default: false },
     structuredResponse: { type: mongoose.Schema.Types.Mixed, default: null },
     pipelineMeta: { type: mongoose.Schema.Types.Mixed, default: null },
   },
