@@ -29,7 +29,6 @@ ALLOWED_HOSTS: frozenset[str] = frozenset({
 
     "us.cloud.langfuse.com",
     "cloud.langfuse.com",
-    "otlp-gateway-prod-ap-south-1.grafana.net",
 })
 
 
