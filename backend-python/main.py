@@ -81,10 +81,8 @@ async def require_internal_api_key(request: Request, call_next):
     return await call_next(request)
 
 
-from observability import init_observability, init_http_tracing, init_metrics, record_message
+from observability import init_observability
 init_observability()
-init_http_tracing(app)
-init_metrics()
 
 
 class EmbedRequest(BaseModel):
@@ -434,7 +432,6 @@ async def pipeline_run(req: PipelineRequest, request: Request):
         )
         if hit is not None:
             hit.setdefault("pipelineMeta", {})["semantic_cache"] = True
-            record_message("cache")
             return hit
 
     t_pipeline = time.perf_counter()
@@ -540,7 +537,6 @@ async def pipeline_run(req: PipelineRequest, request: Request):
             assembled.user_facing_json,
         )
 
-    record_message("ok")
     return assembled.user_facing_json
 
 
@@ -580,7 +576,6 @@ async def pipeline_stream(req: PipelineRequest, request: Request):
                 yield "event: status\ndata: {\"stage\":\"semantic_cache\",\"message\":\"Served from semantic cache\"}\n\n"
                 yield f"event: metadata\ndata: {_json.dumps(hit)}\n\n"
                 yield "event: done\ndata: {}\n\n"
-                record_message("cache")
                 return
 
         t_pipeline = time.perf_counter()
@@ -730,8 +725,6 @@ async def pipeline_stream(req: PipelineRequest, request: Request):
                 sem_emb,
                 assembled.user_facing_json,
             )
-
-        record_message("ok")
 
     return StreamingResponse(
         event_generator(),
