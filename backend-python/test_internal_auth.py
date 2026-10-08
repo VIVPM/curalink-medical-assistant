@@ -11,8 +11,6 @@ os.environ["LLM_MODEL"] = "test/model"
 os.environ["HF_TOKEN"] = "test-token"
 os.environ["LANGFUSE_PUBLIC_KEY"] = ""
 os.environ["LANGFUSE_SECRET_KEY"] = ""
-os.environ["GRAFANA_OTLP_ENDPOINT"] = ""
-os.environ["GRAFANA_OTLP_AUTH"] = ""
 
 app = importlib.import_module("main").app
 
