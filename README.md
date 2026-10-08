@@ -22,7 +22,7 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **Private service boundary** — a shared `INTERNAL_API_KEY` protects non-health FastAPI endpoints from direct public use
 - **Redis caching** — tenant-isolated exact + semantic query caches and a document-embedding cache on Upstash, with a Mongo query-cache fallback
 - **Per-user credits + rate limiting** — 5 questions/day (DAILY_MESSAGE_CAP) on platform keys, waived for users who bring their own keys, plus per-IP / per-user limits on auth, chat, and session creation
-- **Observability** — content-free LLM metadata to Langfuse plus HTTP spans and metrics to Grafana over OTLP
+- **Observability** — content-free LLM metadata to Langfuse over OTLP
 - **CI/CD + Docker** — GitHub Actions (lint, unit tests, syntax, build, image builds, gated Render deploy) and Dockerfiles for all three services
 
 ## 🏗️ Architecture
@@ -67,7 +67,7 @@ graph TD
     end
 
     Cache["🗄️ Caching · cross-cutting<br>exact + semantic query cache · doc-embedding cache"]
-    OBS["📈 Observability · cross-cutting<br>Content-free LLM metadata (Langfuse) · HTTP/metrics (Grafana)"]
+    OBS["📈 Observability · cross-cutting<br>Content-free LLM metadata (Langfuse)"]
 
     User --> CLIENT
     CLIENT -->|HTTP + JWT + SSE| API
@@ -79,7 +79,6 @@ graph TD
     S6 -->|generate| HF
     ORCH -->|embedding + semantic cache| Redis
     ORCH -.->|hit / miss| Cache
-    API -.->|HTTP traces · metrics| OBS
     ORCH -.->|LLM traces| OBS
 ```
 

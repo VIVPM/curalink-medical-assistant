@@ -22,7 +22,7 @@ One provider active at a time. Factory: `get_llm_backend()` in `llm_backend.py`.
 | `backend-python/main.py` | FastAPI app, /pipeline/run, /pipeline/stream, `X-Internal-API-Key` middleware |
 | `backend-python/stages/` | 7-stage RAG pipeline (query expansion → response assembly); recommendations must cite sources |
 | `backend-python/semantic_cache.py` | Tenant-isolated semantic query cache (`semq:<userId>:<hash>`) |
-| `backend-python/observability.py` | Content-free LLM/HTTP telemetry and metrics exporters |
+| `backend-python/observability.py` | Content-free LLM generation traces exported to Langfuse via OTLP |
 | `backend-node/index.js` | Express server, health, CORS, credits, DELETE /api/account |
 | `backend-node/routes/chat.js` | POST /chat, /chat/stream (SSE proxy), tenant cache keys, urgent-use diversion |
 | `backend-node/cache.js` | Query cache (Redis or Mongo fallback) + per-user cache deletion |
