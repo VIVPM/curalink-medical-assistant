@@ -352,8 +352,12 @@ def ramp_report(rows, args, tag):
     print(f"  SLO: <1% errors AND fast-path p95 < 3x the {rows[0]['concurrency'] if rows else '?'}-user baseline")
     print("  Measured on THIS machine — a different box / the real Render instance will")
     print("  shift the number; re-run there (or with --base-url) before trusting it.")
+    total_req = sum(r["requests"] for r in rows)
+    total_err = sum(r["errors"] for r in rows)
+    print(f"\n  Total: {total_req} requests, {total_err} errors across {len(rows)} level(s)")
     _save(f"ramp_{_stamp()}.json", {"tag": tag, "config": vars(args), "levels": rows,
-                                    "estimated_ceiling": ceiling})
+                                    "estimated_ceiling": ceiling,
+                                    "total_requests": total_req, "total_errors": total_err})
 
 
 def idle_saturated_report(idle, sat, args, tag):
@@ -505,6 +509,17 @@ def main():
         assert pctl([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 50) == 5
         assert pctl([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 95) == 10
         assert pctl([5], 50) == 5 and math.isnan(pctl([], 50))
+        assert pctl([3, 1, 2], 99) == 3
+        _save("selftest_probe.json", {"probe": True})
+        probe_path = os.path.join(RESULTS_DIR, "selftest_probe.json")
+        assert os.path.isfile(probe_path)
+        with open(probe_path) as f:
+            assert json.load(f)["probe"] is True
+        os.remove(probe_path)
+        for fn in (serve_stub, wait_for_health, ensure_user, seed_sessions,
+                   cleanup_sessions, hammer, run_ramp, run_smoke,
+                   test_job_api, test_queue_depth, test_webhook_crud):
+            assert callable(fn), f"{fn} not callable"
         print("selftest ok")
         return
 
