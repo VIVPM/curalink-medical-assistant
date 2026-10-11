@@ -22,7 +22,7 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **Landing page** — two-column hero with the pitch and sign-up on the left, and the animated research demo plus headline metrics (scope-routing accuracy, citation coverage, p95 API latency) on the right
 - **Responsive authenticated UI** — collapsed mobile navigation and diagnostics overlays verified at 390px and 430px widths
 - **Private service boundary** — a shared `INTERNAL_API_KEY` protects non-health FastAPI endpoints from direct public use
-- **Redis caching** — tenant-isolated exact + semantic query caches, document embeddings, and prompt-level responses on Upstash with a Mongo query-cache fallback
+- **Redis caching** — tenant-isolated exact + semantic query caches, document embeddings, and prompt-level responses on Upstash with a Postgres query-cache fallback
 - **Per-user credits + rate limiting** — 5 questions/day (DAILY_MESSAGE_CAP) on platform keys, waived for users who bring their own keys, plus per-IP / per-user limits on auth, chat, and session creation
 - **Observability** — content-free LLM metadata to Langfuse over OTLP
 - **CI/CD + Docker** — GitHub Actions (lint, syntax, build, image builds, gated Render deploy) and Dockerfiles for all three services
@@ -60,8 +60,8 @@ graph TD
         S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
     end
 
-    subgraph DATA ["4 · Data — MongoDB Atlas + Redis (Upstash)"]
-        Mongo[("MongoDB · users · sessions · messages")]
+    subgraph DATA ["4 · Data — Neon Postgres + Redis (Upstash)"]
+        DB[("Postgres · users · sessions · messages")]
         Redis[("Redis · query + embedding + semantic caches")]
     end
 
@@ -75,7 +75,7 @@ graph TD
 
     User --> CLIENT
     CLIENT -->|HTTP + JWT + SSE| API
-    API -->|users · sessions · messages| Mongo
+    API -->|users · sessions · messages| DB
     API -->|query cache| Redis
     API -->|POST /pipeline/stream| ORCH
     S2 -->|parallel httpx| Src
@@ -131,11 +131,7 @@ curalink-medical-assistant/
 │   │   ├── auth.js                # Signup, login, token refresh, logout, current user
 │   │   ├── session.js             # POST /api/session, GET /api/sessions
 │   │   └── chat.js                # POST /api/chat/stream (SSE proxy to FastAPI)
-│   ├── models/
-│   │   ├── User.js                # Mongoose user schema (bcrypt hashed)
-│   │   ├── Session.js             # Static context + metadata
-│   │   ├── Message.js             # Chat history + structured responses
-│   │   └── Cache.js               # Tenant-isolated query-response cache fallback (24h TTL)
+│   ├── db.js                      # Postgres pool, schema bootstrap, retention purge, row mappers
 │   └── middleware/
 │       └── auth.js                # JWT verification middleware
 │
@@ -179,7 +175,7 @@ curalink-medical-assistant/
 
 - **Node.js** ≥ 18
 - **Python** ≥ 3.10
-- **MongoDB Atlas** account (free M0 cluster)
+- **Neon** Postgres database (free tier)
 - **HuggingFace** account with API token
 - **NCBI API key** (optional but recommended — lifts rate limit from 3 to 10 req/sec)
 
@@ -239,7 +235,7 @@ cp backend-node/.env.example backend-node/.env
 
 | Variable | Description |
 |----------|-------------|
-| `MONGO_URI` | MongoDB Atlas connection string |
+| `DATABASE_URL` | Neon Postgres connection string (`.../curalink?sslmode=verify-full`) |
 | `FASTAPI_URL` | FastAPI orchestrator URL (default: `http://localhost:8000`) |
 | `JWT_SECRET` | Secret for signing JWT tokens |
 | `INTERNAL_API_KEY` | **Required.** Same shared secret configured on FastAPI |
@@ -272,9 +268,9 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
 | **Frontend** | React + Vite | Responsive research chat, de-identified intake, structured source rendering |
-| **API Layer** | Express.js | Auth, tenant isolation, sessions, SSE proxy, MongoDB CRUD |
+| **API Layer** | Express.js | Auth, tenant isolation, sessions, SSE proxy, Postgres CRUD |
 | **Orchestrator** | FastAPI (Python) | 7-stage AI pipeline + Redis-backed async jobs |
-| **Database** | MongoDB Atlas | Accounts, consent, sessions, messages, audit logs, query-cache fallback |
+| **Database** | Neon Postgres | Accounts, consent, sessions, messages, audit logs, query-cache fallback |
 | **Cache** | Redis (Upstash) | Tenant-isolated query/semantic caches, embeddings, prompts, jobs, checkpoints |
 | **LLM** | HF Inference API or Cloudflare Workers AI | Query expansion + grounded reasoning (multi-provider) |
 | **Bi-Encoder** | PubMedBERT-MS-MARCO via HF API | Domain-specialized dense retrieval |
@@ -328,7 +324,7 @@ Deployed on Render (free tier) with zero monthly cost:
 | Frontend | `curalink-medical-assistant-frontend.onrender.com` |
 | Express API | `curalink-medical-assistant.onrender.com` |
 | FastAPI Orchestrator | `curalink-medical-assistant-python.onrender.com` |
-| Database | MongoDB Atlas (managed, free M0) |
+| Database | Neon Postgres (managed, free tier) |
 
 > **Note:** Free-tier services spin down after ~15 min of inactivity. First request after spin-down takes 30-60 seconds (cold start). Ping `/health` on all services before demo.
 
@@ -391,7 +387,7 @@ Ramps from 10 → 300 concurrent users in six steps. Throughput plateaus around 
 With 20 concurrent readers running, per-endpoint p95 latencies shift:
 
 - **Health** — 16 → 32 ms (×2.0, still sub-millisecond effective)
-- **Sessions list** — 672 → 453 ms (×0.7 — *faster* under load, Mongo connection warm-up)
+- **Sessions list** — 672 → 453 ms (×0.7 — *faster* under load, DB connection warm-up)
 - **Session detail** — 1,359 → 875 ms (×0.6 — same warm-up effect)
 - **Errors** — 0 idle, 0 saturated
 
@@ -492,7 +488,7 @@ python eval_harness.py --selftest
 - **Request-contained synchronous pipeline** — synchronous context travels with each request; asynchronous job state and checkpoints live in Redis while queue workers are process-local
 - **RRF over linear combination** — BM25 and cosine scores live on different scales; RRF uses rank position only, sidesteps normalization
 - **Cite-or-abstain intent** — prompts instruct the model to cite retrieved documents and abstain when they are insufficient; users must still verify the original sources
-- **Tenant-isolated result cache** — `query:<userId>:SHA-256(user|disease|intent|location|message|history)` with 24h TTL and Redis-to-Mongo fallback
+- **Tenant-isolated result cache** — `query:<userId>:SHA-256(user|disease|intent|location|message|history)` with 24h TTL and Redis-to-Postgres fallback
 - **Public-beta boundary** — de-identified research assistance only; no diagnosis, prescribing, treatment selection, trial-eligibility determination, or emergency assessment
 
 ## 📜 License
