@@ -2,24 +2,27 @@
 
 import crypto from "crypto";
 import { Router } from "express";
-import Webhook from "../models/Webhook.js";
+import { db, newId, toWebhook } from "../db.js";
 import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
+const WEBHOOK_EVENTS = ["job.completed", "job.failed"];
 router.use(authMiddleware);
 
 
 router.post("/", async (req, res) => {
   const { url, events } = req.body;
   if (!url) return res.status(400).json({ ok: false, error: "url required" });
+  if (events !== undefined && (!Array.isArray(events) || !events.every((e) => WEBHOOK_EVENTS.includes(e)))) {
+    return res.status(400).json({ ok: false, error: `events must be a subset of ${WEBHOOK_EVENTS.join(", ")}` });
+  }
 
   const secret = crypto.randomBytes(32).toString("hex");
-  const wh = await Webhook.create({
-    userId: req.userId,
-    url,
-    secret,
-    events: events || ["job.completed"],
-  });
+  const { rows } = await db.query(
+    "INSERT INTO webhooks (id, user_id, url, secret, events) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+    [newId(), req.userId, url, secret, events || ["job.completed"]]
+  );
+  const wh = toWebhook(rows[0]);
 
   res.status(201).json({
     ok: true,
@@ -29,15 +32,13 @@ router.post("/", async (req, res) => {
 
 
 router.get("/", async (req, res) => {
-  const hooks = await Webhook.find({ userId: req.userId })
-    .select("-secret")
-    .lean();
-  res.json({ ok: true, webhooks: hooks });
+  const { rows } = await db.query("SELECT * FROM webhooks WHERE user_id = $1", [req.userId]);
+  res.json({ ok: true, webhooks: rows.map(toWebhook) });
 });
 
 
 router.delete("/:id", async (req, res) => {
-  await Webhook.findOneAndDelete({ _id: req.params.id, userId: req.userId });
+  await db.query("DELETE FROM webhooks WHERE id = $1 AND user_id = $2", [req.params.id, req.userId]);
   res.json({ ok: true, deleted: true });
 });
 
@@ -47,11 +48,10 @@ router.delete("/:id", async (req, res) => {
  */
 export async function dispatchWebhooks(userId, event, payload) {
   try {
-    const hooks = await Webhook.find({
-      userId,
-      active: true,
-      events: event,
-    }).lean();
+    const { rows: hooks } = await db.query(
+      "SELECT * FROM webhooks WHERE user_id = $1 AND active AND $2 = ANY(events)",
+      [userId, event]
+    );
 
     for (const hook of hooks) {
       try {

@@ -4,17 +4,17 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import express from "express";
 import sessionRouter from "./session.js";
-import Session from "../models/Session.js";
+import { db } from "../db.js";
 import { signToken } from "../middleware/auth.js";
 
 process.env.JWT_SECRET = "session-route-test-secret";
 
 test("session lookup is scoped to the authenticated user", async () => {
-  const originalFindOne = Session.findOne;
-  let query;
-  Session.findOne = (value) => {
-    query = value;
-    return { lean: async () => null };
+  const originalQuery = db.query;
+  let call;
+  db.query = async (text, params) => {
+    call = { text, params };
+    return { rows: [], rowCount: 0 };
   };
 
   const app = express();
@@ -29,10 +29,10 @@ test("session lookup is scoped to the authenticated user", async () => {
       headers: { Authorization: `Bearer ${signToken("user-a")}` },
     });
     assert.equal(response.status, 404);
-    assert.equal(query.userId, "user-a");
-    assert.equal(query._id, "another-users-session");
+    assert.match(call.text, /WHERE id = \$1 AND user_id = \$2/);
+    assert.deepEqual(call.params, ["another-users-session", "user-a"]);
   } finally {
-    Session.findOne = originalFindOne;
+    db.query = originalQuery;
     await new Promise((resolve) => server.close(resolve));
   }
 });

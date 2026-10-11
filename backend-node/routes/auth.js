@@ -2,7 +2,8 @@
 
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
-import User from "../models/User.js";
+import bcrypt from "bcryptjs";
+import { db, newId, toUser } from "../db.js";
 import { signToken, signRefreshToken, verifyRefreshToken, authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
@@ -31,18 +32,23 @@ router.post("/signup", authLimiter, async (req, res) => {
     return res.status(400).json({ ok: false, error: "terms and privacy notice must be accepted" });
   }
 
-  const existing = await User.findOne({ email: email.toLowerCase() });
-  if (existing) {
+  const { rows } = await db.query(
+    `INSERT INTO users (id, name, email, password, terms_accepted_at, terms_version, credits)
+     VALUES ($1, $2, $3, $4, now(), $5, $6) ON CONFLICT (email) DO NOTHING RETURNING *`,
+    [
+      newId(),
+      name.trim(),
+      email.trim().toLowerCase(),
+      await bcrypt.hash(password, 10),
+      "2026-09-25",
+      Number(process.env.DAILY_MESSAGE_CAP) || 5,
+    ]
+  );
+  if (!rows[0]) {
     return res.status(409).json({ ok: false, error: "email already registered" });
   }
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-    termsAcceptedAt: new Date(),
-    termsVersion: "2026-09-25",
-  });
+  const user = toUser(rows[0]);
   const token = signToken(user._id, user.authVersion);
 
   res.status(201).json({
@@ -61,16 +67,12 @@ router.post("/login", authLimiter, async (req, res) => {
     return res.status(400).json({ ok: false, error: "email and password required" });
   }
 
-  const user = await User.findOne({ email: email.toLowerCase() });
-  if (!user) {
+  const { rows } = await db.query("SELECT * FROM users WHERE email = $1", [email.trim().toLowerCase()]);
+  if (!rows[0] || !(await bcrypt.compare(password, rows[0].password))) {
     return res.status(401).json({ ok: false, error: "invalid credentials" });
   }
 
-  const match = await user.comparePassword(password);
-  if (!match) {
-    return res.status(401).json({ ok: false, error: "invalid credentials" });
-  }
-
+  const user = toUser(rows[0]);
   const token = signToken(user._id, user.authVersion);
 
   res.json({
@@ -85,7 +87,8 @@ router.post("/login", authLimiter, async (req, res) => {
 router.post("/refresh", async (req, res) => {
   try {
     const decoded = verifyRefreshToken(req.body.refreshToken);
-    const user = await User.findById(decoded.userId);
+    const { rows } = await db.query("SELECT * FROM users WHERE id = $1", [decoded.userId]);
+    const user = toUser(rows[0]);
     if (!user || user.authVersion !== decoded.authVersion) {
       return res.status(401).json({ ok: false, error: "session expired" });
     }
@@ -100,12 +103,13 @@ router.post("/refresh", async (req, res) => {
 });
 
 router.post("/logout", authMiddleware, async (req, res) => {
-  await User.updateOne({ _id: req.userId }, { $inc: { authVersion: 1 } });
+  await db.query("UPDATE users SET auth_version = auth_version + 1, updated_at = now() WHERE id = $1", [req.userId]);
   res.json({ ok: true });
 });
 
 router.get("/me", authMiddleware, async (req, res) => {
-  const user = await User.findById(req.userId).select("-password");
+  const { rows } = await db.query("SELECT * FROM users WHERE id = $1", [req.userId]);
+  const user = toUser(rows[0]);
   if (!user) return res.status(401).json({ ok: false, error: "user not found" });
   res.json({ ok: true, user });
 });

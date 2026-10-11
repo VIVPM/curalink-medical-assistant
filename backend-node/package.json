@@ -16,6 +16,6 @@
     "express-rate-limit": "^8.6.2",
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.4.1"
+    "pg": "^8.23.1"
   }
 }

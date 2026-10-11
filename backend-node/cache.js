@@ -1,7 +1,7 @@
-// Query-response cache backed by Redis with a MongoDB fallback.
+// Query-response cache backed by Redis with a Postgres fallback.
 
 import Redis from "ioredis";
-import Cache from "./models/Cache.js";
+import { db, newId } from "./db.js";
 
 const REDIS_URL = process.env.REDIS_URL;
 
@@ -16,7 +16,7 @@ if (REDIS_URL) {
     console.error(JSON.stringify({ level: "error", where: "redis", error: e.message }))
   );
 } else {
-  console.log("[cache] REDIS_URL not set — query cache using MongoDB");
+  console.log("[cache] REDIS_URL not set — query cache using Postgres");
 }
 
 // Returns the cached response object, or null on miss / error.
@@ -30,8 +30,8 @@ export async function cacheGet(key) {
       return null;
     }
   }
-  const doc = await Cache.findOne({ key }).lean();
-  return doc && doc.response ? doc.response : null;
+  const { rows } = await db.query("SELECT response FROM caches WHERE key = $1 AND expires_at > now()", [key]);
+  return rows[0]?.response ?? null;
 }
 
 // "disabled" (no REDIS_URL) | ioredis status ("ready" once connected) — for /health.
@@ -49,10 +49,10 @@ export async function cacheSet(key, value, ttlMs) {
     }
     return;
   }
-  await Cache.updateOne(
-    { key },
-    { key, response: value, expiresAt: new Date(Date.now() + ttlMs) },
-    { upsert: true }
+  await db.query(
+    `INSERT INTO caches (id, key, response, expires_at) VALUES ($1, $2, $3, $4)
+     ON CONFLICT (key) DO UPDATE SET response = EXCLUDED.response, expires_at = EXCLUDED.expires_at, updated_at = now()`,
+    [newId(), key, JSON.stringify(value), new Date(Date.now() + ttlMs)]
   );
 }
 
@@ -72,5 +72,5 @@ export async function cacheDeleteUser(userId) {
     return;
   }
 
-  await Cache.deleteMany({ key: { $regex: `^query:${tenant}:` } });
+  await db.query("DELETE FROM caches WHERE starts_with(key, $1)", [`query:${tenant}:`]);
 }

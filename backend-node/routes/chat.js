@@ -3,9 +3,7 @@
 import crypto from "crypto";
 import { Router } from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
-import Session from "../models/Session.js";
-import Message from "../models/Message.js";
-import User from "../models/User.js";
+import { db, newId, toMessage, toSession } from "../db.js";
 import { cacheGet, cacheSet } from "../cache.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { ownKeysFromRequest, providerHeaders, validateOwnKeys } from "../own_keys.js";
@@ -52,14 +50,12 @@ function idempotencySet(userId, key, res) {
 async function messagesUsedToday(userId) {
   const since = new Date();
   since.setUTCHours(0, 0, 0, 0);
-  const sessionIds = await Session.find({ userId }).distinct("_id");
-  if (!sessionIds.length) return 0;
-  return Message.countDocuments({
-    sessionId: { $in: sessionIds },
-    role: "user",
-    ownKey: { $ne: true },
-    createdAt: { $gte: since },
-  });
+  const { rows } = await db.query(
+    `SELECT count(*)::int AS n FROM messages m JOIN sessions s ON s.id = m.session_id
+     WHERE s.user_id = $1 AND m.role = 'user' AND NOT m.own_key AND m.created_at >= $2`,
+    [userId, since]
+  );
+  return rows[0].n;
 }
 
 
@@ -68,16 +64,40 @@ async function tokensUsedToday(userId) {
   if (!DAILY_TOKEN_CAP) return 0;
   const since = new Date();
   since.setUTCHours(0, 0, 0, 0);
-  const sessionIds = await Session.find({ userId }).distinct("_id");
-  if (!sessionIds.length) return 0;
-  const msgs = await Message.find({
-    sessionId: { $in: sessionIds },
-    ownKey: { $ne: true },
-    createdAt: { $gte: since },
-  })
-    .select("content")
-    .lean();
-  return msgs.reduce((sum, m) => sum + Math.ceil((m.content || "").length / 4), 0);
+  const { rows } = await db.query(
+    `SELECT m.content FROM messages m JOIN sessions s ON s.id = m.session_id
+     WHERE s.user_id = $1 AND NOT m.own_key AND m.created_at >= $2`,
+    [userId, since]
+  );
+  return rows.reduce((sum, m) => sum + Math.ceil((m.content || "").length / 4), 0);
+}
+
+async function findSession(sessionId, userId) {
+  const { rows } = await db.query("SELECT * FROM sessions WHERE id = $1 AND user_id = $2", [sessionId, userId]);
+  return toSession(rows[0]);
+}
+
+async function sessionHistory(sessionId) {
+  const { rows } = await db.query("SELECT role, content FROM messages WHERE session_id = $1 ORDER BY created_at", [sessionId]);
+  return rows;
+}
+
+async function addMessage(sessionId, role, content, { ownKey = false, structuredResponse = null, pipelineMeta = null } = {}) {
+  const { rows } = await db.query(
+    `INSERT INTO messages (id, session_id, role, content, own_key, structured_response, pipeline_meta)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [newId(), sessionId, role, content, ownKey, structuredResponse && JSON.stringify(structuredResponse), pipelineMeta && JSON.stringify(pipelineMeta)]
+  );
+  return toMessage(rows[0]);
+}
+
+async function addAssistantReply(sessionId, response) {
+  const msg = await addMessage(sessionId, "assistant", response.overview || JSON.stringify(response), {
+    structuredResponse: response,
+    pipelineMeta: response.pipelineMeta || null,
+  });
+  await db.query("UPDATE sessions SET message_count = message_count + 2, updated_at = now() WHERE id = $1", [sessionId]);
+  return msg;
 }
 
 
@@ -178,7 +198,7 @@ router.post("/chat", async (req, res) => {
 
   const idempKey = req.headers["idempotency-key"];
 
-  const session = await Session.findOne({ _id: sessionId, userId: req.userId });
+  const session = await findSession(sessionId, req.userId);
   if (!session) {
     return res.status(404).json({ ok: false, error: "session not found" });
   }
@@ -233,10 +253,7 @@ router.post("/chat", async (req, res) => {
   }
 
 
-  const history = await Message.find({ sessionId })
-    .sort({ createdAt: 1 })
-    .select("role content")
-    .lean();
+  const history = await sessionHistory(sessionId);
 
   const recentMessages = history.map((m) => ({
     role: m.role,
@@ -244,12 +261,7 @@ router.post("/chat", async (req, res) => {
   }));
 
 
-  const userMsg = await Message.create({
-    sessionId,
-    role: "user",
-    content: message.trim(),
-    ownKey: Boolean(ownKeys),
-  });
+  const userMsg = await addMessage(sessionId, "user", message.trim(), { ownKey: Boolean(ownKeys) });
 
 
   const ckey = cacheKey(
@@ -262,14 +274,7 @@ router.post("/chat", async (req, res) => {
   );
   const cachedResponse = ownKeys ? null : await cacheGet(ckey);
   if (cachedResponse) {
-    const assistantMsg = await Message.create({
-      sessionId,
-      role: "assistant",
-      content: cachedResponse.overview || JSON.stringify(cachedResponse),
-      structuredResponse: cachedResponse,
-      pipelineMeta: cachedResponse.pipelineMeta || null,
-    });
-    await Session.findByIdAndUpdate(sessionId, { $inc: { messageCount: 2 } });
+    const assistantMsg = await addAssistantReply(sessionId, cachedResponse);
     return res.json({
       ok: true,
       userMessage: userMsg,
@@ -321,21 +326,7 @@ router.post("/chat", async (req, res) => {
   }
 
 
-  const assistantContent =
-    pipelineResult.overview || JSON.stringify(pipelineResult);
-
-  const assistantMsg = await Message.create({
-    sessionId,
-    role: "assistant",
-    content: assistantContent,
-    structuredResponse: pipelineResult,
-    pipelineMeta: pipelineResult.pipelineMeta || null,
-  });
-
-
-  await Session.findByIdAndUpdate(sessionId, {
-    $inc: { messageCount: 2 },
-  });
+  const assistantMsg = await addAssistantReply(sessionId, pipelineResult);
 
 
   if (!ownKeys && !pipelineResult.abstain_reason) {
@@ -367,7 +358,7 @@ router.post("/chat/stream", async (req, res) => {
     return res.status(400).json({ ok: false, error: "message too long" });
   }
 
-  const session = await Session.findOne({ _id: sessionId, userId: req.userId });
+  const session = await findSession(sessionId, req.userId);
   if (!session) {
     return res.status(404).json({ ok: false, error: "session not found" });
   }
@@ -416,10 +407,7 @@ router.post("/chat/stream", async (req, res) => {
     }
   }
 
-  const history = await Message.find({ sessionId })
-    .sort({ createdAt: 1 })
-    .select("role content")
-    .lean();
+  const history = await sessionHistory(sessionId);
 
   const recentMessages = history.map((m) => ({
     role: m.role,
@@ -427,12 +415,7 @@ router.post("/chat/stream", async (req, res) => {
   }));
 
 
-  await Message.create({
-    sessionId,
-    role: "user",
-    content: message.trim(),
-    ownKey: Boolean(ownKeys),
-  });
+  await addMessage(sessionId, "user", message.trim(), { ownKey: Boolean(ownKeys) });
 
   const pipelineBody = {
     tenant: req.userId.toString(),
@@ -472,14 +455,7 @@ router.post("/chat/stream", async (req, res) => {
     res.write(`event: metadata\ndata: ${JSON.stringify(cachedResponse)}\n\n`);
     res.write(`event: done\ndata: {}\n\n`);
 
-    await Message.create({
-      sessionId,
-      role: "assistant",
-      content: cachedResponse.overview || JSON.stringify(cachedResponse),
-      structuredResponse: cachedResponse,
-      pipelineMeta: cachedResponse.pipelineMeta || null,
-    });
-    await Session.findByIdAndUpdate(sessionId, { $inc: { messageCount: 2 } });
+    await addAssistantReply(sessionId, cachedResponse);
     return res.end();
   }
 
@@ -536,17 +512,7 @@ router.post("/chat/stream", async (req, res) => {
 
 
     if (metadataJson) {
-      await Message.create({
-        sessionId,
-        role: "assistant",
-        content: metadataJson.overview || JSON.stringify(metadataJson),
-        structuredResponse: metadataJson,
-        pipelineMeta: metadataJson.pipelineMeta || null,
-      });
-
-      await Session.findByIdAndUpdate(sessionId, {
-        $inc: { messageCount: 2 },
-      });
+      await addAssistantReply(sessionId, metadataJson);
 
       if (!ownKeys && !metadataJson.abstain_reason) {
         await cacheSet(ckey, metadataJson, CACHE_TTL_MS);

@@ -4,7 +4,6 @@ import crypto from "crypto";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
 import authRouter from "./routes/auth.js";
 import sessionRouter from "./routes/session.js";
 import chatRouter from "./routes/chat.js";
@@ -13,11 +12,7 @@ import webhooksRouter from "./routes/webhooks.js";
 import { cacheDeleteUser, redisStatus } from "./cache.js";
 import { authMiddleware } from "./middleware/auth.js";
 import { validateOwnKeys } from "./own_keys.js";
-import AuditLog from "./models/AuditLog.js";
-import Message from "./models/Message.js";
-import Session from "./models/Session.js";
-import User from "./models/User.js";
-import Webhook from "./models/Webhook.js";
+import { closeDb, db, initDb } from "./db.js";
 
 dotenv.config();
 
@@ -27,10 +22,8 @@ const app = express();
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 4000;
 const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
-const MONGO_URI = process.env.MONGO_URI;
-
-if (!MONGO_URI) {
-  console.error("MONGO_URI not set in .env");
+if (!process.env.DATABASE_URL) {
+  console.error("DATABASE_URL not set in .env");
   process.exit(1);
 }
 
@@ -44,17 +37,10 @@ if (!process.env.INTERNAL_API_KEY) {
   process.exit(1);
 }
 
-mongoose
-  .connect(MONGO_URI)
-  .then(async () => {
-    await Session.collection.updateMany(
-      { "staticContext.patientName": { $exists: true } },
-      { $unset: { "staticContext.patientName": "" } }
-    );
-    console.log("MongoDB connected");
-  })
+initDb()
+  .then(() => console.log("Postgres connected"))
   .catch((err) => {
-    console.error("MongoDB connection failed:", err.message);
+    console.error("Postgres connection failed:", err.message);
     process.exit(1);
   });
 
@@ -130,32 +116,20 @@ app.post("/api/account/keys/validate", authMiddleware, async (req, res) => {
 app.get("/api/account/credits", authMiddleware, async (req, res) => {
   const since = new Date();
   since.setUTCHours(0, 0, 0, 0);
-  const sessionIds = await Session.find({ userId: req.userId }).distinct("_id");
-  const used = sessionIds.length
-    ? await Message.countDocuments({
-        sessionId: { $in: sessionIds },
-        role: "user",
-        ownKey: { $ne: true },
-        createdAt: { $gte: since },
-      })
-    : 0;
+  const { rows } = await db.query(
+    `SELECT count(*)::int AS n FROM messages m JOIN sessions s ON s.id = m.session_id
+     WHERE s.user_id = $1 AND m.role = 'user' AND NOT m.own_key AND m.created_at >= $2`,
+    [req.userId, since]
+  );
+  const used = rows[0].n;
   res.json({ ok: true, cap: DAILY_MESSAGE_CAP, used, remaining: Math.max(0, DAILY_MESSAGE_CAP - used) });
 });
 
 
 
 app.delete("/api/account", authMiddleware, async (req, res) => {
-  const userId = req.userId;
-  const sessionIds = await Session.find({ userId }).distinct("_id");
-
-  await cacheDeleteUser(userId);
-  await Promise.all([
-    sessionIds.length ? Message.deleteMany({ sessionId: { $in: sessionIds } }) : null,
-    Session.deleteMany({ userId }),
-    Webhook.deleteMany({ userId }),
-    AuditLog.deleteMany({ userId }),
-  ]);
-  await User.findByIdAndDelete(userId);
+  await cacheDeleteUser(req.userId);
+  await db.query("DELETE FROM users WHERE id = $1", [req.userId]);
   res.json({ ok: true, deleted: true });
 });
 
@@ -210,8 +184,8 @@ function shutdown(signal) {
   console.log(`[shutdown] ${signal} received — draining connections...`);
   server.close(() => {
     console.log("[shutdown] HTTP server closed");
-    mongoose.connection.close(false).then(() => {
-      console.log("[shutdown] MongoDB disconnected");
+    closeDb().then(() => {
+      console.log("[shutdown] Postgres disconnected");
       process.exit(0);
     });
   });

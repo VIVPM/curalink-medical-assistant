@@ -2,8 +2,7 @@
 
 import { Router } from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
-import Session from "../models/Session.js";
-import Message from "../models/Message.js";
+import { db, newId, toMessage, toSession } from "../db.js";
 import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
@@ -29,60 +28,56 @@ router.post("/session", createSessionLimiter, async (req, res) => {
     return res.status(400).json({ ok: false, error: "disease is required" });
   }
 
-  const session = await Session.create({
-    userId: req.userId,
-    staticContext: {
-      disease: disease.trim(),
-      intent: (intent || "").trim(),
-      location: (location || "").trim(),
-    },
-  });
+  const d = disease.trim();
+  const i = (intent || "").trim();
+  const { rows } = await db.query(
+    `INSERT INTO sessions (id, user_id, disease, intent, location, title)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [newId(), req.userId, d, i, (location || "").trim(), i ? `${d} — ${i}` : d]
+  );
 
-  res.status(201).json({ ok: true, session });
+  res.status(201).json({ ok: true, session: toSession(rows[0]) });
 });
 
 
 router.get("/sessions", async (req, res) => {
-  const sessions = await Session.find({ userId: req.userId })
-    .select("title staticContext.disease messageCount createdAt")
-    .sort({ createdAt: -1 })
-    .limit(50)
-    .lean();
+  const { rows } = await db.query(
+    `SELECT id, title, disease, message_count, created_at FROM sessions
+     WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`,
+    [req.userId]
+  );
+  const sessions = rows.map((r) => ({
+    _id: r.id,
+    title: r.title,
+    staticContext: { disease: r.disease },
+    messageCount: r.message_count,
+    createdAt: r.created_at,
+  }));
 
   res.json({ ok: true, sessions });
 });
 
 
 router.get("/session/:id", async (req, res) => {
-  const session = await Session.findOne({
-    _id: req.params.id,
-    userId: req.userId,
-  }).lean();
+  const found = await db.query("SELECT * FROM sessions WHERE id = $1 AND user_id = $2", [req.params.id, req.userId]);
+  const session = toSession(found.rows[0]);
 
   if (!session) {
     return res.status(404).json({ ok: false, error: "session not found" });
   }
 
-  const messages = await Message.find({ sessionId: session._id })
-    .sort({ createdAt: 1 })
-    .lean();
+  const { rows } = await db.query("SELECT * FROM messages WHERE session_id = $1 ORDER BY created_at", [session._id]);
 
-  res.json({ ok: true, session, messages });
+  res.json({ ok: true, session, messages: rows.map(toMessage) });
 });
 
 
 router.delete("/session/:id", async (req, res) => {
-  const session = await Session.findOne({
-    _id: req.params.id,
-    userId: req.userId,
-  });
+  const { rowCount } = await db.query("DELETE FROM sessions WHERE id = $1 AND user_id = $2", [req.params.id, req.userId]);
 
-  if (!session) {
+  if (!rowCount) {
     return res.status(404).json({ ok: false, error: "session not found" });
   }
-
-  await Message.deleteMany({ sessionId: session._id });
-  await session.deleteOne();
 
   res.json({ ok: true, deleted: true });
 });

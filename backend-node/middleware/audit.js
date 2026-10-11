@@ -1,6 +1,6 @@
 // Audit middleware for recording successful user actions.
 
-import AuditLog from "../models/AuditLog.js";
+import { db, newId } from "../db.js";
 
 /**
  * Audit logging middleware factory.
@@ -13,18 +13,18 @@ export function audit(action, getResource) {
     res.on("finish", () => {
       if (res.statusCode < 400) {
         const resource = getResource ? getResource(req) : undefined;
-        AuditLog.create({
-          userId: req.userId,
-          action,
-          resource: resource?.type,
-          resourceId: resource?.id,
-          metadata: {
-            status: res.statusCode,
-            method: req.method,
-            path: req.originalUrl,
-          },
-          ip: req.ip,
-        }).catch(() => {});
+        db.query(
+          "INSERT INTO audit_logs (id, user_id, action, resource, resource_id, metadata, ip) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+          [
+            newId(),
+            req.userId ?? null,
+            action,
+            resource?.type ?? null,
+            resource?.id ?? null,
+            { status: res.statusCode, method: req.method, path: req.originalUrl },
+            req.ip,
+          ]
+        ).catch(() => {});
       }
     });
     next();
