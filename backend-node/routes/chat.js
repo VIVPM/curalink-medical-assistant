@@ -10,7 +10,7 @@ import { ownKeysFromRequest, providerHeaders, validateOwnKeys } from "../own_key
 
 const router = Router();
 
-const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
+const FASTAPI_URL = process.env.FASTAPI_URL;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 4000;
 const DAILY_MESSAGE_CAP = Number(process.env.DAILY_MESSAGE_CAP) || 5;

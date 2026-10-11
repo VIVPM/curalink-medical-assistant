@@ -1,9 +1,9 @@
 // Express API entrypoint for authentication, sessions, chat, and account operations.
 
+import "dotenv/config";
 import crypto from "crypto";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import authRouter from "./routes/auth.js";
 import sessionRouter from "./routes/session.js";
 import chatRouter from "./routes/chat.js";
@@ -14,14 +14,19 @@ import { authMiddleware } from "./middleware/auth.js";
 import { validateOwnKeys } from "./own_keys.js";
 import { closeDb, db, initDb } from "./db.js";
 
-dotenv.config();
 
 const app = express();
 
 
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 4000;
-const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
+const FASTAPI_URL = process.env.FASTAPI_URL;
+for (const name of ["FASTAPI_URL", "ALLOWED_ORIGINS"]) {
+  if (!process.env[name]) {
+    console.error(`${name} not set in .env`);
+    process.exit(1);
+  }
+}
 if (!process.env.DATABASE_URL) {
   console.error("DATABASE_URL not set in .env");
   process.exit(1);
@@ -67,9 +72,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "16kb" }));
 
 
-const _DEFAULT_ORIGINS =
-  "http://localhost:5173,https://curalink-medical-assistant-frontend.onrender.com";
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || _DEFAULT_ORIGINS)
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);

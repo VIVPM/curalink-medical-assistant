@@ -236,10 +236,10 @@ cp backend-node/.env.example backend-node/.env
 | Variable | Description |
 |----------|-------------|
 | `DATABASE_URL` | Neon Postgres connection string (`.../curalink?sslmode=verify-full`) |
-| `FASTAPI_URL` | FastAPI orchestrator URL (default: `http://localhost:8000`) |
+| `FASTAPI_URL` | **Required.** FastAPI orchestrator URL (`http://localhost:8000` locally) |
 | `JWT_SECRET` | Secret for signing JWT tokens |
 | `INTERNAL_API_KEY` | **Required.** Same shared secret configured on FastAPI |
-| `ALLOWED_ORIGINS` | Comma-separated CORS allow-list of frontend origins (default: deployed frontend + `localhost:5173`) |
+| `ALLOWED_ORIGINS` | **Required.** Comma-separated CORS allow-list of frontend origins (`http://localhost:5173` locally) |
 | `REDIS_URL` | Upstash Redis connection string (`rediss://...`) |
 | `PORT` | Express server port (default: `4000`) |
 

@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { authFetch, getOwnKeys, ownKeyHeaders, removeSession, saveSession } from "../session";
 
-const API = `${import.meta.env.VITE_API_URL || ""}/api`;
+const API = `${import.meta.env.VITE_API_URL}/api`;
 
 function getAuthHeaders() {
   return { "Content-Type": "application/json" };

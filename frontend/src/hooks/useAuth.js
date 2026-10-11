@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { authFetch, clearPrivateSession, readSession, refreshAccess, saveSession } from "../session";
 
-const API_ROOT = `${import.meta.env.VITE_API_URL || ""}/api`;
+const API_ROOT = `${import.meta.env.VITE_API_URL}/api`;
 const API = `${API_ROOT}/auth`;
 
 export default function useAuth() {

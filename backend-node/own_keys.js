@@ -1,6 +1,6 @@
 // Validates ephemeral user inference keys with FastAPI without persisting them.
 
-const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
+const FASTAPI_URL = process.env.FASTAPI_URL;
 
 export function ownKeysFromRequest(req) {
   const hfToken = req.headers["x-provider-hf-key"] || "";

@@ -6,7 +6,7 @@ import { audit } from "../middleware/audit.js";
 import { dispatchWebhooks } from "./webhooks.js";
 
 const router = Router();
-const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
+const FASTAPI_URL = process.env.FASTAPI_URL;
 const fastApiHeaders = (extra = {}) => ({
   ...extra,
   "X-Internal-API-Key": process.env.INTERNAL_API_KEY,

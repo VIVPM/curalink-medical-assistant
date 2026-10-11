@@ -1,6 +1,6 @@
 // Keeps login and user-provided provider keys scoped to the current browser tab.
 
-const API = `${import.meta.env.VITE_API_URL || ""}/api`;
+const API = `${import.meta.env.VITE_API_URL}/api`;
 let refreshPromise = null;
 
 try {
