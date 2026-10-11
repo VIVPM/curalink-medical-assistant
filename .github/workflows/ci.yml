@@ -4,7 +4,7 @@ name: CI
 
 on:
   push:
-    branches: [main, curalink-v012, public-beta-readiness, curalink-v0-v1-practice, curalink-v2]
+    branches: [main]
   pull_request:
 
 concurrency:
