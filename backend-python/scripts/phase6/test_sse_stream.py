@@ -230,11 +230,11 @@ def test_express_stream():
         messages = resp.json().get("messages", [])
         roles = [m["role"] for m in messages]
         if "user" in roles and "assistant" in roles:
-            print(f"  PASS: messages saved to Mongo ({len(messages)} messages)")
+            print(f"  PASS: messages saved to Postgres ({len(messages)} messages)")
         else:
-            print(f"  WARN: messages in Mongo: {roles}")
+            print(f"  WARN: messages in Postgres: {roles}")
     except Exception as e:
-        print(f"  WARN: could not verify Mongo: {e}")
+        print(f"  WARN: could not verify Postgres: {e}")
 
     return all_pass
 
