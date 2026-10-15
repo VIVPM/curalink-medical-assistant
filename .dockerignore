@@ -19,7 +19,6 @@ backend-python/scripts
 *.ipynb
 
 # Local-only notes / design docs / binaries.
-upgrade_roadmap.txt
 architecture.md
 instructions.md
 plan.md
