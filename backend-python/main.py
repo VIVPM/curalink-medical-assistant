@@ -419,10 +419,13 @@ def pipeline_clients(request: Request):
 
     embedder = Embedder(BIENCODER_MODEL, token=own.hf_token)
     reranker = MedCPTReranker(token=own.hf_token)
-    if provider_name() == "cloudflare":
+    if own.provider == "cloudflare":
         selected_llm = CloudflareBackend(own.cf_account_id, own.cf_token, use_cache=False)
     else:
-        selected_llm = HFBackend(own.hf_token, os.environ["LLM_MODEL"], use_cache=False)
+        model = os.environ["LLM_MODEL"]
+        if provider_name() == "cloudflare":
+            model = os.getenv("HF_FALLBACK_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
+        selected_llm = HFBackend(own.hf_token, model, use_cache=False)
     return embedder, reranker, selected_llm, True
 
 

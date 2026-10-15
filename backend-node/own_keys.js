@@ -3,14 +3,17 @@
 const FASTAPI_URL = process.env.FASTAPI_URL;
 
 export function ownKeysFromRequest(req) {
+  const provider = req.headers["x-provider-name"] || "";
   const hfToken = req.headers["x-provider-hf-key"] || "";
   const cfAccountId = req.headers["x-provider-cf-account"] || "";
   const cfToken = req.headers["x-provider-cf-key"] || "";
-  if (![hfToken, cfAccountId, cfToken].some(Boolean)) return null;
-  if ([hfToken, cfAccountId, cfToken].some((value) => typeof value !== "string" || value.length > 1024)) {
-    throw Object.assign(new Error("Invalid API credentials"), { status: 400 });
+  if (![provider, hfToken, cfAccountId, cfToken].some(Boolean)) return null;
+  if (![provider, hfToken, cfAccountId, cfToken].every((value) => typeof value === "string" && value.length <= 1024)
+    || !["huggingface", "cloudflare"].includes(provider) || !hfToken
+    || (provider === "cloudflare" && (!/^[a-fA-F0-9]{32}$/.test(cfAccountId) || !cfToken))) {
+    throw Object.assign(new Error("Invalid or incomplete API credentials"), { status: 400 });
   }
-  return { hfToken, cfAccountId, cfToken };
+  return { provider, hfToken, cfAccountId, cfToken };
 }
 
 export async function validateOwnKeys(keys) {
@@ -36,6 +39,7 @@ export async function validateOwnKeys(keys) {
 
 export function providerHeaders(keys) {
   return keys ? {
+    "X-Provider-Name": keys.provider,
     "X-Provider-HF-Key": keys.hfToken,
     "X-Provider-CF-Account": keys.cfAccountId,
     "X-Provider-CF-Key": keys.cfToken,

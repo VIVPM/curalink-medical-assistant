@@ -30,7 +30,7 @@ export function clearPrivateSession() {
 export function getOwnKeys() {
   try {
     const keys = JSON.parse(readSession("ownKeys"));
-    return keys?.hfToken ? keys : null;
+    return keys?.hfToken && (keys.provider === "huggingface" || (keys.provider === "cloudflare" && keys.cfAccountId && keys.cfToken)) ? keys : null;
   } catch { return null; }
 }
 
@@ -69,6 +69,7 @@ export async function authFetch(url, options = {}) {
 export function ownKeyHeaders() {
   const keys = getOwnKeys();
   return keys ? {
+    "X-Provider-Name": keys.provider,
     "X-Provider-HF-Key": keys.hfToken,
     ...(keys.cfAccountId && keys.cfToken ? {
       "X-Provider-CF-Account": keys.cfAccountId,

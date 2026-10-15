@@ -1730,11 +1730,11 @@
 .api-keys-dialog p { margin: 12px 0; font-size: 13px; line-height: 1.5; color: #555; }
 .api-keys-dialog label:not(.api-keys-reveal) { display: block; margin: 16px 0 6px; font-size: 13px; font-weight: 600; }
 .api-keys-dialog label span { font-weight: 400; color: #777; }
-.api-keys-dialog input:not([type="checkbox"]) {
+.api-keys-dialog input:not([type="checkbox"]), .api-keys-dialog select {
   width: 100%; padding: 10px 12px; border: 1px solid #cdd2d9; border-radius: 8px;
   color: #1a1a2e; background: #fff; font: inherit; font-size: 14px;
 }
-.api-keys-dialog input:focus-visible, .api-keys-dialog button:focus-visible { outline: 2px solid #129485; outline-offset: 2px; }
+.api-keys-dialog input:focus-visible, .api-keys-dialog select:focus-visible, .api-keys-dialog button:focus-visible { outline: 2px solid #129485; outline-offset: 2px; }
 .api-keys-reveal { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; }
 .api-keys-dialog .api-keys-error { color: #b23b3b; }
 .api-keys-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }

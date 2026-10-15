@@ -1,8 +1,8 @@
 # Curalink — AI Medical Research Assistant
 
-An AI-powered medical research companion built on the MERN stack with a FastAPI orchestrator microservice. Curalink uses de-identified patient context to retrieve research from PubMed, OpenAlex, and ClinicalTrials.gov, reasons over it with a configurable LLM (HuggingFace Inference API or Cloudflare Workers AI), and delivers structured answers with sources users can inspect.
+An AI-powered medical research companion built with React, Express, Neon Postgres, and a FastAPI orchestrator. Curalink uses de-identified patient context to retrieve research from PubMed, OpenAlex, and ClinicalTrials.gov, reasons over it with a configurable LLM (Hugging Face Inference API or Cloudflare Workers AI), and delivers structured answers with sources users can inspect.
 
-> **Multi-provider LLM**: set `LLM_MODEL=CLOUDFLARE` for Cloudflare Workers AI, or any HuggingFace model id (e.g. `meta-llama/Llama-3.3-70B-Instruct`). One provider active at a time.
+> **Multi-provider LLM**: `LLM_MODEL` selects the platform-funded default (`CLOUDFLARE` or a Hugging Face model ID). Users with validated own keys choose either answer provider in Settings. On a Cloudflare-default server, own-key Hugging Face requests use `HF_FALLBACK_MODEL` (default: `meta-llama/Llama-3.3-70B-Instruct`).
 
 ## Features
 
@@ -17,7 +17,7 @@ An AI-powered medical research companion built on the MERN stack with a FastAPI 
 - **Clinical trial geo-filtering** — optional location input geocodes and filters trials within 100 miles via ClinicalTrials.gov geo API
 - **Privacy controls** — de-identified-use policy, 90-day session/message retention, per-session deletion, and complete account deletion from the UI
 - **Tab-scoped sessions** — login lives only in the current browser tab (`sessionStorage`); closing the tab logs out, 1-hour access tokens renew automatically while the tab is open, and logout revokes renewal tokens
-- **Bring your own API keys** — a Settings popup accepts the user's own Hugging Face token (plus a Cloudflare account ID and token when Cloudflare is the LLM provider); keys are verified with the provider, kept only in the browser tab, and then power every AI stage, so daily credits are hidden and those questions never count against the free limit
+- **Bring your own API keys** — choose Hugging Face or Cloudflare for answers in Settings. A Hugging Face token funds ranking for either choice; Cloudflare also needs an account ID and token. Keys are validated, kept only in the browser tab, and forwarded per request. Complete, valid keys hide daily credits and bypass the free question cap.
 - **ChatGPT-style session sidebar** — click any past session to reopen it and keep asking; new messages append to that session's history
 - **Landing page** — two-column hero with the pitch and sign-up on the left, and the animated research demo plus headline metrics (scope-routing accuracy, citation coverage, p95 API latency) on the right
 - **Responsive authenticated UI** — collapsed mobile navigation and diagnostics overlays verified at 390px and 430px widths

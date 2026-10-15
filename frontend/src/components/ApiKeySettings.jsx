@@ -7,7 +7,7 @@ const API = `${import.meta.env.VITE_API_URL}/api`;
 
 export default function ApiKeySettings({ current, onSave, onRemove, onClose }) {
   const dialog = useRef(null);
-  const [provider, setProvider] = useState(null);
+  const [provider, setProvider] = useState(current?.provider || "huggingface");
   const [form, setForm] = useState({
     hfToken: current?.hfToken || "",
     cfAccountId: current?.cfAccountId || "",
@@ -18,21 +18,14 @@ export default function ApiKeySettings({ current, onSave, onRemove, onClose }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const node = dialog.current;
-    if (!node.open) node.showModal();
-    let active = true;
-    authFetch(`${API}/account/keys/provider`)
-      .then((response) => { if (!response.ok) throw new Error("Provider unavailable"); return response.json(); })
-      .then((data) => { if (active) setProvider(data.provider); })
-      .catch(() => { if (active) setError("Could not load provider requirements. Reopen Settings to retry."); });
-    return () => { active = false; };
+    if (!dialog.current.open) dialog.current.showModal();
   }, []);
 
   const save = async (event) => {
     event.preventDefault();
     setError("");
     setSaving(true);
-    const keys = provider === "cloudflare" ? form : { hfToken: form.hfToken, cfAccountId: "", cfToken: "" };
+    const keys = provider === "cloudflare" ? { ...form, provider } : { provider, hfToken: form.hfToken, cfAccountId: "", cfToken: "" };
     try {
       const response = await authFetch(`${API}/account/keys/validate`, {
         method: "POST",
@@ -62,8 +55,13 @@ export default function ApiKeySettings({ current, onSave, onRemove, onClose }) {
           <h2 id="api-keys-title">Your API keys</h2>
           <button type="button" onClick={nodeClose} aria-label="Close settings">×</button>
         </div>
-        <p>Use your own provider keys for research queries. Your daily question credits will be hidden; safety and request-rate limits still apply.</p>
+        <p>Choose who handles answers. Your Hugging Face token covers research ranking. Once all keys are validated, daily question credits are hidden; safety and request-rate limits still apply.</p>
         <p>Keys stay in this browser tab and are sent only to the API for validation and inference. Closing the tab removes them.</p>
+        <label htmlFor="llm-provider">Answer provider</label>
+        <select id="llm-provider" value={provider} onChange={(event) => setProvider(event.target.value)}>
+          <option value="huggingface">Hugging Face</option>
+          <option value="cloudflare">Cloudflare Workers AI</option>
+        </select>
         <label htmlFor="hf-key">Hugging Face token <span>(required for research ranking{provider === "huggingface" ? " and answers" : ""})</span></label>
         <input id="hf-key" type={showKey ? "text" : "password"} autoComplete="off" value={form.hfToken}
           onChange={(event) => setForm({ ...form, hfToken: event.target.value })} required maxLength={1024} />
@@ -83,7 +81,7 @@ export default function ApiKeySettings({ current, onSave, onRemove, onClose }) {
         <div className="api-keys-actions">
           {current && <button type="button" className="api-keys-remove" onClick={() => { onRemove(); nodeClose(); }}>Remove keys</button>}
           <button type="button" className="api-keys-cancel" onClick={nodeClose}>Cancel</button>
-          <button type="submit" className="api-keys-save" disabled={saving || !provider}>
+          <button type="submit" className="api-keys-save" disabled={saving}>
             {saving ? "Checking…" : "Validate and use keys"}
           </button>
         </div>
