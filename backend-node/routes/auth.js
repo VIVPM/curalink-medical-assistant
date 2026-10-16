@@ -8,8 +8,6 @@ import { signToken, signRefreshToken, verifyRefreshToken, authMiddleware } from 
 
 const router = Router();
 
-// Brute-force limit applies to credential endpoints only, so session checks
-// on page load (GET /me) never exhaust it and log users out.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: Number(process.env.AUTH_RATE_MAX) || 20,
