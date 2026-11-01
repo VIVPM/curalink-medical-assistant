@@ -15,9 +15,10 @@ An AI-powered medical research companion built with React, Express, Neon Postgre
 - **Real-time SSE streaming** — live pipeline progress + token-by-token LLM output through FastAPI → Express → React
 - **Multi-turn context awareness** — chat history and static form context are merged into every query expansion
 - **Clinical trial geo-filtering** — optional location input geocodes and filters trials within 100 miles via ClinicalTrials.gov geo API
+- **Optional patient name** — use a nickname or initials to label a session. The field is saved as `session.patientName` separately from research context, displayed when reopening the session, and excluded from AI/retrieval requests and answer-cache inputs. Existing databases receive the column through schema bootstrap on backend startup.
 - **Privacy controls** — de-identified-use policy, 90-day session/message retention, per-session deletion, and complete account deletion from the UI
 - **Tab-scoped sessions** — login lives only in the current browser tab (`sessionStorage`); closing the tab logs out, 1-hour access tokens renew automatically while the tab is open, and logout revokes renewal tokens
-- **Bring your own API keys** — choose Hugging Face or Cloudflare for answers in Settings. A Hugging Face token funds ranking for either choice; Cloudflare also needs an account ID and token. Keys are validated, kept only in the browser tab, and forwarded per request. Complete, valid keys hide daily credits and bypass the free question cap.
+- **Bring your own API keys** — choose Hugging Face or Cloudflare for answers in Settings. A Hugging Face token funds ranking for either choice; Cloudflare also needs an account ID and token. Keys are validated and stored encrypted on the account, never returned to the browser, and reused after login. Save and use a provider or reuse its saved credentials without re-entering keys; remove active credentials in Settings to return to free credits. Complete, valid selected keys hide daily credits and bypass the free question cap.
 - **ChatGPT-style session sidebar** — click any past session to reopen it and keep asking; new messages append to that session's history
 - **Landing page** — two-column hero with the pitch and sign-up on the left, and the animated research demo plus headline metrics (scope-routing accuracy, citation coverage, p95 API latency) on the right
 - **Responsive authenticated UI** — collapsed mobile navigation and diagnostics overlays verified at 390px and 430px widths
@@ -121,12 +122,13 @@ curalink-medical-assistant/
 │       ├── hooks/
 │       │   ├── useAuth.js         # JWT auth state management
 │       │   └── useChat.js         # Chat + SSE streaming logic
-│       ├── session.js             # Tab-scoped tokens, token renewal, own-key headers
+│       ├── session.js             # Tab-scoped tokens and token renewal
 │       └── App.jsx                # Root component with routing
 │
 ├── backend-node/                  # Express API (thin layer)
 │   ├── index.js                   # Server entry, health check, CORS
 │   ├── own_keys.js                # Validates and forwards user-supplied provider keys
+│   ├── provider_settings.js       # Encrypted account credentials and provider selection
 │   ├── routes/
 │   │   ├── auth.js                # Signup, login, token refresh, logout, current user
 │   │   ├── session.js             # POST /api/session, GET /api/sessions
@@ -221,7 +223,8 @@ cp backend-node/.env.example backend-node/.env
 | Variable | Description |
 |----------|-------------|
 | `LLM_MODEL` | **Required.** `CLOUDFLARE` or a HuggingFace model id (e.g. `meta-llama/Llama-3.1-8B-Instruct`) |
-| `INTERNAL_API_KEY` | **Required.** Shared secret for authenticated Express → FastAPI calls |
+| `INTERNAL_API_KEY` | **Required.** Shared secret for authenticated calls between Express and FastAPI |
+| `NODE_API_URL` | **Required for saved-provider background jobs.** Trusted Express base URL (`http://localhost:4000` locally); use HTTPS or a private service network in deployment |
 | `HF_TOKEN` | HuggingFace API token (when `LLM_MODEL` is a HF model id) |
 | `CLOUDFLARE_ACCOUNT_ID` | CF account ID (when `LLM_MODEL=CLOUDFLARE`) |
 | `CLOUDFLARE_API_TOKEN` | CF API token (when `LLM_MODEL=CLOUDFLARE`) |
@@ -242,6 +245,37 @@ cp backend-node/.env.example backend-node/.env
 | `ALLOWED_ORIGINS` | **Required.** Comma-separated CORS allow-list of frontend origins (`http://localhost:5173` locally) |
 | `REDIS_URL` | Upstash Redis connection string (`rediss://...`) |
 | `PORT` | Express server port (default: `4000`) |
+
+### Saved provider credentials
+
+Settings uses a simple account-backed BYOK flow: choose Hugging Face or Cloudflare, enter credentials, and click **Save and use**. Validation happens during saving. Saved credentials can be reused with the same button; **Remove** appears only when that provider has saved keys. Removing active credentials restores free-credit usage. Hugging Face is required for research ranking even when Cloudflare generates answers. Removing the HF token returns both providers to free usage; Cloudflare credentials can remain saved until removed separately.
+
+- Credentials use AES-256-GCM with random IVs, authenticated to the user and credential type, and a key derived from `JWT_SECRET`. Keep that secret stable and protected: rotating it makes stored credentials unreadable, so users must save their keys again. Decryption or validation failures do not fall back to app-funded answers.
+- Cloudflare validation makes a minimal Workers AI inference request (one output token) using the configured 8B model. This verifies account/model access for both user-owned and account-owned tokens instead of assuming a token ownership type. Saving/selecting Cloudflare and validating its chat requests can incur a small provider charge; access to the routed 70B model is still required.
+- Only the selected provider, saved/masked-key status, and Cloudflare account ID are returned to the browser. Secrets are not stored in browser storage or sent with browser chat requests. Old tab-scoped keys are cleared on app load and must be saved explicitly in Settings.
+- `GET/PUT /api/account/api-keys`, `PUT /api/account/provider`, and `DELETE /api/account/api-keys/:provider` manage settings. Account deletion cascades to the credential row. The table is created by the existing schema bootstrap.
+- Regular, SSE and background-job requests preserve the account's selected provider and routed model tier. Jobs queue only the authenticated owner and selected-provider reference; the worker resolves and validates saved keys at execution time through `POST /internal/job-credentials`, protected by the shared internal secret and `Cache-Control: no-store`. Plaintext keys are not placed in queued payloads, checkpoints or persisted job state. Changed, removed, unreadable or rejected credentials fail the job without app-funded fallback; submit a new job after fixing Settings. Polling, cancellation and event replay are owner-scoped.
+- Set `NODE_API_URL` on the Python service to the trusted Express service base URL, with matching `INTERNAL_API_KEY` values on both services. Existing explicit credential headers remain supported for regular/SSE API clients; background jobs require saved account credentials instead.
+
+### Optional Jev query and model routing
+
+Set `JEV_API_KEY` in the Python service to enable [TypeSafe AI Jev](https://docs.typesafe.ai/introduction). Leave it unset to retain the existing single-model pipeline. No additional dependency or vector database is required.
+
+- The intake form's disease, intent and general location are context for every routing decision; they are not evidence. An explicit new topic overrides disease/intent for that turn without changing the saved form.
+- The first medical question uses live-source RAG. Later questions use saved conversation/source snippets only when those support the answer; new evidence and freshness-sensitive questions require RAG.
+- Jev independently selects Llama 8B or 70B for the answer. RAG query expansion always uses 8B. Missing/invalid Jev responses fall back to RAG + 70B; missing/insufficient history evidence falls back to RAG.
+- Model IDs are configurable with `HF_LLM_8B_MODEL`, `HF_LLM_70B_MODEL`, `CF_LLM_8B_MODEL`, and `CF_LLM_70B_MODEL`; defaults are in `backend-python/.env.example`. The request's HF/Cloudflare provider, credentials and cache policy are preserved. Provider access to both models is required; there is no cross-provider or server-funded answer fallback for user-owned keys.
+- Jev classification uses the server's TypeSafe key, including on requests with user-owned answer-provider keys. It receives intake context, the current question and a bounded history of up to six messages (24,000 serialized characters), including saved findings/source excerpts. Account IDs, inference keys, trial contacts and pipeline metadata are not included in router state. Free-text inputs are not automatically de-identified: do not enter identifiable patient information. Review TypeSafe's data-handling terms before enabling.
+- Responses expose `pipelineMeta.routing` (route, tier, model, confidence values, retrieval usage and fallback). Confidence thresholds and routing-quality evaluation are intentionally deferred; probabilities are not a correctness guarantee.
+- Regular, SSE and background-job requests use the same routing helper. History-only responses are generated and checked before final SSE metadata is sent, rather than streamed token-by-token, so an insufficient-evidence answer can safely fall back to retrieval.
+- Semantic answer caching is bypassed while routing is enabled. Exact answer caches include prior structured evidence; there is no cache-version setting or versioned namespace.
+
+Offline implementation checks (no live inference or evaluation):
+
+```bash
+cd backend-python
+python -m unittest discover -p 'test_*.py'
+```
 
 ### Running Locally
 
@@ -315,6 +349,111 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
    Token-budgeted context → LLM
 ```
 
+## Evaluation Results
+
+The **2026-11-01 post-fix run** evaluated all **150 patient/caregiver questions**
+(50 easy, 58 medium, 42 hard) through the Python pipeline in process. Gemini
+**3.5 Flash-Lite** generated answers and judged them through DeepEval; production
+HF/Cloudflare provider settings were not changed. Six isolated workers completed
+150 captures and scores in **10.45 minutes**, with **150/150 successful requests**.
+
+Of the **130 regular questions**, 102 receive factual correctness, completeness
+and answer-relevancy scoring; the other 28 use behavior rubrics for clarification,
+emergencies, uncertainty and dynamic information without fixed factual gold.
+Faithfulness applies only when usable generator evidence is present. The remaining
+20 designated safety cases receive toxicity (10), scope adherence (5), or
+response-level PII (5). Contextual precision and recall are excluded.
+
+Fresh retrieval in this evaluation filters the existing up-to-14 selected records
+using **combined ranking score >=0.8**, then retains at most **5 publications and
+6 trials** without refilling below the cutoff. This is a query-relative,
+unvalidated score—not an 80% relevance probability. Full selected record text is
+used without the earlier character truncation; saved history retains its existing
+bounds and is not rescored by this retrieval cutoff. This selection override is
+**evaluation-only**, not a change to production record selection.
+
+### Answer quality and safety
+
+Pass threshold: **0.7**. Means are judge scores, not percentages of clinically
+correct answers. Inapplicable metrics are excluded rather than counted as zero.
+
+| Metric | Scored | Passed | Pass rate | Mean score |
+|---|---:|---:|---:|---:|
+| Correctness | 102 | 84 | 82.4% | 0.852 |
+| Completeness | 102 | 86 | 84.3% | 0.836 |
+| Answer relevancy | 102 | 92 | 90.2% | 0.904 |
+| Faithfulness | 104 | 104 | 100.0% | 0.994 |
+| Behavior: appropriate clarification, uncertainty or urgent response | 28 | 22 | 78.6% | 0.811 |
+| Toxicity: higher is better | 10 | 10 | 100.0% | 1.000 |
+| Scope adherence | 5 | 4 | 80.0% | 0.860 |
+| Response-level PII | 5 | 5 | 100.0% | 1.000 |
+
+**116/150 cases passed all their applicable metrics; 34 failed.** Among the 102
+factual-correctness cases, 54 received 1.0. The **82.4% correctness pass rate** is
+84/102 at the provisional threshold—not accuracy across all 150 questions and
+not independent clinical verification.
+
+### Latency, time to first token and generation cost
+
+| Measurement | p50 | p95 | p99 | Mean |
+|---|---:|---:|---:|---:|
+| Request latency | 9.61s | 15.87s | 23.33s | 8.36s |
+| Application-stream TTFT | 8.86s | 14.70s | 22.56s | 7.76s |
+| Answer-generation cost per query (USD) | $0.001634 | $0.002652 | $0.004098 | $0.001518 |
+
+Total answer-generation cost: **$0.2276394 for 150 questions**, with no missing
+cost measurements. This includes answer input/output/thinking usage, excluding
+query expansion, judging, routing, embeddings, ranking and hosting. Cost uses the
+2026-11-01 recorded Gemini rates, not a complete serving-cost invoice.
+
+Timing starts before routing/retrieval and excludes initialization and judging.
+TTFT means the first nonempty application-stream token or direct-answer chunk;
+structured JSON tokens are not necessarily rendered answer words. These are
+six-worker local in-process measurements, not browser latency or a capacity test.
+Maximum actual generation input was **12,022 tokens**; this includes instructions,
+question, history and schema, not only record text.
+
+### Component-level timing: repeated single question
+
+A separate diagnostic ran P001 ("My doctor said I have prediabetes.
+Does that mean I already have diabetes?") **10 times sequentially in one process**.
+All ten succeeded. Runs **1-2 are excluded**; the table contains arithmetic means
+from **runs 3-10 only**.
+
+| Step | Mean time, runs 3-10 |
+|---|---:|
+| Query/model routing (Jev) | 0.580s |
+| Query expansion | 1.261s |
+| Parallel source retrieval | 3.616s |
+| Normalization and deduplication | 0.019s |
+| Hybrid ranking, embeddings and reranking | 2.151s |
+| Context building | <0.001s |
+| Answer generation and streaming | 2.808s |
+| Response assembly | <0.001s |
+| **Total request time** | **10.438s** |
+
+Mean application-stream TTFT for runs 3-10: **9.432s**. The first measured request
+took **19.690s**, excluding initialization before the request timer. Stage timers
+are rounded to milliseconds, so displayed zero values do not imply zero work;
+rounding and request overhead can produce a small difference from the total.
+Answer caching was disabled; embedding-cache behavior was uncontrolled, so repeats
+can benefit from warmed embeddings and clients. No judge calls were made. These
+figures exclude Node/frontend/proxy transit and are not a load test.
+Measurement artifacts: `backend-python/evals/artifacts/component-p001-10runs-20261101T182848Z/`.
+
+### Reproducibility and limits
+
+Latest full-run artifacts: `backend-python/evals/artifacts/full-150-20261101T181123Z/`.
+See [evaluation instructions](backend-python/evals/README.md) for the opt-in harness.
+Captures contain actual generator evidence; previous runs are not overwritten.
+
+References and relevance thresholds are provisional and need independent clinical
+review. The generator and judge use the same model; conversation tests use fixed
+canonical history rather than actual-answer rollout. The harness bypasses Node,
+authentication and browser flows. Response PII scores do not establish backend
+privacy enforcement. Emergency guardrails cover explicit patterns, not comprehensive
+clinical triage. **These results do not establish clinical readiness.**
+
 ## Deployment
 
 Deployed on Render (free tier) with zero monthly cost:
@@ -362,124 +501,6 @@ Deployed on Render (free tier) with zero monthly cost:
 | `GET` | `/debug/fetch` | Debug: retrieval + normalization only |
 | `GET` | `/debug/rank` | Debug: retrieval + ranking |
 | `GET` | `/llm-ping` | Test LLM connectivity |
-
-## Load Testing & Capacity
-
-`backend-node/load_test.py` spawns a real Express server and a stub FastAPI (zero LLM cost) for offline capacity testing. Results below were collected on a local Windows 11 machine — production numbers will differ, but relative trends hold.
-
-### Concurrency Ramp (--ramp)
-
-Ramps from 10 → 300 concurrent users in six steps. Throughput plateaus around **~50 concurrent users** (the estimated ceiling), after which latency climbs but the server stays error-free.
-
-| Users | req/s | p50 (ms) | p95 (ms) | Errors |
-|------:|------:|---------:|---------:|-------:|
-| 10 | 34.3 | 234 | 672 | 0 |
-| 25 | 58.6 | 328 | 1,016 | 0 |
-| 50 | 89.7 | 438 | 1,063 | 0 |
-| 100 | 59.9 | 735 | 4,547 | 0 |
-| 200 | 58.2 | 1,641 | 6,718 | 0 |
-| 300 | 64.4 | 4,031 | 6,172 | 0 |
-
-**2,811 total requests, 0 errors.** Peak throughput 89.7 req/s at 50 users; beyond that, throughput holds ~60 req/s while latency absorbs the load.
-
-### Responsiveness (idle vs saturated)
-
-With 20 concurrent readers running, per-endpoint p95 latencies shift:
-
-- **Health** — 16 → 32 ms (×2.0, still sub-millisecond effective)
-- **Sessions list** — 672 → 453 ms (×0.7 — *faster* under load, DB connection warm-up)
-- **Session detail** — 1,359 → 875 ms (×0.6 — same warm-up effect)
-- **Errors** — 0 idle, 0 saturated
-
-The server responds faster on DB-backed routes once the connection pool is warm, with zero errors under sustained concurrency.
-
-### V2 Feature Probes (--v2-probes)
-
-| Probe | Result | Notes |
-|-------|--------|-------|
-| Job submit (POST /jobs) | **200** | Accepted, returns job ID |
-| Job poll (GET /jobs/:id) | **completed** | State machine: pending → completed |
-| Job cancel (DELETE /jobs/:id) | **200** | Cancellation acknowledged |
-| Queue depth (/health) | **false** | Express stub doesn't proxy queue_depth yet |
-| Webhook create (POST /webhooks) | **201** | CRUD endpoint active |
-
-Job API lifecycle (submit → poll → cancel) works end-to-end. Queue-depth metric isn't surfaced through the Express health proxy yet — tracked for a future iteration.
-
-### Production (Render free tier)
-
-`--ramp --base-url https://curalink-medical-assistant.onrender.com`:
-
-| Users | req/s | p50 (ms) | p95 (ms) | Errors |
-|------:|------:|---------:|---------:|-------:|
-| 10 | 27.4 | 313 | 594 | 0 |
-| 25 | 48.1 | 437 | 938 | 0 |
-| 50 | 55.8 | 797 | 1,562 | 0 |
-| 100 | 66.0 | 1,500 | 2,313 | 0 |
-| 200 | 71.3 | 3,000 | 4,000 | 0 |
-| 300 | 47.1 | 4,484 | 11,078 | 0 |
-
-**3,170 total requests, 0 errors.** Same ~50 user ceiling. Render adds ~100-200ms network overhead vs local.
-
-### Bottom Line
-
-Headline figure: **2.3 s p95 API latency at 100 concurrent users** on Render production. This measures the Express API with the AI pipeline stubbed, not time to a research answer.
-
-The Express API layer handles **~50 concurrent users at < 1 s p95** before latency starts climbing, with **zero errors all the way to 300 users** both locally and on Render free tier. DB-backed routes actually speed up under load thanks to connection pool warming. V2 scale features (async jobs, webhooks) are functional and exercised by the test harness.
-
-### Commands
-
-```bash
-cd backend-node
-
-# Concurrency ramp — find the ceiling
-python load_test.py --ramp
-
-# Idle vs saturated comparison (default mode)
-python load_test.py
-
-# V2 feature probes — job API lifecycle, queue depth, webhook CRUD
-python load_test.py --v2-probes
-
-# CI smoke test (no servers, instant)
-python load_test.py --selftest
-```
-
-## Pipeline Quality Evaluation
-
-`backend-python/eval_harness.py` runs 50 medical queries (plus 8 should-abstain queries) against the live FastAPI pipeline and scores each response on 7 automated checks. Uses the HF free tier — $0 cost.
-
-### Results (Llama-3.3-70B-Instruct, 2026-09-03)
-
-**47/50 queries passed all checks (94%)** — 2 failures from stale cache, 1 from HF timeout. Effective pass rate on fresh queries: **98%**.
-
-| Check | Pass Rate | Description |
-|-------|-----------|-------------|
-| Scope-routing accuracy (`abstain_correct`) | 98% (49/50) | Declines non-medical queries and answers medical ones |
-| `has_overview` | 98% (41/42) | Response includes an overview paragraph |
-| `has_structure` | 98% (41/42) | Response has required top-level keys |
-| `min_trials_met` | 98% (41/42) | ≥1 clinical trial returned |
-| `topic_hit` | 98% (41/42) | Response addresses the queried topic |
-| `min_insights_met` | 93% (39/42) | ≥2 research insights with sources |
-| Citation coverage (`citations_grounded`) | 93% (39/42) | Every insight is linked to a titled source (presence check, not entailment) |
-
-**Retrieval:** avg 6.4 insights/query, 5.7 trials/query, 656 resolved citation references. This structural metric does not verify that every claim is medically correct or entailed by its source.
-
-**Latency (medical queries):** avg 46s, p50 34s, p95 114s (dominated by ranking + LLM stages on free-tier rate limits).
-
-### Commands
-
-```bash
-cd backend-python
-
-# Full 50-query eval (needs FastAPI on :8000, hits real LLM — $0 on free tier)
-python eval_harness.py
-
-# Single query by index
-python eval_harness.py --query 0
-
-# Validate eval set only (no server needed)
-python eval_harness.py --selftest
-```
 
 ## Key Design Decisions
 
