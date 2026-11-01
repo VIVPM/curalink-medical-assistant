@@ -32,8 +32,10 @@ export async function validateOwnKeys(keys) {
     throw Object.assign(new Error("Credential verification unavailable"), { status: 503 });
   }
   if (!response.ok) {
-    const status = response.status === 400 || response.status === 422 ? 400 : 503;
-    throw Object.assign(new Error(status === 400 ? "Invalid or incomplete API credentials" : "Credential verification unavailable"), { status });
+    const status = response.status === 429 ? 429 : response.status === 400 || response.status === 422 ? 400 : 503;
+    const message = status === 429 ? "Provider usage limit reached" : status === 400
+      ? "Invalid or incomplete API credentials" : "Credential verification unavailable";
+    throw Object.assign(new Error(message), { status });
   }
 }
 

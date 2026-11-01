@@ -9,6 +9,9 @@ import sessionRouter from "./routes/session.js";
 import chatRouter from "./routes/chat.js";
 import jobsRouter from "./routes/jobs.js";
 import webhooksRouter from "./routes/webhooks.js";
+import providerRouter from "./routes/provider.js";
+import jobCredentialsRouter from "./routes/job_credentials.js";
+import { isUnlimited, providerSettings } from "./provider_settings.js";
 import { cacheDeleteUser, redisStatus } from "./cache.js";
 import { authMiddleware } from "./middleware/auth.js";
 import { validateOwnKeys } from "./own_keys.js";
@@ -86,6 +89,8 @@ app.get("/health", (req, res) => {
   res.json({ ok: true, service: "express", redis: redisStatus() });
 });
 
+app.use("/internal", jobCredentialsRouter);
+app.use("/api/account", providerRouter);
 app.use("/api/auth", authRouter);
 app.use("/api", sessionRouter);
 app.use("/api", chatRouter);
@@ -117,6 +122,8 @@ app.post("/api/account/keys/validate", authMiddleware, async (req, res) => {
 });
 
 app.get("/api/account/credits", authMiddleware, async (req, res) => {
+  const settings = await providerSettings(req.userId);
+  if (isUnlimited(settings)) return res.json({ ok: true, unlimited: true, cap: null, used: null, remaining: null });
   const since = new Date();
   since.setUTCHours(0, 0, 0, 0);
   const { rows } = await db.query(
@@ -125,7 +132,7 @@ app.get("/api/account/credits", authMiddleware, async (req, res) => {
     [req.userId, since]
   );
   const used = rows[0].n;
-  res.json({ ok: true, cap: DAILY_MESSAGE_CAP, used, remaining: Math.max(0, DAILY_MESSAGE_CAP - used) });
+  res.json({ ok: true, unlimited: false, cap: DAILY_MESSAGE_CAP, used, remaining: Math.max(0, DAILY_MESSAGE_CAP - used) });
 });
 
 

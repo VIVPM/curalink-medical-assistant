@@ -31,17 +31,26 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS user_provider_settings (
+  user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  selected TEXT NOT NULL DEFAULT 'free' CHECK (selected IN ('free', 'huggingface', 'cloudflare')),
+  hf_token_enc TEXT,
+  cf_account_id TEXT,
+  cf_token_enc TEXT
+);
 CREATE TABLE IF NOT EXISTS sessions (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   disease TEXT NOT NULL,
   intent TEXT NOT NULL DEFAULT '',
   location TEXT NOT NULL DEFAULT '',
+  patient_name TEXT NOT NULL DEFAULT '',
   title TEXT NOT NULL DEFAULT '',
   message_count INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS patient_name TEXT NOT NULL DEFAULT '';
 CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS sessions_updated_at_idx ON sessions(updated_at);
 CREATE TABLE IF NOT EXISTS messages (
@@ -127,6 +136,7 @@ export const toSession = (r) =>
   r && {
     _id: r.id,
     userId: r.user_id,
+    patientName: r.patient_name || "",
     staticContext: { disease: r.disease, intent: r.intent, location: r.location },
     title: r.title,
     messageCount: r.message_count,
