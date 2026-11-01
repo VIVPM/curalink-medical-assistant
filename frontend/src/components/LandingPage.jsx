@@ -23,9 +23,9 @@ const features = [
 ];
 
 const metrics = [
-  { value: "98%", label: "Scope-routing accuracy" },
-  { value: "93%", label: "Citation coverage" },
-  { value: "2.3 s", label: "p95 API latency at 100 concurrent users" },
+  { value: "91%", label: "Answer relevancy" },
+  { value: "99%", label: "Faithfulness" },
+  { value: "$0.001518", label: "Mean generation cost per query" },
 ];
 
 const steps = [
