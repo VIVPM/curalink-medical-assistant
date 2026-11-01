@@ -6,7 +6,8 @@ import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { db, newId, toMessage, toSession } from "../db.js";
 import { cacheGet, cacheSet } from "../cache.js";
 import { authMiddleware } from "../middleware/auth.js";
-import { ownKeysFromRequest, providerHeaders, validateOwnKeys } from "../own_keys.js";
+import { providerHeaders, validateOwnKeys } from "../own_keys.js";
+import { requestOwnKeys } from "../provider_settings.js";
 
 const router = Router();
 
@@ -78,7 +79,7 @@ async function findSession(sessionId, userId) {
 }
 
 async function sessionHistory(sessionId) {
-  const { rows } = await db.query("SELECT role, content FROM messages WHERE session_id = $1 ORDER BY created_at", [sessionId]);
+  const { rows } = await db.query("SELECT role, content, structured_response FROM messages WHERE session_id = $1 ORDER BY created_at", [sessionId]);
   return rows;
 }
 
@@ -132,7 +133,7 @@ export function cacheKey(userId, disease, intent, location, message, history = [
 
 
   const historyStr = history
-    .map((m) => `${m.role}:${normKey(m.content)}`)
+    .map((m) => `${m.role}:${normKey(m.content)}:${JSON.stringify(m.structuredResponse || null)}`)
     .join("|");
   const digest = crypto
     .createHash("sha256")
@@ -168,7 +169,7 @@ function emergencyResponse() {
 
 async function checkedOwnKeys(req, res) {
   try {
-    const keys = ownKeysFromRequest(req);
+    const keys = await requestOwnKeys(req);
     if (keys) await validateOwnKeys(keys);
     return { keys };
   } catch (error) {
@@ -258,6 +259,7 @@ router.post("/chat", async (req, res) => {
   const recentMessages = history.map((m) => ({
     role: m.role,
     content: m.content,
+    structuredResponse: m.structured_response,
   }));
 
 
@@ -412,6 +414,7 @@ router.post("/chat/stream", async (req, res) => {
   const recentMessages = history.map((m) => ({
     role: m.role,
     content: m.content,
+    structuredResponse: m.structured_response,
   }));
 
 

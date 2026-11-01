@@ -15,6 +15,16 @@ test("query cache is isolated by user and location", () => {
   assert.equal(key("USER-A", " Toronto "), key("user-a", "toronto"));
 });
 
+test("query cache includes prior evidence", () => {
+  const build = (snippet) => cacheKey("user-a", "Parkinson's", "DBS", "Toronto", "Explain that", [{
+    role: "assistant", content: "Same overview", structuredResponse: {
+      insights: [{ finding: "Same finding", source_details: [{ url: "https://example.org/study", snippet }] }],
+    },
+  }]);
+  assert.notEqual(build("Evidence A"), build("Evidence B"));
+  assert.match(build("Evidence A"), /^query:user-a:[a-f0-9]{64}$/);
+});
+
 test("urgent messages are diverted from the research pipeline", () => {
   assert.equal(isEmergencyMessage("I cannot breathe"), true);
   assert.equal(isEmergencyMessage("I took an overdose"), true);

@@ -37,6 +37,16 @@ test("oversized provider keys are rejected", () => {
   );
 });
 
+test("provider usage limits are preserved instead of reported as invalid credentials", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response("{}", { status: 429 });
+  try {
+    await assert.rejects(validateOwnKeys({ provider: "cloudflare", hfToken: "hf_user" }), { status: 429 });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("rejected provider validation returns a client error", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response("{}", { status: 400 });

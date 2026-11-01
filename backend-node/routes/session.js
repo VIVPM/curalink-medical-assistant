@@ -22,7 +22,11 @@ router.use(authMiddleware);
 
 
 router.post("/session", createSessionLimiter, async (req, res) => {
-  const { disease, intent, location } = req.body;
+  const { disease, intent, location, patientName = "" } = req.body;
+
+  if (typeof patientName !== "string" || patientName.trim().length > 100) {
+    return res.status(400).json({ ok: false, error: "patient name must be text up to 100 characters" });
+  }
 
   if (!disease || !disease.trim()) {
     return res.status(400).json({ ok: false, error: "disease is required" });
@@ -31,9 +35,9 @@ router.post("/session", createSessionLimiter, async (req, res) => {
   const d = disease.trim();
   const i = (intent || "").trim();
   const { rows } = await db.query(
-    `INSERT INTO sessions (id, user_id, disease, intent, location, title)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [newId(), req.userId, d, i, (location || "").trim(), i ? `${d} — ${i}` : d]
+    `INSERT INTO sessions (id, user_id, disease, intent, location, title, patient_name)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [newId(), req.userId, d, i, (location || "").trim(), i ? `${d} — ${i}` : d, patientName.trim()]
   );
 
   res.status(201).json({ ok: true, session: toSession(rows[0]) });
