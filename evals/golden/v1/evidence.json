@@ -1,0 +1,479 @@
+{
+  "retrieved_on": "2026-11-01",
+  "verification": "Patient-reference assertions are authored paraphrases checked against the listed NHS/NIDDK patient pages on 2026-11-01. Historical trial assertions retain their separate 2026-10-31 abstract provenance. Sources have different review dates; retrieval today does not make an old page current clinical guidance. All patient rubrics remain drafts pending independent clinical review. No live registry records have been frozen.",
+  "retrieval_provenance": "Patient pages retrieved directly from their listed public URLs; original trial abstracts were checked through Europe PMC MED on 2026-10-31. No application/model inference used to create this revision.",
+  "sources": {
+    "DPP": {
+      "pmid": "11832527",
+      "title": "Reduction in the incidence of type 2 diabetes with lifestyle intervention or metformin.",
+      "year": 2002,
+      "doi": "10.1056/NEJMoa012512",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11832527/",
+      "facts": {
+        "population": "The randomized study included 3234 people without diabetes who had elevated fasting and post-load glucose; mean age was 51 years and mean BMI 34.0.",
+        "comparison": "The groups received placebo, metformin, or an intensive lifestyle program. Lifestyle goals were at least 7% weight loss and at least 150 minutes of physical activity weekly.",
+        "endpoint": "The measured outcome was incident diabetes, with mean follow-up of 2.8 years.",
+        "rates": "Diabetes incidence was 11.0, 7.8 and 4.8 cases per 100 person-years for placebo, metformin and lifestyle, respectively.",
+        "relative": "Versus placebo, relative incidence reductions were 58% for lifestyle (95% CI 48-66%) and 31% for metformin (95% CI 17-43%). Lifestyle outperformed metformin in this population.",
+        "nnt": "The abstract estimated three-year numbers needed to treat of 6.9 for lifestyle and 13.9 for metformin to prevent one diabetes case.",
+        "scope": "This was prevention/delay in a high-risk population without established diabetes, not evidence of curing established diabetes or a universal individual treatment rule."
+      },
+      "boundaries": [
+        "Do not present 58% as an absolute percentage-point reduction.",
+        "Do not equate person-year incidence with a three-year cumulative probability.",
+        "The abstract does not report detailed adverse-event rates or ten-year outcomes."
+      ]
+    },
+    "SPRINT": {
+      "pmid": "26551272",
+      "title": "A Randomized Trial of Intensive versus Standard Blood-Pressure Control.",
+      "year": 2015,
+      "doi": "10.1056/NEJMoa1511939",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26551272/",
+      "facts": {
+        "population": "SPRINT randomized 9361 people with systolic pressure at least 130 mm Hg and increased cardiovascular risk, without diabetes.",
+        "comparison": "Systolic-pressure targets were below 120 versus below 140 mm Hg; achieved mean pressures at one year were 121.4 versus 136.2 mm Hg.",
+        "endpoint": "The primary composite comprised myocardial infarction, other acute coronary syndromes, stroke, heart failure or cardiovascular death.",
+        "primary": "Primary-outcome rates were 1.65% versus 2.19% per year; hazard ratio 0.75 (95% CI 0.64-0.89), intensive versus standard treatment.",
+        "mortality": "All-cause mortality hazard ratio was 0.73 (95% CI 0.60-0.90), intensive versus standard treatment.",
+        "followup": "The intervention stopped early for benefit after median follow-up of 3.26 years.",
+        "harms": "Serious hypotension, syncope, electrolyte abnormalities and acute kidney injury/failure were more frequent with intensive treatment; injurious falls were not more frequent.",
+        "registry": "The paper identifies ClinicalTrials.gov registration NCT01206062, without establishing present recruitment status."
+      },
+      "boundaries": [
+        "Do not treat the target below 120 as an achieved mean below 120.",
+        "Do not generalize this trial directly to people with diabetes.",
+        "The abstract does not quantify each adverse-event rate or list medication titration protocols."
+      ]
+    },
+    "DAPA": {
+      "pmid": "31535829",
+      "title": "Dapagliflozin in Patients with Heart Failure and Reduced Ejection Fraction.",
+      "year": 2019,
+      "doi": "10.1056/NEJMoa1911303",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31535829/",
+      "facts": {
+        "population": "DAPA-HF enrolled 4744 people with NYHA class II-IV heart failure and ejection fraction at most 40%, with or without diabetes.",
+        "comparison": "Dapagliflozin was compared with placebo in addition to recommended therapy, not as a replacement for it.",
+        "endpoint": "The primary composite was worsening heart failure, defined as hospitalization or an urgent visit requiring intravenous therapy, or cardiovascular death.",
+        "primary": "Over median follow-up of 18.2 months, primary events occurred in 16.3% versus 21.2%; hazard ratio 0.74 (95% CI 0.65-0.85), dapagliflozin versus placebo.",
+        "mortality": "Cardiovascular death occurred in 9.6% versus 11.5%; all-cause death in 11.6% versus 13.9%, dapagliflozin versus placebo.",
+        "subgroup": "Findings in participants with diabetes were similar to those without diabetes; the abstract does not supply detailed subgroup event tables.",
+        "harms": "Frequencies of adverse events related to volume depletion, renal dysfunction and hypoglycemia did not differ between groups in this abstract.",
+        "registry": "The publication names NCT03036124; its current registry status is not supplied by the abstract."
+      },
+      "boundaries": [
+        "Do not extrapolate this HFrEF trial to every heart-failure phenotype.",
+        "No detected group difference in listed harms does not mean no side effects.",
+        "A hazard ratio of 0.74 is not an absolute 26-percentage-point reduction."
+      ]
+    },
+    "RECOVERY": {
+      "pmid": "32678530",
+      "title": "Dexamethasone in Hospitalized Patients with Covid-19.",
+      "year": 2021,
+      "doi": "10.1056/NEJMoa2021436",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32678530/",
+      "facts": {
+        "population": "The randomized, open-label comparison involved hospitalized COVID-19 patients: 2104 assigned to dexamethasone and 4321 to usual care.",
+        "comparison": "The comparison was dexamethasone plus usual care versus usual care alone; the endpoint was 28-day mortality.",
+        "overall": "Overall mortality was 22.9% versus 25.7%; age-adjusted rate ratio 0.83 (95% CI 0.75-0.93), dexamethasone versus usual care.",
+        "ventilated": "Among participants receiving invasive mechanical ventilation at randomization, mortality was 29.3% versus 41.4%; rate ratio 0.64 (95% CI 0.51-0.81).",
+        "oxygen": "Among those receiving oxygen without invasive ventilation, mortality was 23.3% versus 26.2%; rate ratio 0.82 (95% CI 0.72-0.94).",
+        "no_support": "Among those receiving no respiratory support at randomization, mortality was 17.8% versus 14.0%; rate ratio 1.19 (95% CI 0.92-1.55). A mortality benefit was not demonstrated in this subgroup.",
+        "scope": "The findings concern hospitalized patients and vary by baseline respiratory support; the abstract does not establish benefit for mild community-managed infection or provide individualized prescribing guidance.",
+        "registry": "RECOVERY is registered as NCT04381936; a registration identifier does not establish current recruitment."
+      },
+      "boundaries": [
+        "Do not claim equal benefit in every respiratory-support subgroup.",
+        "The no-support confidence interval does not establish a statistically certain mortality increase.",
+        "Do not convert the historical trial regimen into self-medication instructions."
+      ]
+    },
+    "LEAP": {
+      "pmid": "25705822",
+      "title": "Randomized trial of peanut consumption in infants at risk for peanut allergy.",
+      "year": 2015,
+      "doi": "10.1056/NEJMoa1414850",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25705822/",
+      "facts": {
+        "population": "LEAP randomized 640 high-risk infants with severe eczema, egg allergy or both, aged at least four but under eleven months at randomization.",
+        "comparison": "Peanut consumption was compared with avoidance until 60 months, with separate cohorts based on baseline skin-prick sensitivity.",
+        "endpoint": "The primary outcome was peanut allergy at 60 months, assessed separately within the baseline sensitivity cohorts.",
+        "negative": "Among 530 initially skin-prick-negative infants in the intention-to-treat population, allergy prevalence was 1.9% with consumption versus 13.7% with avoidance.",
+        "positive": "Among 98 initially skin-prick-positive participants in the intention-to-treat population, allergy prevalence was 10.6% with consumption versus 35.3% with avoidance.",
+        "harms": "Serious adverse-event incidence did not differ significantly between groups in the abstract.",
+        "scope": "The trial studied prevention in selected high-risk infants; it does not establish that unsupervised exposure treats an existing peanut allergy or is safe for every infant.",
+        "registry": "The abstract names registration NCT00329784, not current enrollment status."
+      },
+      "boundaries": [
+        "Do not confuse the 640 randomized infants with the subgroup analysis denominators 530 and 98.",
+        "Do not recommend a home peanut challenge for a child with a suspected or known allergy.",
+        "Do not promise zero allergy risk."
+      ]
+    },
+    "ISCHEMIA": {
+      "pmid": "32227755",
+      "title": "Initial Invasive or Conservative Strategy for Stable Coronary Disease.",
+      "year": 2020,
+      "doi": "10.1056/NEJMoa1915922",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32227755/",
+      "facts": {
+        "population": "ISCHEMIA randomized 5179 people with stable coronary disease and moderate or severe ischemia.",
+        "comparison": "An initial invasive strategy plus medical therapy was compared with initial medical therapy and angiography if medical therapy failed.",
+        "endpoint": "The primary composite included cardiovascular death, myocardial infarction, or hospitalization for unstable angina, heart failure or resuscitated cardiac arrest.",
+        "followup": "Median follow-up was 3.2 years; there were 318 versus 352 primary events in invasive versus conservative groups.",
+        "early": "At six months, cumulative primary-event rates were 5.3% versus 3.4%; difference 1.9 percentage points (95% CI 0.8-3.0), invasive versus conservative.",
+        "late": "At five years, cumulative primary-event rates were 16.4% versus 18.2%; difference -1.8 percentage points (95% CI -4.7 to 1.0), invasive versus conservative.",
+        "mortality": "There were 145 versus 144 deaths; all-cause mortality hazard ratio 1.05 (95% CI 0.83-1.32). The study did not find evidence that the initial invasive strategy reduced ischemic cardiovascular events or all-cause death over median 3.2 years.",
+        "sensitivity": "Primary-outcome results were sensitive to the myocardial-infarction definition; a secondary analysis found more procedural infarctions of uncertain clinical importance."
+      },
+      "boundaries": [
+        "Do not interpret absence of demonstrated superiority as proof of exact equivalence.",
+        "Do not extrapolate a stable-disease trial to acute myocardial infarction.",
+        "This abstract does not report the separate quality-of-life study's results."
+      ]
+    },
+    "DBS": {
+      "pmid": "16943402",
+      "title": "A randomized trial of deep-brain stimulation for Parkinson's disease.",
+      "year": 2006,
+      "doi": "10.1056/NEJMoa060281",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16943402/",
+      "facts": {
+        "population": "The randomized-pairs study enrolled 156 people with advanced Parkinson's disease and severe motor symptoms; its conclusion concerned patients under 75 with severe motor complications.",
+        "comparison": "Subthalamic neurostimulation plus medication was compared with medical management alone.",
+        "endpoint": "Six-month changes in PDQ-39 quality of life and off-medication UPDRS-III motor symptoms were the primary endpoints.",
+        "benefit": "Greater improvement favored neurostimulation in 50 of 78 pairs for PDQ-39 and 55 of 78 for UPDRS-III, with reported mean improvements of 9.5 and 19.6 points, respectively.",
+        "serious_harms": "Serious adverse events occurred in 13% with stimulation versus 4% with medication and included a fatal intracerebral hemorrhage.",
+        "all_events": "Overall adverse-event frequency was 50% with stimulation versus 64% with medication; P=0.08. This differs from the serious-adverse-event comparison.",
+        "scope": "The six-month study supports benefit in the studied selected advanced-disease population, not cure, guaranteed individual benefit or proof that medication can be stopped.",
+        "registry": "The study identifies NCT00196911; present recruitment status is not provided."
+      },
+      "boundaries": [
+        "Do not equate all adverse events with serious adverse events.",
+        "Do not invent long-term durability from a six-month abstract.",
+        "Do not turn population-level results into an individual surgery recommendation."
+      ]
+    },
+    "CLARITY": {
+      "pmid": "36449413",
+      "title": "Lecanemab in Early Alzheimer's Disease.",
+      "year": 2023,
+      "doi": "10.1056/NEJMoa2212948",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36449413/",
+      "facts": {
+        "population": "Clarity AD enrolled 1795 people aged 50-90 with early Alzheimer's disease, meaning mild cognitive impairment or mild dementia with amyloid evidence by PET or cerebrospinal fluid testing.",
+        "comparison": "The 18-month multicenter, double-blind phase 3 study compared intravenous lecanemab with placebo; 898 and 897 participants were assigned, respectively.",
+        "endpoint": "The primary endpoint was baseline-to-18-month change in CDR-SB, on which higher scores mean greater impairment.",
+        "primary": "Mean CDR-SB change was 1.21 with lecanemab versus 1.66 with placebo; difference -0.45 points (95% CI -0.67 to -0.23). Both groups worsened on average; lecanemab produced moderately less decline.",
+        "amyloid": "In a 698-person substudy, the between-group difference in amyloid-burden change favored lecanemab by -59.1 centiloids (95% CI -62.6 to -55.6).",
+        "harms": "Infusion-related reactions occurred in 26.4% and amyloid-related imaging abnormalities with edema/effusions in 12.6% of lecanemab participants.",
+        "scope": "The authors called for longer trials to determine efficacy and safety; these findings do not establish cure, reversal, benefit in advanced disease, or present regulatory status.",
+        "registry": "The trial registration is NCT03887455; the publication does not establish current recruitment."
+      },
+      "boundaries": [
+        "Do not claim a 0.45-point difference means a 45% improvement.",
+        "Amyloid change is not interchangeable with clinical score change.",
+        "Do not assert current approval, eligibility or recruitment from this historical abstract."
+      ]
+    },
+    "PROSEVA": {
+      "pmid": "23688302",
+      "title": "Prone positioning in severe acute respiratory distress syndrome.",
+      "year": 2013,
+      "doi": "10.1056/NEJMoa1214103",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23688302/",
+      "facts": {
+        "population": "PROSEVA randomized 466 mechanically ventilated patients with severe ARDS; 237 were assigned prone and 229 supine.",
+        "severity": "The trial defined severe ARDS using PaO2/FiO2 below 150 mm Hg, FiO2 at least 0.6, PEEP at least 5 cm water and tidal volume near 6 mL/kg predicted body weight.",
+        "comparison": "Early prone-position sessions lasting at least 16 hours were compared with supine positioning under the trial's intensive-care protocol.",
+        "primary": "All-cause 28-day mortality, the primary endpoint, was 16.0% prone versus 32.8% supine; hazard ratio 0.39 (95% CI 0.25-0.63).",
+        "ninety_day": "Unadjusted 90-day mortality was 23.6% prone versus 41.0% supine; hazard ratio 0.44 (95% CI 0.29-0.67).",
+        "harms": "Complication incidence did not differ significantly except cardiac arrests, which were more frequent in the supine group.",
+        "scope": "The finding concerns a monitored intensive-care severe-ARDS population, not home management of undifferentiated breathlessness.",
+        "registry": "The publication lists NCT00527813; current registry recruitment is not determined."
+      },
+      "boundaries": [
+        "Do not treat 16.8 percentage points as a 16.8% relative reduction.",
+        "Do not use the hazard ratio as though it equaled the simple mortality risk ratio.",
+        "Do not recommend replacing emergency evaluation with home proning."
+      ]
+    },
+    "CRASH2": {
+      "pmid": "20554319",
+      "title": "Effects of tranexamic acid on death, vascular occlusive events, and blood transfusion in trauma patients with significant haemorrhage (CRASH-2): a randomised, placebo-controlled trial.",
+      "year": 2010,
+      "doi": "10.1016/S0140-6736(10)60835-5",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/20554319/",
+      "facts": {
+        "population": "CRASH-2 randomized 20211 adult trauma patients with, or at risk of, significant bleeding in 274 hospitals across 40 countries.",
+        "comparison": "Tranexamic acid was compared with placebo, with randomization within eight hours of injury; participants and study staff were masked.",
+        "endpoint": "The primary endpoint was in-hospital death within four weeks of injury, analyzed by intention to treat.",
+        "analyzed": "Of 10096 and 10115 randomized to tranexamic acid and placebo, 10060 and 10067 were analyzed, respectively.",
+        "primary": "All-cause mortality was 14.5% versus 16.0%; relative risk 0.91 (95% CI 0.85-0.97), tranexamic acid versus placebo.",
+        "bleeding": "Death due to bleeding was 4.9% versus 5.7%; relative risk 0.85 (95% CI 0.76-0.96), tranexamic acid versus placebo.",
+        "scope": "The abstract supports the studied bleeding-trauma setting, not universal benefit for every bleeding condition; it does not quantify effects in detailed time-to-treatment subgroups.",
+        "registry": "The registration includes NCT00375258; the historical abstract does not establish current enrollment."
+      },
+      "boundaries": [
+        "Do not confuse randomized with analyzed denominators.",
+        "Do not infer identical benefit throughout the entire eight-hour eligibility interval.",
+        "The abstract alone does not supply exact blood-transfusion or vascular-occlusion event rates."
+      ]
+    },
+    "PRED": {
+      "title": "Insulin Resistance & Prediabetes",
+      "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/what-is-diabetes/prediabetes-insulin-resistance",
+      "year": 2025,
+      "platform": "NIDDK",
+      "source_type": "patient_information",
+      "reviewed_on": "2025-03",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "meaning": "Prediabetes means blood glucose is above normal but below the range used to diagnose type 2 diabetes.",
+        "testing": "Prediabetes often has no symptoms. Blood testing, not symptoms alone, is used to diagnose it.",
+        "risk": "Prediabetes increases the risk of type 2 diabetes, but progression is not inevitable.",
+        "prevention": "Healthy eating, physical activity, sleep and weight management can reduce risk. Some people may be offered metformin after clinical assessment.",
+        "goals": "In the cited prevention research, losing about 5 to 7 percent of starting weight helped people at elevated risk; this is not a universal personal target or guaranteed outcome."
+      },
+      "boundaries": [
+        "Do not equate prediabetes with established diabetes or promise prevention for an individual.",
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "DIAG": {
+      "title": "Type 2 diabetes: Getting diagnosed",
+      "url": "https://www.nhs.uk/conditions/type-2-diabetes/getting-diagnosed/",
+      "year": 2025,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2025-02-10",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "symptoms": "Possible symptoms include thirst, frequent urination, tiredness, unintentional weight loss, blurred vision and slow healing. Symptoms can develop gradually or be absent.",
+        "assessment": "Someone concerned about diabetes should arrange clinical assessment and blood testing. A symptom description alone does not establish diabetes or its type."
+      },
+      "boundaries": [
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "T2": {
+      "title": "Type 2 diabetes: Treatment",
+      "url": "https://www.nhs.uk/conditions/type-2-diabetes/treatment/",
+      "year": 2025,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2025-02-10",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "options": "Type 2 diabetes care can include food and activity changes, weight management, medicines and ongoing checks; some people need insulin.",
+        "individual": "Medicine choices depend on clinical circumstances, other conditions, response and side effects. Do not stop prescribed medication without clinical advice.",
+        "monitoring": "Ongoing care includes blood-glucose control checks and checks of eyes, feet, kidney function, blood pressure and cholesterol.",
+        "remission": "Some people achieve glucose levels in the normal range through lifestyle changes; remission is not a promise of permanent cure or a reason to abandon follow-up.",
+        "illness": "Vomiting, diarrhoea or a high temperature while taking diabetes medicines warrants prompt professional advice; do not invent a universal medication-change plan."
+      },
+      "boundaries": [
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "BP": {
+      "title": "High blood pressure (hypertension)",
+      "url": "https://www.nhs.uk/conditions/high-blood-pressure-hypertension/",
+      "year": 2024,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2024-07-19",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "silent": "High blood pressure often causes no noticeable symptoms; feeling well does not establish that blood pressure is normal.",
+        "confirmation": "An initially raised reading may need repeat measurements, home readings over several days or 24-hour monitoring before interpretation.",
+        "management": "Management can include less salt, healthy food, physical activity, weight management and prescribed medicines according to blood pressure and cardiovascular risk.",
+        "medicines": "Blood-pressure medicines are generally taken regularly; some people need more than one. A chat cannot choose an individual medicine or target."
+      },
+      "boundaries": [
+        "Do not use the SPRINT trial alone to prescribe an individual blood-pressure target.",
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "ASTHMA": {
+      "title": "Asthma",
+      "url": "https://www.nhs.uk/conditions/asthma/",
+      "year": 2025,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2025-04-07",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "assessment": "Wheeze, cough, breathlessness and chest tightness can occur with asthma, but symptoms alone do not confirm it; assessment may include breathing tests.",
+        "inhalers": "Inhalers are the main treatment. Preventing symptoms and relieving symptoms are different roles; the exact roles depend on the prescribed inhaler regimen.",
+        "review": "Ask a clinician or pharmacist to check inhaler technique and the written action plan. Ineffective treatment, increased inhaler use or disturbed sleep needs review.",
+        "emergency": "Severe or worsening breathing difficulty or an attack not improving with prescribed rescue treatment requires urgent emergency help; follow the personal action plan and emergency-service instructions."
+      },
+      "boundaries": [
+        "Do not invent puff counts or generalize one inhaler regimen to another.",
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "HF": {
+      "title": "Heart failure: Treatment",
+      "url": "https://www.nhs.uk/conditions/heart-failure/treatment/",
+      "year": 2026,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2026-06-26",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "meaning": "Heart failure means the heart is not pumping effectively enough, not that it has stopped. Breathlessness, fatigue and swelling can occur.",
+        "options": "Treatment depends on the type and severity of heart failure and overall health. It can include medicines, lifestyle support, rehabilitation and sometimes devices or procedures.",
+        "limits": "Treatment can improve symptoms and keep the condition stable, but should not be described as a guaranteed cure.",
+        "changes": "Worsening breathlessness, difficulty breathing when lying flat, swelling or rapid weight gain should be assessed promptly. Severe breathing difficulty requires emergency help.",
+        "fluid": "Some medicines remove excess fluid, while others reduce strain on the heart. A patient should not independently double a medicine or use a universal fluid restriction from a chat."
+      },
+      "boundaries": [
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "PARK": {
+      "title": "Parkinson's disease: Treatment",
+      "url": "https://www.nhs.uk/conditions/parkinsons-disease/treatment/",
+      "year": 2022,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2022-11-03",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "options": "Parkinson's care is individualized and can include medicines, physiotherapy, occupational therapy, speech/swallowing support and selected procedures.",
+        "limits": "Treatment can reduce symptoms and support daily function, but there is no established cure on this page.",
+        "review": "Medicine benefit can fluctuate or become shorter-lived, and side effects can occur; changing symptoms should be discussed with the specialist rather than changing treatment independently.",
+        "dbs": "Deep brain stimulation may help selected patients after specialist assessment of benefits and risks. It is not a cure or proof that medicines can be stopped.",
+        "harms": "Some Parkinson medicines can cause involuntary movements, hallucinations, compulsive behaviour or sudden sleepiness; the particular medicine and symptom need review."
+      },
+      "boundaries": [
+        "The source review predates retrieval by several years; do not claim this page settles latest drug availability.",
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "ALZ": {
+      "title": "Alzheimer's disease: Treatment",
+      "url": "https://www.nhs.uk/conditions/alzheimers-disease/treatment/",
+      "year": 2024,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2024-07-04",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "symptoms": "Some medicines can temporarily help Alzheimer symptoms; effects and tolerability vary and treatment depends on disease stage and clinical assessment.",
+        "support": "Cognitive activities, rehabilitation for daily goals and support for patients and carers can help daily functioning and wellbeing.",
+        "limits": "Symptom relief is not a cure or proof that lost abilities will be restored. Do not infer current availability of newer drugs from this older patient page.",
+        "harms": "Some symptom medicines can cause nausea, vomiting or reduced appetite. Other medicines have different side effects; troublesome symptoms need professional review."
+      },
+      "boundaries": [
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "ALLERGY": {
+      "title": "Food allergy",
+      "url": "https://www.nhs.uk/conditions/food-allergy/",
+      "year": 2026,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2026-08-20",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "assessment": "Food-allergy symptoms may include rash, itching, swelling, stomach symptoms or breathing difficulty. Clinical assessment may use history, blood or skin-prick testing; symptoms alone do not prove a particular food is responsible.",
+        "avoidance": "Avoid confirmed triggers, check labels and inform people preparing food. Get clinical advice before unnecessarily removing foods, especially from a child diet.",
+        "emergency": "Sudden throat or tongue swelling, breathing difficulty or collapse may be anaphylaxis and requires immediate emergency help. Use prescribed emergency adrenaline as directed and call an ambulance even if symptoms improve.",
+        "testing": "Do not deliberately test a suspected serious food allergy through unsupervised exposure at home."
+      },
+      "boundaries": [
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "MET": {
+      "title": "Side effects of metformin",
+      "url": "https://www.nhs.uk/medicines/metformin/side-effects-of-metformin/",
+      "year": 2026,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2026-08-05",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "common": "Metformin can cause nausea, diarrhoea, abdominal discomfort, reduced appetite or taste changes; listed side effects do not prove the cause of an individual symptom.",
+        "review": "Troublesome or persistent side effects should be discussed with a clinician or pharmacist. Do not independently discontinue treatment.",
+        "illness": "Vomiting or diarrhoea can cause dehydration; seek professional advice or follow an existing illness-management plan. Severe associated breathing difficulty, exhaustion or abdominal pain needs urgent assessment.",
+        "b12": "Low vitamin B12 can occur with metformin and can be considered during review of persistent fatigue; fatigue alone does not diagnose B12 deficiency."
+      },
+      "boundaries": [
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "CHD": {
+      "title": "Coronary heart disease: Treatment",
+      "url": "https://www.nhs.uk/conditions/coronary-heart-disease/treatment/",
+      "year": 2024,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2024-01-17",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "options": "Coronary heart disease care may include lifestyle measures and medicines; angioplasty with stenting or bypass surgery may be considered according to clinical circumstances.",
+        "stent": "Angioplasty widens a narrowed artery, usually with a stent to hold it open; bypass surgery provides a route around a blockage.",
+        "medicines": "Medicines have different roles, including reducing clot risk, lowering cholesterol or relieving angina. Do not abruptly stop prescribed heart medicines or start aspirin without appropriate advice."
+      },
+      "boundaries": [
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "CHEST": {
+      "title": "Chest pain",
+      "url": "https://www.nhs.uk/conditions/chest-pain/",
+      "year": 2023,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2023-08-08",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "emergency": "Sudden persistent chest discomfort, pain spreading to an arm, neck, jaw or back, or chest pain with sweating, nausea or breathlessness requires immediate emergency help.",
+        "uncertainty": "Chest pain has several possible causes. A chat cannot establish whether it is anxiety, indigestion or a heart attack; worrying or recurrent symptoms need assessment."
+      },
+      "boundaries": [
+        "Do not delay emergency help to retrieve research. Emergency contact numbers must match the stated location, or use local emergency services without guessing a number.",
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    },
+    "TRIAL": {
+      "title": "Clinical trials",
+      "url": "https://www.nhs.uk/conditions/clinical-trials/",
+      "year": 2022,
+      "platform": "NHS",
+      "source_type": "patient_information",
+      "reviewed_on": "2022-12-22",
+      "verified_on": "2026-11-01",
+      "clinical_review": "pending",
+      "facts": {
+        "choice": "Taking part in a clinical trial is voluntary. Participants may withdraw without having to give a reason or losing access to usual care.",
+        "allocation": "Randomization assigns participants to groups by chance. Depending on the study, comparison care may be established treatment or a placebo; not every trial uses a placebo.",
+        "uncertainty": "A new treatment may help, may not work better or may work worse, and unexpected side effects or extra visits and tests can occur.",
+        "eligibility": "Eligibility depends on the particular study. Finding a listing or matching some criteria does not establish personal eligibility; the research team must assess it.",
+        "questions": "Before deciding, ask about treatment allocation, benefits, risks, visits, alternatives and withdrawal. Prospective participants should receive explanations and have opportunities to ask questions."
+      },
+      "boundaries": [
+        "This page is not a live trial registry and does not establish current recruitment, fees or local trial availability.",
+        "General patient information is not an individualized diagnosis, prescription or guarantee. Verify newer relevant guidance before claiming current standard of care."
+      ]
+    }
+  }
+}
