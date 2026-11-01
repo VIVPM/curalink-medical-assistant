@@ -10,18 +10,13 @@ import Sidebar from "./components/Sidebar";
 import IntakeForm from "./components/IntakeForm";
 import ChatView from "./components/ChatView";
 import ApiKeySettings from "./components/ApiKeySettings";
-import { getOwnKeys, readSession, removeSession, saveSession } from "./session";
+import { readSession, removeSession } from "./session";
 import "./App.css";
 
 export default function App() {
   const { user, loading: authLoading, error: authError, signup, login, logout, deleteAccount, expire } = useAuth();
-  const [ownKeys, setOwnKeys] = useState(getOwnKeys);
   const [showKeySettings, setShowKeySettings] = useState(false);
-  const clearOwnKeyState = useCallback(() => setOwnKeys(null), []);
-  const handleExpire = useCallback(() => {
-    setOwnKeys(null);
-    expire();
-  }, [expire]);
+  const handleOwnKeysRejected = useCallback(() => setShowKeySettings(true), []);
 
   const {
     sessions,
@@ -43,7 +38,7 @@ export default function App() {
     resetChat,
     setActiveSession,
     setMessages,
-  } = useChat({ onAuthExpired: handleExpire, onOwnKeysRejected: clearOwnKeyState });
+  } = useChat({ onAuthExpired: expire, onOwnKeysRejected: handleOwnKeysRejected });
 
   const [showForm, setShowForm] = useState(
     () => !readSession("activeSessionId")
@@ -109,19 +104,6 @@ export default function App() {
     );
   }
 
-  const saveOwnKeys = (keys) => {
-    if (!saveSession("ownKeys", JSON.stringify(keys))) return false;
-    setOwnKeys(keys);
-    fetchCredits();
-    return true;
-  };
-
-  const removeOwnKeys = () => {
-    removeSession("ownKeys");
-    setOwnKeys(null);
-    fetchCredits();
-  };
-
   const handleNewSession = () => {
     setActiveSession(null);
     setMessages([]);
@@ -131,7 +113,6 @@ export default function App() {
 
   const handleLogout = () => {
     resetChat();
-    setOwnKeys(null);
     setShowForm(true);
     logout();
   };
@@ -157,7 +138,6 @@ export default function App() {
     const deleted = await deleteAccount();
     if (deleted) {
       resetChat();
-      setOwnKeys(null);
       setShowForm(true);
       setShowAuth(false);
     } else window.alert("Account deletion failed. Please try again.");
@@ -171,16 +151,18 @@ export default function App() {
         onSelect={handleSelectSession}
         onDelete={handleDeleteSession}
         onNew={handleNewSession}
-        userName={user.name}
-        credits={credits}
-        usingOwnKeys={Boolean(ownKeys)}
+        userName={user.email}
         onSettings={() => setShowKeySettings(true)}
         onLogout={handleLogout}
-        onDeleteAccount={handleDeleteAccount}
-        onPrivacy={() => setLegalPage("privacy")}
-        onTerms={() => setLegalPage("terms")}
       />
       <main className="main-content">
+        <header className="app-navbar">
+          <h1>Curalink</h1>
+          {credits && <span className={`navbar-credits${!credits.unlimited && credits.remaining === 0 ? " navbar-credits-empty" : ""}`}
+            role="status" title={credits.unlimited ? "Using your saved provider credentials" : "Daily credits reset at midnight UTC"}>
+            {credits.unlimited ? "Using your API keys" : <><strong>{credits.remaining}</strong> / {credits.cap} credits<span className="navbar-credit-detail"> left today</span></>}
+          </span>}
+        </header>
         {showForm || !activeSession ? (
           <IntakeForm onSubmit={handleFormSubmit} />
         ) : (
@@ -197,12 +179,18 @@ export default function App() {
             onBack={handleNewSession}
           />
         )}
+        <footer className="research-footer">
+          <strong>Research only, not medical advice.</strong> Published research and trial listings are not a diagnosis,
+          treatment recommendation or substitute for a clinician. Not for emergencies.
+        </footer>
       </main>
       {showKeySettings && (
         <ApiKeySettings
-          current={ownKeys}
-          onSave={saveOwnKeys}
-          onRemove={removeOwnKeys}
+          credits={credits}
+          onPrivacy={() => { setShowKeySettings(false); setLegalPage("privacy"); }}
+          onTerms={() => { setShowKeySettings(false); setLegalPage("terms"); }}
+          onDeleteAccount={() => { setShowKeySettings(false); handleDeleteAccount(); }}
+          onChange={fetchCredits}
           onClose={() => setShowKeySettings(false)}
         />
       )}

@@ -1,7 +1,7 @@
 // Frontend session, streaming chat, and credit state.
 
 import { useState, useCallback, useRef } from "react";
-import { authFetch, getOwnKeys, ownKeyHeaders, removeSession, saveSession } from "../session";
+import { authFetch, removeSession, saveSession } from "../session";
 
 const API = `${import.meta.env.VITE_API_URL}/api`;
 
@@ -85,7 +85,7 @@ export default function useChat({ onAuthExpired, onOwnKeysRejected } = {}) {
     try {
       const res = await authFetch(`${API}/chat/stream`, {
         method: "POST",
-        headers: { ...getAuthHeaders(), ...ownKeyHeaders() },
+        headers: getAuthHeaders(),
         signal: controller.signal,
         body: JSON.stringify({
           sessionId: activeSession._id,
@@ -113,11 +113,9 @@ export default function useChat({ onAuthExpired, onOwnKeysRejected } = {}) {
             ]);
           }
         } else {
-          const rejectedOwnKeys = res.status === 400 && Boolean(getOwnKeys());
-          if (rejectedOwnKeys) {
-            removeSession("ownKeys");
-            onOwnKeysRejected?.();
-          }
+          const errorData = await res.json().catch(() => ({}));
+          const rejectedOwnKeys = res.status === 400 && /credentials|provider/i.test(errorData.error || "");
+          if (rejectedOwnKeys) onOwnKeysRejected?.();
           const msg =
             rejectedOwnKeys
               ? "API keys were rejected. Update them in Settings."
