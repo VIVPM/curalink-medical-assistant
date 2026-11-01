@@ -25,7 +25,7 @@ const features = [
 const metrics = [
   { value: "91%", label: "Answer relevancy" },
   { value: "99%", label: "Faithfulness" },
-  { value: "$0.001518", label: "Mean generation cost per query" },
+  { value: "$0.0015", label: "Cost per query" },
 ];
 
 const steps = [
