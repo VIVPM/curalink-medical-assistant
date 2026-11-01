@@ -1,17 +1,6 @@
-"""
-Stage 5 — Context Builder.
+"""Build the grounded prompt from complete selected records, without text truncation.
 
-Takes top 6-8 docs from Stage 4 + static context + chat history,
-produces ONE finished prompt payload for Stage 6 (LLM Reasoner).
-
-Token budget (Llama 3.1 8B, 8192 ctx):
-  System + rules + schema:  ~500
-  Static context:           ~150
-  Chat history:             ~800  (last 5 turns, assistant condensed to ~150 tok)
-  Retrieved docs:           ~5500 (equal share ~700 per doc)
-  User message:             ~150
-  Safety buffer:            ~300
-  Reserved for output:      ~800
+Token counts are character-based estimates; provider usage gives actual total input tokens.
 """
 
 from __future__ import annotations
@@ -22,17 +11,17 @@ from schemas.document import Document
 
 
 GROUNDING_RULES = """\
-You are a medical research assistant. Answer the user's question using ONLY the retrieved documents below.
+You are a patient-facing medical information assistant, not a paper-summary service. Answer the CURRENT question directly in plain language, using the supplied evidence where available.
 
 RULES:
-1. Answer ONLY using the documents provided. Do NOT use general medical knowledge.
-2. Every factual claim MUST cite its source using [doc1], [doc2], etc.
-3. If the documents don't answer the question, set abstain_reason — do NOT fabricate.
-4. Do NOT recommend specific treatments or dosages; report what studies found.
-5. If documents conflict, report both findings and note the conflict.
-6. Distinguish study types: RCT, observational, review, clinical trial.
-7. For trials, state status (RECRUITING, COMPLETED, etc.) clearly.
-8. Keep overview to 2-3 sentences.
+1. Start with the answer to the patient's specific concern. Explain necessary medical terms. Never replace an answer with a list of studies.
+2. Research findings, treatment benefits, numerical claims and trial details MUST be supported by the supplied documents and cite [doc1], [doc2], etc. Do not invent evidence or citations.
+3. If evidence is partial, answer the supported parts and clearly explain what remains unknown. Do not claim there are no documents when some are supplied. If evidence is absent, do not invent medical facts; explain the limitation and an appropriate next step rather than only saying retrieval failed. Emergency guidance and clarification must not depend on research availability.
+4. Do not diagnose, prescribe, change doses or tell patients to stop medicines. Explain supported treatment options as topics for their care team. No guarantees of cure, permanent benefit or absence of side effects.
+5. Explain important evidence conflicts and population limitations. Do not generalize specialized findings to this patient.
+6. A registry protocol, planned outcome or COMPLETED status is not evidence of treatment benefit. Report results only when actual results are supplied.
+7. Include trial details only when the user asks about trials or a trial directly answers the question. Never add trial listings just because they were retrieved. A saved status is not verified current recruitment or eligibility.
+8. Keep the overview to 2-3 short sentences that ANSWER THE QUESTION, not a generic condition summary. Honor requests for shorter wording, lists or a particular language. Resolve references from actual history; if the medicine, study or treatment is unidentified, ask a brief clarification instead of guessing.
 
 CRITICAL — SEPARATING INSIGHTS vs TRIALS:
 - "insights" is ONLY for research publications (PubMed, OpenAlex). These are papers with authors, abstracts, and findings.
@@ -44,9 +33,9 @@ CRITICAL — SEPARATING INSIGHTS vs TRIALS:
 - NEVER put a PubMed/OpenAlex publication into "trials".
 - If only trials are retrieved, "insights" should be an empty array [].
 - If only publications are retrieved, "trials" should be an empty array [].
-- Include ALL relevant publications as separate insights (aim for 6-8 insights).
-- Include ALL relevant trials as separate trial entries (aim for 6 trials).
-- Each insight or trial should cite its own source — do not merge multiple docs into one entry.
+- Include only insights that materially answer the current question; usually 0-3 concise insights are enough.
+- There is no minimum number of insights or trials. Do not summarize every record or fill quotas.
+- Merge overlapping findings with their supporting citations. Keep trials separate from publication insights.
 
 OUTPUT FORMAT — respond with ONLY this JSON, no prose:
 {
@@ -66,7 +55,7 @@ OUTPUT FORMAT — respond with ONLY this JSON, no prose:
 
 PERSONALIZED RECOMMENDATIONS:
 - Every recommendation MUST cite one or more retrieved documents using its "sources" field.
-- Generate 2-3 research-informed points based on the retrieved documents and de-identified patient context.
+- Generate 0-2 points only when they directly address the patient's question; otherwise return [].
 - Frame every point as something to discuss with a qualified healthcare professional, never as a directive.
 - Recommendations should be grounded in the research — not general advice.
 - Focus on relevant study findings, lifestyle considerations reported by studies, or trials worth reviewing.
@@ -74,9 +63,8 @@ PERSONALIZED RECOMMENDATIONS:
 - Keep each recommendation to 1-2 sentences.
 
 FOLLOW-UP QUESTIONS:
-- Generate exactly 2 relevant follow-up questions the user might want to ask next.
-- Questions should be specific to the disease/topic and build on the retrieved documents.
-- Make them actionable and different from each other (e.g., one about treatments, one about trials or prognosis).
+- Generate 0-2 brief follow-up questions only when useful; return [] for emergencies, clarification, or a request for a short restatement.
+- Stay with the patient's actual concern; do not introduce trials or treatments to fill a template.
 
 If you cannot answer from the documents, set:
   "overview": "Based on the retrieved research, I cannot directly answer this question.",
@@ -100,7 +88,7 @@ def _format_publication(doc: Document, anchor: str) -> str:
     parts = [f"[{anchor}] | {doc.sources[0] if doc.sources else 'unknown'} | {doc.year or '?'}"]
     parts.append(f"Title: {doc.title}")
     if doc.authors:
-        parts.append(f"Authors: {', '.join(doc.authors[:5])}")
+        parts.append(f"Authors: {', '.join(doc.authors)}")
     if doc.abstract:
         parts.append(f"Abstract: {doc.abstract}")
     return "\n".join(parts)
@@ -115,15 +103,11 @@ def _format_trial(doc: Document, anchor: str) -> str:
     if doc.abstract:
         parts.append(f"Brief Summary: {doc.abstract}")
     if doc.eligibility_criteria:
-        elig = doc.eligibility_criteria
-
-        if len(elig) > 1600:
-            elig = elig[:1600].rsplit(".", 1)[0] + "."
-        parts.append(f"Eligibility: {elig}")
+        parts.append(f"Eligibility: {doc.eligibility_criteria}")
     if doc.primary_outcomes:
-        parts.append(f"Primary Outcomes: {'; '.join(doc.primary_outcomes[:3])}")
+        parts.append(f"Primary Outcomes: {'; '.join(doc.primary_outcomes)}")
     if doc.locations:
-        locs = doc.locations[:3]
+        locs = doc.locations
         loc_strs = []
         for loc in locs:
             name = loc.get("facility", loc.get("city", "Unknown"))
@@ -131,18 +115,6 @@ def _format_trial(doc: Document, anchor: str) -> str:
             loc_strs.append(f"{name}, {country}" if country else name)
         parts.append(f"Locations: {'; '.join(loc_strs)}")
     return "\n".join(parts)
-
-
-def _truncate_to_budget(text: str, max_chars: int) -> tuple[str, bool]:
-    """Sentence-aware truncation. Returns (text, was_truncated)."""
-    if len(text) <= max_chars:
-        return text, False
-    truncated = text[:max_chars]
-
-    last_period = truncated.rfind(".")
-    if last_period > max_chars * 0.5:
-        truncated = truncated[: last_period + 1]
-    return truncated, True
 
 
 def _format_chat_history(chat_history: list[dict] | None) -> str:
@@ -183,7 +155,6 @@ def build_context(
     user_message: str,
     static_context: dict,
     chat_history: list[dict] | None = None,
-    per_doc_chars: int = 1600,
 ) -> PromptPayload:
     """
     Stage 5: build the grounded prompt for the LLM.
@@ -193,7 +164,6 @@ def build_context(
         user_message: current user question
         static_context: {disease, intent, location}
         chat_history: list of {role, content} dicts
-        per_doc_chars: max chars per doc (~4 chars per token)
 
     Returns:
         PromptPayload ready for Stage 6.
@@ -227,10 +197,6 @@ def build_context(
             formatted = _format_trial(doc, anchor)
         else:
             formatted = _format_publication(doc, anchor)
-
-        formatted, was_truncated = _truncate_to_budget(formatted, per_doc_chars)
-        if was_truncated:
-            truncations.append(f"{anchor} truncated to {per_doc_chars} chars")
 
         doc_blocks.append(formatted)
 
