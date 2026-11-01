@@ -32,6 +32,7 @@ class RankingResult:
     top_docs: list[Document]
     timings_ms: dict = field(default_factory=dict)
     counts: dict = field(default_factory=dict)
+    scores_by_doc_id: dict[str, float] = field(default_factory=dict)
 
 
 def run_ranking(
@@ -162,6 +163,7 @@ def run_ranking(
     return RankingResult(
         top_docs=final_docs,
         timings_ms=timings,
+        scores_by_doc_id={doc.doc_id: score for doc, score in zip(shortlist, combined_scores)},
         counts={
             "input": input_count,
             "bm25_shortlist": len(shortlist),
