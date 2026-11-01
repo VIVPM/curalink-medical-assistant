@@ -28,12 +28,12 @@ You are a medical search query optimizer. Your job is to rewrite a user's \
 message into search-optimized queries for PubMed, OpenAlex, and ClinicalTrials.gov.
 
 You will receive:
-- STATIC CONTEXT: the patient's disease, intent, and location (locked for the session)
+- STATIC CONTEXT: the patient's default disease, intent, and location for the session
 - CHAT HISTORY: prior conversation turns (if any)
 - USER MESSAGE: the current question
 
 Your tasks:
-1. Inject the disease from static context into every expanded query
+1. Resolve the disease/topic from the current message and history; use static context only as a default
 2. Resolve pronouns ("it", "that", "the treatment") using chat history
 3. Expand medical abbreviations (DBS -> deep brain stimulation, MI -> myocardial infarction)
 4. Generate 2-4 search query variants (different angles on the same question)
@@ -41,7 +41,12 @@ Your tasks:
 6. Extract medical entities (diseases, drugs, procedures)
 
 RULES:
-- Always include the disease_focus in every expanded_query
+- Include the resolved disease_focus in expanded queries when relevant; never inject an unrelated intake disease
+- If the user explicitly changes disease/topic, use that topic instead of the static disease or intent
+- If static disease is empty, infer disease_focus from the current message and history; do not invent one
+- Make query1 the most direct clinical search for the CURRENT question; it is used as the primary retrieval query. Preserve the named medicine, symptom, population and requested task.
+- For ordinary patient explanations, seek clinical reviews or guidance about that exact concern, not unrelated novel therapies or trial pipelines. Do not add a trials/recruitment angle unless asked.
+- For side effects, search the named medicine plus the specific adverse effect; do not substitute general disease treatment research.
 - Include both lay terms AND clinical terms where applicable
 - Do NOT answer the question — only rewrite it for search
 - Output ONLY valid JSON, no prose before or after
@@ -51,7 +56,7 @@ Output this exact JSON schema:
   "expanded_queries": ["query1", "query2", "query3"],
   "entities": ["entity1", "entity2"],
   "intent": "one of: treatment_overview, drug_interaction_safety, clinical_trials_search, side_effects, prognosis, diagnosis_criteria, general_info",
-  "disease_focus": "the primary disease from static context",
+  "disease_focus": "the resolved primary disease for this question",
   "keywords": ["keyword1", "keyword2"],
   "skip_retrieval": false
 }
@@ -130,7 +135,15 @@ def _parse_response(raw: str, disease_fallback: str) -> dict:
         lines = [l for l in lines if not l.strip().startswith("```")]
         text = "\n".join(lines)
 
-    return json.loads(text)
+    parsed = json.loads(text)
+    if not isinstance(parsed, dict):
+        raise ValueError("Expected a query expansion object")
+    queries = parsed.get("expanded_queries", [])
+    if not isinstance(queries, list) or any(not isinstance(query, str) or not query.strip() for query in queries):
+        raise ValueError("Expected non-empty search query strings")
+    if not isinstance(parsed.get("disease_focus", disease_fallback), str):
+        raise ValueError("Expected disease_focus text")
+    return parsed
 
 
 def _heuristic_fallback(
@@ -218,9 +231,11 @@ async def expand_query(
 
     expanded = expanded[:4]
 
-    for i, q in enumerate(expanded):
-        if disease.lower() not in q.lower():
-            expanded[i] = f"{q} {disease}"
+    disease_focus = parsed.get("disease_focus") or disease
+    if disease_focus:
+        for i, q in enumerate(expanded):
+            if disease_focus.lower() not in q.lower():
+                expanded[i] = f"{q} {disease_focus}"
 
     intent = parsed.get("intent", "general_info")
     if intent not in VALID_INTENTS:
@@ -230,7 +245,7 @@ async def expand_query(
         expanded_queries=expanded,
         entities=parsed.get("entities", []),
         intent=intent,
-        disease_focus=parsed.get("disease_focus", disease),
+        disease_focus=disease_focus,
         keywords=parsed.get("keywords", []),
         skip_retrieval=parsed.get("skip_retrieval", False),
         raw_json=parsed,
