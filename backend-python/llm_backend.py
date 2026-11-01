@@ -144,9 +144,11 @@ class HFBackend(LLMBackend):
 class CloudflareBackend(LLMBackend):
     """Cloudflare Workers AI backend via httpx (OpenAI wire format)."""
 
-    def __init__(self, account_id: str, api_token: str, use_cache: bool = True):
+    def __init__(self, account_id: str, api_token: str, use_cache: bool = True, *, model: str = "@cf/openai/gpt-oss-20b"):
         import httpx as _httpx
-        self.model = "@cf/openai/gpt-oss-20b"
+        self.account_id = account_id
+        self.api_token = api_token
+        self.model = model
         self.use_cache = use_cache
         self._max_tokens = 4096
         self._base = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1"
@@ -280,6 +282,33 @@ def get_llm_backend() -> LLMBackend:
         raise RuntimeError(f"LLM_MODEL={raw} (HuggingFace) requires HF_TOKEN in .env.")
     logger.info("LLM provider: HuggingFace (%s)", raw)
     return HFBackend(token=token, model=raw)
+
+
+def get_tier_backend(base: LLMBackend, tier: str) -> LLMBackend:
+    """Change model size without changing the request's provider or credentials."""
+    if tier not in {"8b", "70b"}:
+        raise ValueError("Unknown model tier")
+    if isinstance(base, HFBackend):
+        default = "meta-llama/Llama-3.1-8B-Instruct" if tier == "8b" else "meta-llama/Llama-3.3-70B-Instruct"
+        model = os.getenv(f"HF_LLM_{tier.upper()}_MODEL", default).strip()
+        if not model:
+            raise ValueError("Hugging Face routing model must not be empty")
+        if model == base.model:
+            return base
+        selected = HFBackend(base.token, model, use_cache=base.use_cache)
+        selected._sem = base._sem
+        return selected
+    if isinstance(base, CloudflareBackend):
+        default = "@cf/meta/llama-3.1-8b-instruct-fp8" if tier == "8b" else "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+        model = os.getenv(f"CF_LLM_{tier.upper()}_MODEL", default).strip()
+        if not model:
+            raise ValueError("Cloudflare routing model must not be empty")
+        if model == base.model:
+            return base
+        selected = CloudflareBackend(base.account_id, base.api_token, use_cache=base.use_cache, model=model)
+        selected._sem = base._sem
+        return selected
+    raise ValueError("Model routing requires a Hugging Face or Cloudflare backend")
 
 
 def get_resilient_llm():

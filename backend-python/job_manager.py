@@ -39,13 +39,13 @@ class Job:
         self.state = PENDING
         self.request_data = request_data
         self.result = None
-        self.error = None
+        self.error: str | None = None
         self.created_at = time.time()
         self.updated_at = time.time()
 
     def to_dict(self) -> dict:
         d = {
-            "id": self.id, "state": self.state,
+            "id": self.id, "state": self.state, "tenant": self.request_data.get("tenant"),
             "created_at": self.created_at, "updated_at": self.updated_at,
         }
         if self.result is not None:
@@ -98,7 +98,7 @@ class JobManager:
         total = sum(len(q) for q in self._tenant_queues.values())
         if total >= self._queue.maxsize:
             return False
-        user_id = job.request_data.get("_user_id", "anon")
+        user_id = job.request_data.get("tenant") or job.request_data.get("_user_id", "anon")
         async with self._rr_lock:
             from collections import deque as _deque
             if user_id not in self._tenant_queues:
@@ -171,8 +171,12 @@ class JobManager:
                     job.error = "no pipeline configured"
             except Exception as e:
                 job.state = FAILED
-                job.error = str(e)
-                logger.error("[jobs] worker %d job %s failed: %s", wid, job.id, e)
+                if job.request_data.get("credential_provider", "free") != "free":
+                    job.error = "Saved-provider job failed. Check saved keys, selected provider and usage limits, then submit a new job."
+                    logger.error("[jobs] worker %d job %s failed: %s", wid, job.id, type(e).__name__)
+                else:
+                    job.error = str(e)
+                    logger.error("[jobs] worker %d job %s failed: %s", wid, job.id, e)
             finally:
                 job.updated_at = time.time()
                 self._persist(job)

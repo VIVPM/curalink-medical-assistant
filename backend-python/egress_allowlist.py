@@ -24,6 +24,7 @@ ALLOWED_HOSTS: frozenset[str] = frozenset({
 
     "api-inference.huggingface.co",
     "api.cloudflare.com",
+    "api.typesafe.ai",
 
     "nominatim.openstreetmap.org",
 

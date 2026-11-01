@@ -67,10 +67,8 @@ class OwnKeyTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_invalid_cloudflare_token_is_rejected(self):
         client = MagicMock()
-        client.get = AsyncMock(side_effect=[
-            SimpleNamespace(status_code=200),
-            SimpleNamespace(status_code=403),
-        ])
+        client.get = AsyncMock(return_value=SimpleNamespace(status_code=200))
+        client.post = AsyncMock(return_value=SimpleNamespace(status_code=403))
         context = MagicMock()
         context.__aenter__ = AsyncMock(return_value=client)
         context.__aexit__ = AsyncMock(return_value=None)
@@ -81,6 +79,39 @@ class OwnKeyTests(unittest.IsolatedAsyncioTestCase):
                     cfAccountId="a" * 32, cfToken="bad",
                 ))
         self.assertEqual(raised.exception.status_code, 400)
+
+    async def test_cloudflare_verifies_inference_not_token_ownership(self):
+        client = MagicMock()
+        client.get = AsyncMock(return_value=SimpleNamespace(status_code=200))
+        client.post = AsyncMock(return_value=SimpleNamespace(status_code=200, json=lambda: {"success": True}))
+        context = MagicMock()
+        context.__aenter__ = AsyncMock(return_value=client)
+        context.__aexit__ = AsyncMock(return_value=None)
+        keys = own_keys.OwnKeys(provider="cloudflare", hfToken="hf_user", cfAccountId="a" * 32, cfToken="cf_user")
+        with patch.object(own_keys.httpx, "AsyncClient", return_value=context), patch.dict(os.environ, {"CF_LLM_8B_MODEL": "@cf/test/model"}):
+            self.assertEqual(await own_keys.validate_keys(keys), "cloudflare")
+        self.assertEqual(client.get.await_count, 1)
+        self.assertTrue(client.get.call_args.args[0].endswith("/api/whoami-v2"))
+        self.assertTrue(client.post.call_args.args[0].endswith("/ai/run/@cf/test/model"))
+        self.assertEqual(client.post.call_args.kwargs["json"]["max_tokens"], 1)
+        self.assertEqual(client.post.call_args.kwargs["headers"]["Authorization"], "Bearer cf_user")
+
+    async def test_cloudflare_validation_errors_are_safe_and_classified(self):
+        keys = own_keys.OwnKeys(provider="cloudflare", hfToken="hf_user", cfAccountId="a" * 32, cfToken="cf_user")
+        for status, body, expected in [(429, {}, 429), (503, {}, 503), (200, {"success": False}, 400), (200, [], 400), (200, "invalid_json", 503)]:
+            with self.subTest(status=status, body=body):
+                client = MagicMock()
+                client.get = AsyncMock(return_value=SimpleNamespace(status_code=200))
+                response_json = MagicMock(return_value=body, side_effect=ValueError if body == "invalid_json" else None)
+                client.post = AsyncMock(return_value=SimpleNamespace(status_code=status, json=response_json))
+                context = MagicMock()
+                context.__aenter__ = AsyncMock(return_value=client)
+                context.__aexit__ = AsyncMock(return_value=None)
+                with patch.object(own_keys.httpx, "AsyncClient", return_value=context):
+                    with self.assertRaises(HTTPException) as raised:
+                        await own_keys.validate_keys(keys)
+                self.assertEqual(raised.exception.status_code, expected)
+                self.assertNotIn("cf_user", raised.exception.detail)
 
 
 if __name__ == "__main__":
