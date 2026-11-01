@@ -50,15 +50,16 @@ graph TD
         REST["🗂️ Sessions CRUD · POST /chat/stream → SSE proxy"]
     end
 
-    subgraph ORCH ["3 · Orchestration — FastAPI · 7-stage pipeline"]
-        S1["1 · Query expansion (LLM)"]
-        S2["2 · Parallel retrieval"]
-        S3["3 · Normalize + dedupe"]
-        S4["4 · Hybrid ranking · BM25 · PubMedBERT · RRF · MedCPT · source balance"]
-        S5["5 · Context build"]
-        S6["6 · Grounded reasoning (LLM)"]
-        S7["7 · Response assembly · cite-or-abstain"]
-        S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
+    subgraph ORCH ["3 · Orchestration — FastAPI · 8-stage pipeline"]
+        S0["1 · Routing · emergency · clarification · history-only · RAG · 8B/70B"]
+        S1["2 · Query expansion (LLM)"]
+        S2["3 · Parallel retrieval"]
+        S3["4 · Normalize + dedupe"]
+        S4["5 · Hybrid ranking · BM25 · PubMedBERT · RRF · MedCPT · source balance"]
+        S5["6 · Context build"]
+        S6["7 · Grounded reasoning (LLM)"]
+        S7["8 · Response assembly · cite-or-abstain"]
+        S0 --> S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
     end
 
     subgraph DATA ["4 · Data — Neon Postgres + Redis (Upstash)"]
@@ -79,6 +80,7 @@ graph TD
     API -->|users · sessions · messages| DB
     API -->|query cache| Redis
     API -->|POST /pipeline/stream| ORCH
+    S0 -.->|optional Jev| HF
     S2 -->|parallel httpx| Src
     S4 -->|embeddings · rerank| HF
     S6 -->|generate| HF
@@ -87,19 +89,18 @@ graph TD
     ORCH -.->|LLM traces| OBS
 ```
 
-> For a detailed breakdown of all 7 pipeline stages, see [architecture.md](./architecture.md).
-
 ### Pipeline Stages (inside FastAPI)
 
 | Stage | Module | Description |
 |-------|--------|-------------|
-| 1 | `query_expander.py` | LLM rewrites user message with context injection, synonym expansion, intent classification |
-| 2 | `pubmed.py` `openalex.py` `trials.py` | Parallel retrieval from 3 sources (~210 raw → ~170 after dedupe) |
-| 3 | `normalizer.py` `merger.py` | Unify schemas into `Document[]`, dedupe by DOI/PMID/NCT-ID, quality filter |
-| 4 | `ranker.py` | BM25 pre-filter → PubMedBERT cosine → RRF fusion → MedCPT cross-encoder → source-balanced top 14 |
-| 5 | `context_builder.py` | Token-budgeted prompt with citation anchors `[doc1]`, grounding rules, output schema |
-| 6 | `llm_reasoner.py` | Llama 3.3 70B via HF Inference API — source-constrained structured generation |
-| 7 | `response_assembler.py` | Citation resolution, snippet extraction, hallucination flags, structured JSON assembly |
+| 1 | `query_router.py` `routing.py` | Emergency/clarification/history-only/RAG route; optional Jev 8B vs 70B; history-only can skip retrieval |
+| 2 | `query_expander.py` | LLM rewrites the current question; extra queries are side-effect search |
+| 3 | `pubmed.py` `openalex.py` `trials.py` | Parallel retrieval from 3 sources (~210 raw → ~170 after dedupe) |
+| 4 | `normalizer.py` `merger.py` | Unify schemas into `Document[]`, dedupe by DOI/PMID/NCT-ID, quality filter |
+| 5 | `ranker.py` | BM25 pre-filter → PubMedBERT cosine → RRF fusion → MedCPT cross-encoder → source-balanced top 14 |
+| 6 | `context_builder.py` | Patient-facing prompt with citation anchors `[doc1]` and grounding rules |
+| 7 | `llm_reasoner.py` | Routed 8B or 70B via HF or Cloudflare — source-constrained generation |
+| 8 | `response_assembler.py` | Citation resolution, snippet extraction, structured JSON assembly |
 
 ## Project Structure
 
@@ -152,6 +153,7 @@ curalink-medical-assistant/
 │   │   └── document.py            # Unified Document dataclass
 │   ├── embeddings/
 │   │   └── embedder.py            # PubMedBERT embeddings via HF Inference API
+│   ├── routing.py                 # Jev route + model-tier helper
 │   ├── ranking/
 │   │   ├── ranker.py              # Full ranking pipeline orchestration
 │   │   ├── bm25.py                # BM25 sparse scoring
@@ -161,13 +163,14 @@ curalink-medical-assistant/
 │   │   ├── cross_encoder.py       # MedCPT cross-encoder via HF API
 │   │   └── mmr.py                 # Maximal Marginal Relevance (diversity)
 │   ├── stages/
-│   │   ├── query_expander.py      # Stage 1: LLM-based query expansion
-│   │   ├── context_builder.py     # Stage 5: Token-budgeted prompt assembly
-│   │   ├── llm_reasoner.py        # Stage 6: Grounded LLM generation
-│   │   └── response_assembler.py  # Stage 7: Citation resolution + assembly
+│   │   ├── query_router.py        # Stage 1: route + model choice
+│   │   ├── history_context.py     # Bounded history evidence for routing
+│   │   ├── query_expander.py      # Stage 2: LLM-based query expansion
+│   │   ├── context_builder.py     # Stage 6: Token-budgeted prompt assembly
+│   │   ├── llm_reasoner.py        # Stage 7: Grounded LLM generation
+│   │   └── response_assembler.py  # Stage 8: Citation resolution + assembly
 │   └── requirements.txt
 │
-├── architecture.md                # Detailed system design document
 └── README.md
 ```
 
