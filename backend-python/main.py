@@ -5,6 +5,8 @@ import os
 import secrets
 import time
 from contextlib import asynccontextmanager
+from types import SimpleNamespace
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -12,7 +14,7 @@ from pydantic import BaseModel, Field, field_validator
 from dotenv import load_dotenv
 
 from llm_backend import CloudflareBackend, HFBackend, get_llm_backend
-from own_keys import OwnKeys, credentials_from_headers, provider_name, validate_keys
+from own_keys import OwnKeys, credentials_from_headers, job_credential_headers, provider_name, validate_keys
 from embeddings.embedder import Embedder
 from sources.pubmed import fetch_pubmed
 from sources.openalex import fetch_openalex
@@ -30,6 +32,8 @@ from stages.query_expander import expand_query
 from stages.context_builder import build_context
 from stages.llm_reasoner import run_reasoner
 from stages.response_assembler import assemble_response
+from routing import route_request
+from stages.query_router import routing_enabled
 
 load_dotenv()
 
@@ -383,6 +387,7 @@ MAX_USER_MESSAGE_LEN = 8000
 
 class PipelineRequest(BaseModel):
     tenant: str = Field(..., min_length=1, max_length=128, description="Authenticated user scope")
+    credential_provider: Literal["free", "huggingface", "cloudflare"] = "free"
     static: dict = Field(..., description="De-identified context: disease, intent, location")
     dynamic: dict = Field(default_factory=dict, description="Chat history and entities")
     current: dict = Field(..., description="Current user message: {userMessage}")
@@ -407,7 +412,7 @@ async def keys_validate(keys: OwnKeys):
     return {"ok": True, "provider": await validate_keys(keys)}
 
 
-def pipeline_clients(request: Request):
+def pipeline_clients(request: Request | SimpleNamespace):
     """Choose server or user-owned inference clients for one pipeline request."""
     own = credentials_from_headers(request.headers)
     if own is None:
@@ -444,10 +449,22 @@ async def pipeline_run(req: PipelineRequest, request: Request):
     warnings: list[str] = []
     user_message = req.current.get("userMessage", "")
     chat_history = req.dynamic.get("recentMessages", [])
+    t_pipeline = time.perf_counter()
+    t0 = time.perf_counter()
+    routed = await route_request(user_message, req.static, chat_history, request_llm)
+    if routed.decision is not None:
+        stage_timings["routing"] = round((time.perf_counter() - t0) * 1000)
+    if routed.response is not None:
+        routed.response["pipelineMeta"]["stage_timings_ms"] = stage_timings
+        if correlation_id:
+            routed.response["pipelineMeta"]["correlation_id"] = correlation_id
+        return routed.response
+    chat_history = routed.chat_history
+    static_context = routed.static_context
 
 
     sem_emb = None
-    if not chat_history and not uses_own_keys:
+    if not chat_history and not uses_own_keys and not routing_enabled():
         from semantic_cache import lookup
         hit, sem_emb = lookup(
             embedder,
@@ -461,25 +478,23 @@ async def pipeline_run(req: PipelineRequest, request: Request):
             hit.setdefault("pipelineMeta", {})["semantic_cache"] = True
             return hit
 
-    t_pipeline = time.perf_counter()
-
-
     t0 = time.perf_counter()
     expander_result = await expand_query(
         user_message=user_message,
-        static_context=req.static,
+        static_context=static_context,
         chat_history=chat_history,
-        llm=request_llm,
+        llm=routed.expansion_llm,
     )
     stage_timings["query_expansion"] = round((time.perf_counter() - t0) * 1000)
 
-    if expander_result.skip_retrieval:
+    if expander_result.skip_retrieval and routed.decision is None:
         return {"skip_retrieval": True, "message": "Non-medical query"}
 
 
     t0 = time.perf_counter()
-    disease = req.static.get("disease", "")
-    location_str = req.static.get("location", "")
+    disease = getattr(expander_result, "disease_focus", "") or static_context.get("disease", "")
+    static_context = {**static_context, "disease": disease}
+    location_str = static_context.get("location", "")
     best_query = expander_result.expanded_queries[0]
 
     geo = await geocode(location_str) if location_str else None
@@ -537,14 +552,14 @@ async def pipeline_run(req: PipelineRequest, request: Request):
     payload = build_context(
         top_docs=ranking_result.top_docs,
         user_message=user_message,
-        static_context=req.static,
+        static_context=static_context,
         chat_history=chat_history,
     )
     stage_timings["context_build"] = round((time.perf_counter() - t0) * 1000)
 
 
     t0 = time.perf_counter()
-    reasoner_output = await run_reasoner(payload, llm=request_llm, max_tokens=4000)
+    reasoner_output = await run_reasoner(payload, llm=routed.answer_llm, max_tokens=4000)
     stage_timings["llm"] = round((time.perf_counter() - t0) * 1000)
 
 
@@ -559,6 +574,8 @@ async def pipeline_run(req: PipelineRequest, request: Request):
     stage_timings["total"] = round((time.perf_counter() - t_pipeline) * 1000)
     assembled.user_facing_json["pipelineMeta"]["stage_timings_ms"] = stage_timings
     assembled.user_facing_json["pipelineMeta"]["warnings"] = warnings + assembled.warnings
+    if routed.decision is not None:
+        assembled.user_facing_json["pipelineMeta"]["routing"] = routed.metadata()
     if correlation_id:
         assembled.user_facing_json["pipelineMeta"]["correlation_id"] = correlation_id
 
@@ -597,10 +614,27 @@ async def pipeline_stream(req: PipelineRequest, request: Request):
         warnings: list[str] = []
         user_message = req.current.get("userMessage", "")
         chat_history = req.dynamic.get("recentMessages", [])
+        t_pipeline = time.perf_counter()
+        if routing_enabled():
+            yield "event: status\ndata: {\"stage\":\"routing\",\"message\":\"Classifying query and checking saved context...\"}\n\n"
+        t0 = time.perf_counter()
+        routed = await route_request(user_message, req.static, chat_history, request_llm)
+        if routed.decision is not None:
+            stage_timings["routing"] = round((time.perf_counter() - t0) * 1000)
+        if routed.response is not None:
+            routed.response["pipelineMeta"]["stage_timings_ms"] = stage_timings
+            if correlation_id:
+                routed.response["pipelineMeta"]["correlation_id"] = correlation_id
+            yield f"event: metadata\ndata: {_json.dumps(routed.response)}\n\n"
+            yield "event: done\ndata: {}\n\n"
+            return
+        answer_llm = routed.answer_llm
+        chat_history = routed.chat_history
+        static_context = routed.static_context
 
 
         sem_emb = None
-        if not chat_history and not uses_own_keys:
+        if not chat_history and not uses_own_keys and not routing_enabled():
             from semantic_cache import lookup
             hit, sem_emb = lookup(
                 embedder,
@@ -617,21 +651,18 @@ async def pipeline_stream(req: PipelineRequest, request: Request):
                 yield "event: done\ndata: {}\n\n"
                 return
 
-        t_pipeline = time.perf_counter()
-
-
         yield "event: status\ndata: {\"stage\":\"query_expansion\",\"message\":\"Expanding query...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
         expander_result = await expand_query(
             user_message=user_message,
-            static_context=req.static,
+            static_context=static_context,
             chat_history=chat_history,
-            llm=request_llm,
+            llm=routed.expansion_llm,
         )
         stage_timings["query_expansion"] = round((time.perf_counter() - t0) * 1000)
 
-        if expander_result.skip_retrieval:
+        if expander_result.skip_retrieval and routed.decision is None:
             yield "event: metadata\ndata: {\"skip_retrieval\":true,\"message\":\"Non-medical query\"}\n\n"
             yield "event: done\ndata: {}\n\n"
             return
@@ -640,8 +671,9 @@ async def pipeline_stream(req: PipelineRequest, request: Request):
         yield "event: status\ndata: {\"stage\":\"retrieval\",\"message\":\"Fetching from PubMed, OpenAlex, ClinicalTrials...\"}\n\n"
         await asyncio.sleep(0)
         t0 = time.perf_counter()
-        disease = req.static.get("disease", "")
-        location_str = req.static.get("location", "")
+        disease = getattr(expander_result, "disease_focus", "") or static_context.get("disease", "")
+        static_context = {**static_context, "disease": disease}
+        location_str = static_context.get("location", "")
         best_query = expander_result.expanded_queries[0]
 
 
@@ -708,7 +740,7 @@ async def pipeline_stream(req: PipelineRequest, request: Request):
         payload = build_context(
             top_docs=ranking_result.top_docs,
             user_message=user_message,
-            static_context=req.static,
+            static_context=static_context,
             chat_history=chat_history,
         )
         stage_timings["context_build"] = round((time.perf_counter() - t0) * 1000)
@@ -719,7 +751,7 @@ async def pipeline_stream(req: PipelineRequest, request: Request):
         t0 = time.perf_counter()
         full_text = ""
         try:
-            async for token in request_llm.generate_stream(
+            async for token in answer_llm.generate_stream(
                 payload.user_prompt,
                 system_prompt=payload.system_prompt,
                 max_tokens=4000,
@@ -758,6 +790,8 @@ async def pipeline_stream(req: PipelineRequest, request: Request):
         stage_timings["total"] = round((time.perf_counter() - t_pipeline) * 1000)
         assembled.user_facing_json["pipelineMeta"]["stage_timings_ms"] = stage_timings
         assembled.user_facing_json["pipelineMeta"]["warnings"] = warnings + assembled.warnings
+        if routed.decision is not None:
+            assembled.user_facing_json["pipelineMeta"]["routing"] = routed.metadata()
         if correlation_id:
             assembled.user_facing_json["pipelineMeta"]["correlation_id"] = correlation_id
 
@@ -792,10 +826,8 @@ async def _run_pipeline_for_job(request_data: dict) -> dict:
     except ValidationError as e:
         return {"error": str(e)}
 
-    embedder = models.get("embedder")
-    reranker = models.get("reranker")
-    if embedder is None or reranker is None:
-        return {"error": "models not loaded"}
+    headers = await job_credential_headers(req.tenant, req.credential_provider)
+    embedder, reranker, request_llm, _ = pipeline_clients(SimpleNamespace(headers=headers))
 
     import checkpoint
     job_id = request_data.get("_job_id", "unknown")
@@ -810,31 +842,50 @@ async def _run_pipeline_for_job(request_data: dict) -> dict:
     budget.consume_text(user_message)
 
     t_pipeline = time.perf_counter()
+    cached_route = checkpoint.load(job_id, "routing") if routing_enabled() else None
+    from stages.query_router import RoutingDecision
+    saved_decision = RoutingDecision.model_validate(cached_route) if cached_route else None
+    t0 = time.perf_counter()
+    try:
+        routed = await route_request(user_message, req.static, chat_history, request_llm, decision=saved_decision, budget=budget)
+    except TokenBudgetExceeded:
+        return {"error": "Token budget exceeded for this query"}
+    if routed.decision is not None:
+        stage_timings["routing"] = round((time.perf_counter() - t0) * 1000)
+        checkpoint.save(job_id, "routing", routed.decision.model_dump())
+    if routed.response is not None:
+        routed.response["pipelineMeta"]["stage_timings_ms"] = stage_timings
+        routed.response["pipelineMeta"]["token_budget"] = budget.summary()
+        checkpoint.clear(job_id)
+        return routed.response
+    chat_history = routed.chat_history
+    static_context = routed.static_context
 
 
     cached_s1 = checkpoint.load(job_id, "query_expansion")
     if cached_s1:
-        from types import SimpleNamespace
         expander_result = SimpleNamespace(**cached_s1)
     else:
         t0 = time.perf_counter()
         expander_result = await expand_query(
-            user_message=user_message, static_context=req.static,
-            chat_history=chat_history, llm=llm,
+            user_message=user_message, static_context=static_context,
+            chat_history=chat_history, llm=routed.expansion_llm,
         )
         stage_timings["query_expansion"] = round((time.perf_counter() - t0) * 1000)
         checkpoint.save(job_id, "query_expansion", {
             "expanded_queries": expander_result.expanded_queries,
             "skip_retrieval": expander_result.skip_retrieval,
+            "disease_focus": expander_result.disease_focus,
         })
 
-    if expander_result.skip_retrieval:
+    if expander_result.skip_retrieval and routed.decision is None:
         return {"skip_retrieval": True, "message": "Non-medical query"}
 
 
     t0 = time.perf_counter()
-    disease = req.static.get("disease", "")
-    location_str = req.static.get("location", "")
+    disease = getattr(expander_result, "disease_focus", "") or static_context.get("disease", "")
+    static_context = {**static_context, "disease": disease}
+    location_str = static_context.get("location", "")
     best_query = expander_result.expanded_queries[0]
     geo = await geocode(location_str) if location_str else None
 
@@ -881,7 +932,7 @@ async def _run_pipeline_for_job(request_data: dict) -> dict:
 
     t0 = time.perf_counter()
     payload = build_context(top_docs=ranking_result.top_docs, user_message=user_message,
-                            static_context=req.static, chat_history=chat_history)
+                            static_context=static_context, chat_history=chat_history)
     stage_timings["context_build"] = round((time.perf_counter() - t0) * 1000)
 
     budget.consume_text(payload.user_prompt)
@@ -889,7 +940,7 @@ async def _run_pipeline_for_job(request_data: dict) -> dict:
 
     t0 = time.perf_counter()
     try:
-        reasoner_output = await run_reasoner(payload, llm=llm, max_tokens=4000)
+        reasoner_output = await run_reasoner(payload, llm=routed.answer_llm, max_tokens=4000)
         budget.consume_text(reasoner_output.llm_output.get("overview", ""))
     except TokenBudgetExceeded:
         return {"error": "Token budget exceeded for this query"}
@@ -904,6 +955,8 @@ async def _run_pipeline_for_job(request_data: dict) -> dict:
     stage_timings["total"] = round((time.perf_counter() - t_pipeline) * 1000)
     assembled.user_facing_json["pipelineMeta"]["stage_timings_ms"] = stage_timings
     assembled.user_facing_json["pipelineMeta"]["warnings"] = warnings + assembled.warnings
+    if routed.decision is not None:
+        assembled.user_facing_json["pipelineMeta"]["routing"] = routed.metadata()
     assembled.user_facing_json["pipelineMeta"]["token_budget"] = budget.summary()
 
     checkpoint.clear(job_id)
@@ -925,20 +978,24 @@ async def submit_job(req: PipelineRequest):
     return {"ok": True, "job_id": job.id, "state": job.state}
 
 
-@app.get("/jobs/{job_id}")
-async def poll_job(job_id: str):
-    """Poll job status + result."""
+def _owned_job(job_id: str, request: Request) -> dict:
     from job_manager import get_job_manager
-    jm = get_job_manager()
-    job = jm.get_job(job_id)
-    if not job:
+    job = get_job_manager().get_job(job_id)
+    if not job or not job.get("tenant") or job["tenant"] != request.headers.get("x-tenant-id"):
         raise HTTPException(status_code=404, detail="Job not found")
     return job
 
 
+@app.get("/jobs/{job_id}")
+async def poll_job(job_id: str, request: Request):
+    """Poll status and results within the authenticated tenant."""
+    return _owned_job(job_id, request)
+
+
 @app.delete("/jobs/{job_id}")
-async def cancel_job(job_id: str):
-    """Cancel a pending/running job."""
+async def cancel_job(job_id: str, request: Request):
+    """Cancel a pending/running job owned by this tenant."""
+    _owned_job(job_id, request)
     from job_manager import get_job_manager
     jm = get_job_manager()
     ok = jm.cancel_job(job_id)
@@ -948,8 +1005,9 @@ async def cancel_job(job_id: str):
 
 
 @app.get("/jobs/{job_id}/events")
-async def replay_job_events(job_id: str, last_event_id: int | None = None):
-    """Replay buffered SSE events for a job (reconnect support)."""
+async def replay_job_events(job_id: str, request: Request, last_event_id: int | None = None):
+    """Replay buffered SSE events for an owned job."""
+    _owned_job(job_id, request)
     from event_buffer import replay_events
     events = replay_events(job_id, last_event_id)
     return {"ok": True, "job_id": job_id, "events": events}
