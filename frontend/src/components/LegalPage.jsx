@@ -4,11 +4,12 @@ const policies = {
   privacy: {
     title: "Privacy Notice",
     sections: [
-      ["Information collected", "Curalink stores your account name and email, plus the disease, research intent, general location, and messages you choose to provide. Do not enter patient names, birth dates, exact addresses, medical-record numbers, contact details, or other identifiable patient information."],
-      ["How information is used", "Research context is used to search medical-literature services and generate personalized research summaries. Queries and retrieved evidence may be processed by the configured HuggingFace or Cloudflare AI provider. Prompt and answer content is not exported to observability services."],
+      ["Information collected", "Curalink stores your account name and email, the optional patient-name field, plus the disease, research intent, general location, and messages you choose to provide. Use a nickname or initials for the patient-name field. It is stored as a session label and excluded from AI and research-provider requests. Do not enter full patient names, birth dates, exact addresses, medical-record numbers, contact details, or other identifiable patient information in research context or messages."],
+      ["How information is used", "Research context is used to search medical-literature services and generate personalized research summaries. Queries and retrieved evidence may be processed by the configured HuggingFace or Cloudflare AI provider. When model routing is enabled, TypeSafe AI also processes the research context, current question, and limited prior conversation and source excerpts to select the response path and model. Prompt and answer content is not exported to observability services."],
       ["Service providers", "Curalink uses Render for hosting, Neon Postgres for account and session storage, Upstash Redis for temporary caches, Google Analytics for page-visit analytics, and PubMed, OpenAlex, ClinicalTrials.gov, and OpenStreetMap for research retrieval and general-location search. Those services process requests under their own policies."],
+      ["Your API keys", "If you save your own provider credentials, Curalink validates them and stores them encrypted on your account. They remain after logout and are decrypted on the server only for validation and inference. Saved secrets are never returned to the browser. You can remove them in API key settings; deleting the account also deletes its saved provider credentials. Provider usage is billed under your provider account. TypeSafe routing, when enabled, still uses Curalink's TypeSafe key."],
       ["Retention", "Research sessions and messages expire after 90 days. Query and generated-response caches expire within 24 hours; document embeddings expire within seven days. Account information remains until you delete the account."],
-      ["Your controls", "You can delete individual research sessions or permanently delete your account from the sidebar. Account deletion removes active account, session, message, webhook, audit-log, and user-scoped cache records."],
+      ["Your controls", "You can delete individual research sessions or permanently delete your account from Settings. Account deletion removes active account, session, message, webhook, audit-log, and user-scoped cache records."],
       ["Public-beta boundary", "Curalink is a research-information service, not a medical record system. It is not intended to receive protected or directly identifiable patient information."],
     ],
   },
@@ -20,7 +21,7 @@ const policies = {
       ["Verify original sources", "AI-generated summaries and personalized recommendations can be incomplete or incorrect. Review the linked publications and consult a qualified healthcare professional before making a health decision."],
       ["Your responsibilities", "Do not submit identifiable patient information, attempt unauthorized access, misuse another person's account, or use the service to cause harm."],
       ["Public beta", "The service may change, experience delays, or be unavailable. Research results are provided without a guarantee of completeness, accuracy, or fitness for clinical decision-making."],
-      ["Ending use", "You may stop using Curalink at any time and permanently delete your account and active data from the sidebar."],
+      ["Ending use", "You may stop using Curalink at any time and permanently delete your account and active data from Settings."],
     ],
   },
 };
@@ -33,7 +34,7 @@ export default function LegalPage({ type, onBack }) {
         <button className="legal-back" onClick={onBack}>&larr; Back</button>
         <p className="legal-kicker">CURALINK PUBLIC BETA</p>
         <h1>{policy.title}</h1>
-        <p className="legal-updated">Last updated: October 13, 2026</p>
+        <p className="legal-updated">Last updated: October 31, 2026</p>
         {policy.sections.map(([heading, body]) => (
           <section key={heading}>
             <h2>{heading}</h2>

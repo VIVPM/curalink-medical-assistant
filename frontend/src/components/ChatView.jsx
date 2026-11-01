@@ -96,6 +96,7 @@ export default function ChatView({
           <div className="chat-header-info">
             <h3>{session.title}</h3>
             <span className="chat-context">
+              {session.patientName && `${session.patientName} · `}
               {session.staticContext?.disease}
               {session.staticContext?.intent && ` | ${session.staticContext.intent}`}
               {session.staticContext?.location && ` | ${session.staticContext.location}`}
@@ -178,9 +179,6 @@ export default function ChatView({
           </div>
         )}
 
-        <div className="chat-footer-disclaimer">
-          Responses are AI-generated from retrieved research papers and clinical trials. Always verify findings with original sources before making medical decisions.
-        </div>
       </div>
 
       {latestMeta && (

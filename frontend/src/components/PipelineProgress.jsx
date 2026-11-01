@@ -1,6 +1,7 @@
 // In-chat progress display for pipeline stages.
 
 const STAGES = [
+  { key: "routing", label: "Checking context and choosing model" },
   { key: "query_expansion", label: "Expanding query" },
   { key: "retrieval", label: "Fetching sources" },
   { key: "normalization", label: "Normalizing" },
@@ -19,9 +20,9 @@ export default function PipelineProgress({ stage, retrievalCounts }) {
   const activeIdx = getStageIndex(stage);
   const progressPct = Math.max(((activeIdx + 1) / STAGES.length) * 100, 3);
 
-  const showCounts = retrievalCounts && activeIdx >= 2;
+  const showCounts = retrievalCounts && activeIdx >= getStageIndex("normalization");
 
-  const retrievalActive = activeIdx === 1;
+  const retrievalActive = stage === "retrieval";
 
   return (
     <div className="pipeline-progress">

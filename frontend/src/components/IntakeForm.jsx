@@ -4,6 +4,7 @@ import { useState } from "react";
 
 export default function IntakeForm({ onSubmit }) {
   const [form, setForm] = useState({
+    patientName: "",
     disease: "",
     intent: "",
     location: "",
@@ -18,27 +19,19 @@ export default function IntakeForm({ onSubmit }) {
   return (
     <div className="intake-form-container">
       <div className="intake-card">
-        <h2>Curalink</h2>
-        <p className="intake-subtitle">AI Medical Research Assistant</p>
-        <p className="intake-desc">
-          Add de-identified research context below. Curalink uses it throughout
-          this session to provide personalized, research-backed answers.
-        </p>
-        <div className="intake-disclaimer">
-          <strong>Do not enter identifiable patient information.</strong> Use a
-          condition, research intent, and general location only—never names,
-          birth dates, addresses, medical-record numbers, or contact details.
-        </div>
-        <div className="intake-disclaimer">
-          <strong>Not medical advice.</strong> Curalink surfaces published research
-          and clinical-trial listings for informational purposes only. It is not a
-          diagnosis, treatment recommendation, or a substitute for a qualified
-          clinician. Do not use Curalink for emergencies.
-        </div>
+        <h2>Start a research session</h2>
+        <p className="intake-subtitle">Add context for research-backed answers.</p>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Disease of Interest *</label>
+            <label htmlFor="patient-name">Patient name (optional)</label>
+            <input id="patient-name" name="patientName" type="text" maxLength={100}
+              placeholder="Nickname or initials" value={form.patientName}
+              onChange={(e) => setForm({ ...form, patientName: e.target.value })} />
+          </div>
+          <div className="form-group">
+            <label htmlFor="research-disease">Disease or condition *</label>
             <input
+              id="research-disease"
               type="text"
               placeholder="e.g. Parkinson's disease"
               value={form.disease}
@@ -47,8 +40,9 @@ export default function IntakeForm({ onSubmit }) {
             />
           </div>
           <div className="form-group">
-            <label>Additional Query / Intent</label>
+            <label htmlFor="research-intent">Research intent</label>
             <input
+              id="research-intent"
               type="text"
               placeholder="e.g. Deep Brain Stimulation"
               value={form.intent}
@@ -56,8 +50,9 @@ export default function IntakeForm({ onSubmit }) {
             />
           </div>
           <div className="form-group">
-            <label>Location (for nearby clinical trials)</label>
+            <label htmlFor="research-location">General location</label>
             <input
+              id="research-location"
               type="text"
               placeholder="e.g. Toronto, Canada"
               value={form.location}
