@@ -493,19 +493,6 @@ clinical triage. **These results do not establish clinical readiness.**
 
 Harness: [`load-tests/`](load-tests/README.md). Raw results and the run manifest stay in ignored `load-tests/results/`; test accounts remain local for reuse.
 
-## Deployment
-
-Deployed on Render (free tier) with zero monthly cost:
-
-| Service | URL |
-|---------|-----|
-| Frontend | `curalink-medical-assistant-frontend.onrender.com` |
-| Express API | `curalink-medical-assistant.onrender.com` |
-| FastAPI Orchestrator | `curalink-medical-assistant-python.onrender.com` |
-| Database | Neon Postgres (managed, free tier) |
-
-> **Note:** Free-tier services spin down after ~15 min of inactivity. First request after spin-down takes 30-60 seconds (cold start). Ping `/health` on all services before demo.
-
 ## API Endpoints
 
 ### Express (Node) — User-Facing
