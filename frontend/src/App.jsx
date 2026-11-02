@@ -158,9 +158,9 @@ export default function App() {
       <main className="main-content">
         <header className="app-navbar">
           <h1>Curalink</h1>
-          {credits && <span className={`navbar-credits${!credits.unlimited && credits.remaining === 0 ? " navbar-credits-empty" : ""}`}
-            role="status" title={credits.unlimited ? "Using your saved provider credentials" : "Daily credits reset at midnight UTC"}>
-            {credits.unlimited ? "Using your API keys" : <><strong>{credits.remaining}</strong> / {credits.cap} credits<span className="navbar-credit-detail"> left today</span></>}
+          {credits && !credits.unlimited && <span className={`navbar-credits${credits.remaining === 0 ? " navbar-credits-empty" : ""}`}
+            role="status" title="Daily credits reset at midnight UTC">
+            <strong>{credits.remaining}</strong> / {credits.cap} credits<span className="navbar-credit-detail"> left today</span>
           </span>}
         </header>
         {showForm || !activeSession ? (
