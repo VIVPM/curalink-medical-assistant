@@ -299,7 +299,7 @@ def get_tier_backend(base: LLMBackend, tier: str) -> LLMBackend:
         selected._sem = base._sem
         return selected
     if isinstance(base, CloudflareBackend):
-        default = "@cf/meta/llama-3.1-8b-instruct-fp8" if tier == "8b" else "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+        default = "@cf/openai/gpt-oss-20b" if tier == "8b" else "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
         model = os.getenv(f"CF_LLM_{tier.upper()}_MODEL", default).strip()
         if not model:
             raise ValueError("Cloudflare routing model must not be empty")

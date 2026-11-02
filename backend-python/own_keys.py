@@ -95,7 +95,7 @@ async def validate_keys(keys: OwnKeys) -> str:
             if hf.status_code != 200:
                 raise HTTPException(status_code=400, detail="Hugging Face token is invalid")
             if keys.provider == "cloudflare":
-                model = os.getenv("CF_LLM_8B_MODEL", "@cf/meta/llama-3.1-8b-instruct-fp8")
+                model = os.getenv("CF_LLM_8B_MODEL", "@cf/openai/gpt-oss-20b")
                 cf = await client.post(
                     f"https://api.cloudflare.com/client/v4/accounts/{keys.cfAccountId}/ai/run/{model}",
                     headers={"Authorization": f"Bearer {keys.cfToken}"},

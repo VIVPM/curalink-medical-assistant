@@ -20,7 +20,7 @@ class ModelRoutingTests(unittest.TestCase):
 
     def test_cloudflare_tiers_keep_account_and_token(self):
         base = CloudflareBackend("user_account", "user_token", use_cache=False)
-        for tier, expected in (("8b", "@cf/meta/llama-3.1-8b-instruct-fp8"), ("70b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast")):
+        for tier, expected in (("8b", "@cf/openai/gpt-oss-20b"), ("70b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast")):
             selected = get_tier_backend(base, tier)
             assert isinstance(selected, CloudflareBackend)
             self.assertIs(selected._sem, base._sem)
