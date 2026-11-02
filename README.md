@@ -434,7 +434,7 @@ Tested **25–150 concurrent users** with k6 against local Express/FastAPI,
 Postgres and Redis.
 
 - **AI/retrieval:** simulated 10.438s delay.
-- **Concurrency:** 60 test-only async job slots; queue size 50.
+- **Concurrency:** 3 Python processes × 20 async slots; queue size 50 per process.
 - **Journey:** login, browse sessions, submit one job, poll every 2s.
 - **Duration:** 30s ramp and 180s hold per level, followed by job drain.
 - **Limits:** Retry-After handling, 180s polling deadline, submission rate limits;
@@ -449,11 +449,11 @@ worker settings are unchanged.
 <tr><th>p50</th><th>p95</th><th>p99</th><th>p50</th><th>p95</th><th>p99</th><th>p50</th><th>p95</th><th>p99</th></tr>
 </thead>
 <tbody>
-<tr><td>25</td><td>1,376</td><td>0.00%</td><td>0.30</td><td>1.54</td><td>2.03</td><td>0.24</td><td>0.37</td><td>1.71</td><td>0.29</td><td>0.54</td><td>0.91</td></tr>
-<tr><td>50</td><td>2,760</td><td>0.00%</td><td>0.29</td><td>1.71</td><td>1.78</td><td>0.23</td><td>0.29</td><td>1.62</td><td>0.29</td><td>0.33</td><td>0.34</td></tr>
-<tr><td>75</td><td>4,130</td><td>0.00%</td><td>0.29</td><td>1.68</td><td>1.88</td><td>0.23</td><td>0.30</td><td>0.47</td><td>0.30</td><td>0.34</td><td>0.38</td></tr>
-<tr><td>100</td><td>5,410</td><td>0.00%</td><td>0.30</td><td>1.74</td><td>2.10</td><td>0.24</td><td>0.56</td><td>1.28</td><td>0.30</td><td>0.40</td><td>0.44</td></tr>
-<tr><td>150</td><td>6,648</td><td>0.02%</td><td>0.43</td><td>1.79</td><td>2.14</td><td>1.08</td><td>1.89</td><td>2.48</td><td>0.43</td><td>2.04</td><td>2.13</td></tr>
+<tr><td>25</td><td>1,384</td><td>0.00%</td><td>0.30</td><td>1.73</td><td>1.78</td><td>0.24</td><td>0.32</td><td>1.70</td><td>0.32</td><td>0.93</td><td>1.03</td></tr>
+<tr><td>50</td><td>2,716</td><td>0.00%</td><td>0.52</td><td>2.41</td><td>2.89</td><td>0.24</td><td>0.31</td><td>0.50</td><td>0.34</td><td>0.57</td><td>0.65</td></tr>
+<tr><td>75</td><td>4,099</td><td>0.00%</td><td>0.32</td><td>1.75</td><td>1.87</td><td>0.24</td><td>0.30</td><td>0.54</td><td>0.30</td><td>0.56</td><td>1.70</td></tr>
+<tr><td>100</td><td>5,449</td><td>0.00%</td><td>0.36</td><td>0.60</td><td>2.14</td><td>0.24</td><td>0.39</td><td>0.47</td><td>0.33</td><td>0.45</td><td>0.53</td></tr>
+<tr><td>150</td><td>6,880</td><td>0.00%</td><td>0.38</td><td>1.67</td><td>1.89</td><td>0.99</td><td>1.21</td><td>1.29</td><td>0.41</td><td>1.27</td><td>1.36</td></tr>
 </tbody>
 </table>
 
@@ -463,17 +463,17 @@ worker settings are unchanged.
 <tr><th>Created</th><th>Succeeded</th><th>Failed</th><th>Clients</th><th>Expected</th><th>p50</th><th>p95</th><th>p99</th></tr>
 </thead>
 <tbody>
-<tr><td>25</td><td>25</td><td>25</td><td>0</td><td>25</td><td>25</td><td>0.03</td><td>0.06</td><td>0.07</td></tr>
-<tr><td>50</td><td>50</td><td>50</td><td>0</td><td>50</td><td>50</td><td>0.03</td><td>0.07</td><td>0.08</td></tr>
-<tr><td>75</td><td>75</td><td>75</td><td>0</td><td>75</td><td>75</td><td>0.05</td><td>0.08</td><td>0.09</td></tr>
-<tr><td>100</td><td>100</td><td>100</td><td>0</td><td>100</td><td>100</td><td>0.05</td><td>0.08</td><td>0.09</td></tr>
-<tr><td>150</td><td>150</td><td>150</td><td>0</td><td>150</td><td>150</td><td>0.05</td><td>0.61</td><td>0.98</td></tr>
+<tr><td>25</td><td>25</td><td>25</td><td>0</td><td>25</td><td>25</td><td>0.05</td><td>0.06</td><td>0.07</td></tr>
+<tr><td>50</td><td>50</td><td>50</td><td>0</td><td>50</td><td>50</td><td>0.05</td><td>0.06</td><td>0.08</td></tr>
+<tr><td>75</td><td>75</td><td>75</td><td>0</td><td>75</td><td>75</td><td>0.05</td><td>0.06</td><td>0.08</td></tr>
+<tr><td>100</td><td>100</td><td>100</td><td>0</td><td>100</td><td>100</td><td>0.03</td><td>0.06</td><td>0.08</td></tr>
+<tr><td>150</td><td>150</td><td>150</td><td>0</td><td>150</td><td>150</td><td>0.05</td><td>0.35</td><td>0.50</td></tr>
 </tbody>
 </table>
 
-**All five levels passed; all 400 accepted jobs succeeded.** HTTP errors: zero
-through 100 users, **0.02% at 150**. Queue wait is measured server-side, not
-end-to-end. SSE TTFT, spike and recovery tests are not included.
+**All five levels passed; all 400 accepted jobs succeeded. No HTTP errors.**
+Queue wait is measured server-side, not end-to-end. SSE TTFT, spike and recovery
+tests are not included.
 
 Harness: [`load-tests/`](load-tests/README.md). Raw results and test credentials
 are gitignored.

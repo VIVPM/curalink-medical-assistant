@@ -30,24 +30,24 @@ failures exit nonzero.
 
 ## Stubbed capacity suite
 
-`stub_server.py` starts the real FastAPI app and job manager at port 8021, replacing
-only pipeline execution with a 10.438s async wait. No model clients are started.
-Start a dedicated local Express instance on port 4021 pointing at 8021 with
-`AUTH_RATE_MAX=10000`. `provision.mjs` creates 150 dedicated account fixtures in the
-configured database; credentials stay ignored. Never run provisioning accidentally
-against an unrelated database. Then run with the backend virtualenv Python:
+`stub_cluster.py` runs **three independent FastAPI processes with 20 async slots
+each**, replacing AI/retrieval with a 10.438s wait. Each process has a 50-job queue.
+No model clients start. A local gateway at port 8021 distributes submissions and
+routes job polling/cancellation back to the owning process. Stats aggregate all
+three processes.
+
+Start a dedicated Express instance on port 4021 with `FASTAPI_URL=http://127.0.0.1:8021`
+and `AUTH_RATE_MAX=10000`. Use the 150 dedicated accounts from `provision.mjs`;
+credentials remain ignored. Run with the backend virtualenv Python:
 
 ```sh
-# Start separately; uses 60 async job slots in one local process (not 3 processes).
-python load-tests/stub_server.py --workers 60
+python load-tests/stub_cluster.py
 python load-tests/capacity_suite.py
 ```
 
-The optional 60-slot profile matches ecommerce's aggregate job concurrency only;
-it does not change production defaults or prove 60 real-model requests are safe.
-Omit `--workers` to use the configured/default worker count. Do not use `--resume`
-across different worker profiles. Polling respects Retry-After on 429/503; these
-responses still count as errors.
+The runner verifies three process IDs and 20 slots per process. Production defaults
+are unchanged. Do not resume across worker topologies. Polling respects Retry-After
+on 429/503; those responses still count as errors.
 
 Runs 25/50/75/100/150 users sequentially, 30s ramp + 180s hold each. Each user submits
 one job. Workers drain between levels; existing worker and queue settings are
