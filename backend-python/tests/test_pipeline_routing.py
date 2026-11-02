@@ -15,7 +15,7 @@ os.environ.setdefault("HF_TOKEN", "test-token")
 from llm_backend import HFBackend
 from schemas.document import Document
 from stages.query_router import RoutingDecision
-from test_history_routing import research_history
+from .test_history_routing import research_history
 
 main = importlib.import_module("main")
 
