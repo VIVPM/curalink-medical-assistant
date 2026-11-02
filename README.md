@@ -32,9 +32,8 @@ An AI-powered medical research companion built with React, Express, Neon Postgre
 
 ## 🏗️ Architecture
 
-Five layers, read top to bottom. Each arrow is a hand-off between layers; the
-shared services (data, external AI) are reached per layer rather than by every
-stage, so the flow stays legible. Caching and observability are cross-cutting.
+React frontend → Express API → FastAPI pipeline, backed by Postgres, Redis
+and external research/AI services.
 
 ```mermaid
 graph TD
@@ -354,26 +353,16 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## Evaluation Results
 
-The **2026-11-01 post-fix run** evaluated all **150 patient/caregiver questions**
-(50 easy, 58 medium, 42 hard) through the Python pipeline in process. Gemini
-**3.5 Flash-Lite** generated answers and judged them through DeepEval; production
-HF/Cloudflare provider settings were not changed. Six isolated workers completed
-150 captures and scores in **10.45 minutes**, with **150/150 successful requests**.
+Evaluated **150 patient/caregiver questions**: 50 easy, 58 medium and 42 hard.
+Gemini **3.5 Flash-Lite** generated and judged answers through DeepEval.
+Six workers completed the evaluation in **10.45 minutes**; **150/150 requests succeeded**.
 
-Of the **130 regular questions**, 102 receive factual correctness, completeness
-and answer-relevancy scoring; the other 28 use behavior rubrics for clarification,
-emergencies, uncertainty and dynamic information without fixed factual gold.
-Faithfulness applies only when usable generator evidence is present. The remaining
-20 designated safety cases receive toxicity (10), scope adherence (5), or
-response-level PII (5). Contextual precision and recall are excluded.
-
-Fresh retrieval in this evaluation filters the existing up-to-14 selected records
-using **combined ranking score >=0.8**, then retains at most **5 publications and
-6 trials** without refilling below the cutoff. This is a query-relative,
-unvalidated score—not an 80% relevance probability. Full selected record text is
-used without the earlier character truncation; saved history retains its existing
-bounds and is not rescored by this retrieval cutoff. This selection override is
-**evaluation-only**, not a change to production record selection.
+- **102 questions:** correctness, completeness and answer relevancy.
+- **28 questions:** clarification, uncertainty and emergency-response behavior.
+- **20 safety cases:** toxicity, scope adherence and response-level PII.
+- **Faithfulness:** scored when generator evidence was available.
+- **Evaluation retrieval:** ranking score >=0.8; at most 5 publications and 6 trials.
+  This evaluation-only cutoff is not a relevance probability.
 
 ### Answer quality and safety
 
@@ -391,37 +380,29 @@ correct answers. Inapplicable metrics are excluded rather than counted as zero.
 | Scope adherence | 5 | 4 | 80.0% | 0.860 |
 | Response-level PII | 5 | 5 | 100.0% | 1.000 |
 
-**116/150 cases passed all their applicable metrics; 34 failed.** Among the 102
-factual-correctness cases, 54 received 1.0. The **82.4% correctness pass rate** is
-84/102 at the provisional threshold—not accuracy across all 150 questions and
-not independent clinical verification.
+**116/150 cases passed all applicable metrics; 34 failed.** Correctness passed
+in **84/102 cases (82.4%)**. Judge scores are not independent clinical validation.
 
-### Latency, time to first token and generation cost
+### Latency and cost per query
 
-| Measurement | p50 | p95 | p99 | Mean |
-|---|---:|---:|---:|---:|
-| Request latency | 9.61s | 15.87s | 23.33s | 8.36s |
-| Application-stream TTFT | 8.86s | 14.70s | 22.56s | 7.76s |
-| Answer-generation cost per query (USD) | $0.001634 | $0.002652 | $0.004098 | $0.001518 |
+**150 questions** evaluated with **Gemini 3.5 Flash-Lite** using six workers.
+Latency includes the Python pipeline; excludes initialization, judging, HTTP
+transit and message saving. Cost covers answer generation only.
 
-Total answer-generation cost: **$0.2276394 for 150 questions**, with no missing
-cost measurements. This includes answer input/output/thinking usage, excluding
-query expansion, judging, routing, embeddings, ranking and hosting. Cost uses the
-2026-11-01 recorded Gemini rates, not a complete serving-cost invoice.
-
-Timing starts before routing/retrieval and excludes initialization and judging.
-TTFT means the first nonempty application-stream token or direct-answer chunk;
-structured JSON tokens are not necessarily rendered answer words. These are
-six-worker local in-process measurements, not browser latency or a capacity test.
-Maximum actual generation input was **12,022 tokens**; this includes instructions,
-question, history and schema, not only record text.
+<table>
+<thead>
+<tr><th colspan="4">Latency (s)</th><th rowspan="2">TTFT mean (s)</th><th colspan="4">Cost per query ($)</th></tr>
+<tr><th>p50</th><th>p95</th><th>p99</th><th>mean</th><th>p50</th><th>p95</th><th>p99</th><th>mean</th></tr>
+</thead>
+<tbody>
+<tr><td>9.61</td><td>15.87</td><td>23.33</td><td>8.36</td><td>7.76</td><td>0.001634</td><td>0.002652</td><td>0.004098</td><td>0.001518</td></tr>
+</tbody>
+</table>
 
 ### Component-level timing: repeated single question
 
-A separate diagnostic ran P001 ("My doctor said I have prediabetes.
-Does that mean I already have diabetes?") **10 times sequentially in one process**.
-All ten succeeded. Runs **1-2 are excluded**; the table contains arithmetic means
-from **runs 3-10 only**.
+Ran the prediabetes question **10 times sequentially**. All requests succeeded.
+The table reports means for **runs 3–10**, excluding two warm-up runs.
 
 | Step | Mean time, runs 3-10 |
 |---|---:|
@@ -435,31 +416,32 @@ from **runs 3-10 only**.
 | Response assembly | <0.001s |
 | **Total request time** | **10.438s** |
 
-Mean application-stream TTFT for runs 3-10: **9.432s**. The first measured request
-took **19.690s**, excluding initialization before the request timer. Stage timers
-are rounded to milliseconds, so displayed zero values do not imply zero work;
-rounding and request overhead can produce a small difference from the total.
-Answer caching was disabled; embedding-cache behavior was uncontrolled, so repeats
-can benefit from warmed embeddings and clients. No judge calls were made. These
-figures exclude Node/frontend/proxy transit and are not a load test.
-Measurement artifacts: `backend-python/evals/artifacts/component-p001-10runs-20261101T182848Z/`.
+Mean TTFT: **9.432s**. Answer caching was disabled. Embedding caches were
+uncontrolled. Measurements exclude Node, frontend and proxy transit.
 
-### Reproducibility and limits
+### Evaluation limits
 
-Latest full-run artifacts: `backend-python/evals/artifacts/full-150-20261101T181123Z/`.
-See [evaluation instructions](backend-python/evals/README.md) for the opt-in harness.
-Captures contain actual generator evidence; previous runs are not overwritten.
+The same model generated and judged answers. Tests used fixed conversation
+history and bypassed authentication and browser flows. PII scores cover responses,
+not backend privacy. Emergency checks are not clinical triage.
+**These results do not establish clinical readiness.**
 
-References and relevance thresholds are provisional and need independent clinical
-review. The generator and judge use the same model; conversation tests use fixed
-canonical history rather than actual-answer rollout. The harness bypasses Node,
-authentication and browser flows. Response PII scores do not establish backend
-privacy enforcement. Emergency guardrails cover explicit patterns, not comprehensive
-clinical triage. **These results do not establish clinical readiness.**
+See [evaluation instructions](backend-python/evals/README.md) for the harness.
 
 ## Load testing & capacity
 
-**Local k6, 2026-11-02.** Real Express/FastAPI and configured Postgres/Redis; **60 async test-only job slots**, queue setting **50**, and a **10.438s simulated AI/retrieval delay**. Each user logs in, browses a session, submits one job and polls every 2s with Retry-After backoff (180s deadline). Each level ramps 30s and holds 180s, then jobs drain. Local shared-IP login allowance: 10,000; chat limits apply to submissions, not polling. **Production remains at its configured worker count, not 60.** This low-memory laptop run overlapped demo services/material preparation, so it is not a clean production-capacity benchmark.
+Tested **25–150 concurrent users** with k6 against local Express/FastAPI,
+Postgres and Redis.
+
+- **AI/retrieval:** simulated 10.438s delay.
+- **Concurrency:** 60 test-only async job slots; queue size 50.
+- **Journey:** login, browse sessions, submit one job, poll every 2s.
+- **Duration:** 30s ramp and 180s hold per level, followed by job drain.
+- **Limits:** Retry-After handling, 180s polling deadline, submission rate limits;
+  shared-IP login allowance of 10,000.
+
+Local simulated-AI results, not production or live-model capacity. Production
+worker settings are unchanged.
 
 <table>
 <thead>
@@ -489,9 +471,12 @@ clinical triage. **These results do not establish clinical readiness.**
 </tbody>
 </table>
 
-**All five levels passed the configured thresholds; all 400 accepted jobs succeeded.** HTTP errors were zero through 100 users and 0.02% at 150. Queue wait is server-observed, not end-to-end latency. The 60-slot profile matches ecommerce's aggregate concurrency, not its three-process topology; simulated waits do not reproduce real inference resource demands. No live-model capacity, SSE TTFT or spike/recovery claim is made.
+**All five levels passed; all 400 accepted jobs succeeded.** HTTP errors: zero
+through 100 users, **0.02% at 150**. Queue wait is measured server-side, not
+end-to-end. SSE TTFT, spike and recovery tests are not included.
 
-Harness: [`load-tests/`](load-tests/README.md). Raw results and the run manifest stay in ignored `load-tests/results/`; test accounts remain local for reuse.
+Harness: [`load-tests/`](load-tests/README.md). Raw results and test credentials
+are gitignored.
 
 ## API Endpoints
 
