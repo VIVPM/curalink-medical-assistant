@@ -70,6 +70,7 @@ tmp/
 *.bak
 load_test_results/
 eval_results/
+brag-output/
 
 architecture.md
 plan.md

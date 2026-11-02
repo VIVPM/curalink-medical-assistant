@@ -457,6 +457,42 @@ authentication and browser flows. Response PII scores do not establish backend
 privacy enforcement. Emergency guardrails cover explicit patterns, not comprehensive
 clinical triage. **These results do not establish clinical readiness.**
 
+## Load testing & capacity
+
+**Local k6, 2026-11-02.** Real Express/FastAPI and configured Postgres/Redis; **60 async test-only job slots**, queue setting **50**, and a **10.438s simulated AI/retrieval delay**. Each user logs in, browses a session, submits one job and polls every 2s with Retry-After backoff (180s deadline). Each level ramps 30s and holds 180s, then jobs drain. Local shared-IP login allowance: 10,000; chat limits apply to submissions, not polling. **Production remains at its configured worker count, not 60.** This low-memory laptop run overlapped demo services/material preparation, so it is not a clean production-capacity benchmark.
+
+<table>
+<thead>
+<tr><th rowspan="2">Users</th><th rowspan="2">Requests</th><th rowspan="2">HTTP errors</th><th colspan="3">Login (s)</th><th colspan="3">Sessions (s)</th><th colspan="3">Submit (s)</th></tr>
+<tr><th>p50</th><th>p95</th><th>p99</th><th>p50</th><th>p95</th><th>p99</th><th>p50</th><th>p95</th><th>p99</th></tr>
+</thead>
+<tbody>
+<tr><td>25</td><td>1,376</td><td>0.00%</td><td>0.30</td><td>1.54</td><td>2.03</td><td>0.24</td><td>0.37</td><td>1.71</td><td>0.29</td><td>0.54</td><td>0.91</td></tr>
+<tr><td>50</td><td>2,760</td><td>0.00%</td><td>0.29</td><td>1.71</td><td>1.78</td><td>0.23</td><td>0.29</td><td>1.62</td><td>0.29</td><td>0.33</td><td>0.34</td></tr>
+<tr><td>75</td><td>4,130</td><td>0.00%</td><td>0.29</td><td>1.68</td><td>1.88</td><td>0.23</td><td>0.30</td><td>0.47</td><td>0.30</td><td>0.34</td><td>0.38</td></tr>
+<tr><td>100</td><td>5,410</td><td>0.00%</td><td>0.30</td><td>1.74</td><td>2.10</td><td>0.24</td><td>0.56</td><td>1.28</td><td>0.30</td><td>0.40</td><td>0.44</td></tr>
+<tr><td>150</td><td>6,648</td><td>0.02%</td><td>0.43</td><td>1.79</td><td>2.14</td><td>1.08</td><td>1.89</td><td>2.48</td><td>0.43</td><td>2.04</td><td>2.13</td></tr>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr><th rowspan="2">Users</th><th colspan="3">Accepted jobs</th><th colspan="2">Job ID received</th><th colspan="3">Queue wait (s)</th></tr>
+<tr><th>Created</th><th>Succeeded</th><th>Failed</th><th>Clients</th><th>Expected</th><th>p50</th><th>p95</th><th>p99</th></tr>
+</thead>
+<tbody>
+<tr><td>25</td><td>25</td><td>25</td><td>0</td><td>25</td><td>25</td><td>0.03</td><td>0.06</td><td>0.07</td></tr>
+<tr><td>50</td><td>50</td><td>50</td><td>0</td><td>50</td><td>50</td><td>0.03</td><td>0.07</td><td>0.08</td></tr>
+<tr><td>75</td><td>75</td><td>75</td><td>0</td><td>75</td><td>75</td><td>0.05</td><td>0.08</td><td>0.09</td></tr>
+<tr><td>100</td><td>100</td><td>100</td><td>0</td><td>100</td><td>100</td><td>0.05</td><td>0.08</td><td>0.09</td></tr>
+<tr><td>150</td><td>150</td><td>150</td><td>0</td><td>150</td><td>150</td><td>0.05</td><td>0.61</td><td>0.98</td></tr>
+</tbody>
+</table>
+
+**All five levels passed the configured thresholds; all 400 accepted jobs succeeded.** HTTP errors were zero through 100 users and 0.02% at 150. Queue wait is server-observed, not end-to-end latency. The 60-slot profile matches ecommerce's aggregate concurrency, not its three-process topology; simulated waits do not reproduce real inference resource demands. No live-model capacity, SSE TTFT or spike/recovery claim is made.
+
+Harness: [`load-tests/`](load-tests/README.md). Raw results and the run manifest stay in ignored `load-tests/results/`; test accounts remain local for reuse.
+
 ## Deployment
 
 Deployed on Render (free tier) with zero monthly cost:
