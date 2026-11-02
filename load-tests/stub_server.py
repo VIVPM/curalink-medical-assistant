@@ -17,6 +17,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--workers', type=int, default=int(os.getenv('JOB_WORKERS', '3')))
+    parser.add_argument('--port', type=int, default=8021)
     args = parser.parse_args()
     if not 1 <= args.workers <= 60:
         parser.error('--workers must be between 1 and 60')
@@ -59,7 +60,7 @@ main.app.router.lifespan_context = lifespan
 @main.app.get('/load-test/config')
 async def config():
     return {'simulated': True, 'delay_seconds': DELAY, 'workers': jm._max_workers,
-            'queue_size': jm._queue.maxsize}
+            'pid': os.getpid(), 'queue_size': jm._queue.maxsize}
 
 
 @main.app.get('/load-test/stats')
@@ -71,4 +72,4 @@ async def stats(tag: str):
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(main.app, host='127.0.0.1', port=8021, log_level='warning')
+    uvicorn.run(main.app, host='127.0.0.1', port=args.port, log_level='warning')
