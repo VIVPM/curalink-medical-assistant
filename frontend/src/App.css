@@ -14,7 +14,7 @@
 .auth-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background: #f7f8fa;
 }
 
@@ -116,26 +116,42 @@
 .auth-footer {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 16px;
   align-items: center;
-  justify-content: center;
-  padding: 14px 48px;
+  padding: 24px 16px;
   background: #f0f2f5;
   border-top: 1px solid #e2e5ea;
-  color: #999;
-  font-size: 13px;
+  color: #626975;
+  font-size: 12px;
   flex-shrink: 0;
 }
 
-.auth-legal-links { display: flex; gap: 14px; }
+.auth-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  text-align: center;
+}
+
+.auth-legal-links { display: flex; gap: 16px; }
 .auth-legal-links button {
   border: none;
   background: none;
-  color: #777;
+  color: #3c4653;
   cursor: pointer;
   font: inherit;
+  padding: 6px 2px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
-.auth-legal-links button:hover { color: #129485; }
+.auth-legal-links button:hover { color: #087b6f; }
+.auth-legal-links button:focus-visible {
+  outline: 2px solid #087b6f;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
 
 .sidebar-header {
   min-height: 64px;
@@ -429,11 +445,11 @@
 .intake-card .submit-btn { grid-column: 1 / -1; margin-top: 0; }
 
 .auth-disclaimer {
-  max-width: 520px;
-  margin: 0 auto;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #999;
+  max-width: 560px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #555e6b;
   text-align: center;
 }
 

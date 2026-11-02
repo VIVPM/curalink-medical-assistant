@@ -107,15 +107,17 @@ export default function AuthPage({ onLogin, onSignup, error, initialMode = "logi
 
       <footer className="auth-footer">
         <p className="auth-disclaimer">
-          Curalink provides research information, not medical advice. By creating
-          an account you agree to use it for informational purposes only and to
-          consult a qualified clinician for any medical decision.
+          Curalink helps you explore medical research. It does not provide medical advice.
+          <br />
+          Consult a qualified clinician before making decisions about your health.
         </p>
-        <div className="auth-legal-links">
-          <button onClick={onPrivacy}>Privacy</button>
-          <button onClick={onTerms}>Terms</button>
+        <div className="auth-footer-bottom">
+          <nav className="auth-legal-links" aria-label="Legal information">
+            <button type="button" onClick={onPrivacy}>Privacy</button>
+            <button type="button" onClick={onTerms}>Terms</button>
+          </nav>
+          <span>&copy; {new Date().getFullYear()} Curalink. All rights reserved.</span>
         </div>
-        <span>&copy; {new Date().getFullYear()} Curalink. All rights reserved.</span>
       </footer>
     </div>
   );
