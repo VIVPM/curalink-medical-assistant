@@ -75,6 +75,8 @@ def main():
             stub = json.load(response)
         if not stub.get('simulated') or base != 'http://127.0.0.1:4021':
             parser.error('Stub mode requires the dedicated local API at port 4021')
+        if stub.get('process_count') != 3 or stub.get('workers_per_process') != 20:
+            parser.error('Capacity testing requires three independent processes with 20 slots each')
     accounts = accounts[:peak]
     if args.jobs and not (args.allow_model_calls or args.stubbed):
         parser.error('--jobs requires --allow-model-calls or verified --stubbed')

@@ -38,6 +38,26 @@ class HarnessTests(unittest.TestCase):
         with patch.object(run, 'api', side_effect=TimeoutError), contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(run.cleanup('http://localhost:4000', [{}], 'test'), 1)
 
+    def test_cluster_distributes_submissions_and_keeps_job_affinity(self):
+        from stub_cluster import Routing, PORTS
+        routing = Routing()
+        assigned = [routing.choose('POST', '/jobs') for _ in range(6)]
+        self.assertEqual(assigned, list(PORTS) * 2)
+        routing.remember('job-one', PORTS[1])
+        self.assertEqual(routing.choose('GET', '/jobs/job-one'), PORTS[1])
+        self.assertEqual(routing.choose('DELETE', '/jobs/job-one'), PORTS[1])
+        self.assertIsNone(routing.choose('GET', '/jobs/unknown'))
+
+    def test_cluster_aggregates_all_process_stats(self):
+        from stub_cluster import aggregate_stats
+        rows = [{'created': 1, 'rejected': 0, 'completed': 1, 'failed': 0,
+                 'pending': 0, 'queue_wait_ms': [value]} for value in (1, 2, 3)]
+        result = aggregate_stats(rows)
+        self.assertEqual(result['created'], 3)
+        self.assertEqual(result['completed'], 3)
+        self.assertEqual(result['queue_wait_ms'], [1, 2, 3])
+        self.assertEqual(len(result['processes']), 3)
+
     def test_report_converts_milliseconds_and_marks_missing(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

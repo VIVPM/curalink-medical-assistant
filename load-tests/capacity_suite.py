@@ -26,6 +26,8 @@ def main():
     records = json.loads(manifest.read_text(encoding='utf-8')) if '--resume' in sys.argv else []
     completed = set()
     for record in records:
+        if record.get('process_count') != 3 or record.get('workers_per_process') != 20:
+            raise RuntimeError('Cannot resume results from a different worker topology')
         folder = Path(record['folder'])
         if not (folder / 'summary.json').exists() or not (folder / 'server.json').exists():
             raise RuntimeError('Saved level is incomplete; refusing to skip it')
@@ -54,7 +56,8 @@ def main():
                 raise RuntimeError('Workers did not drain; stopping before next level')
             time.sleep(2)
         (folder / 'server.json').write_text(json.dumps(data, indent=2), encoding='utf-8')
-        records.append({'users': users, 'folder': str(folder), 'exit_code': result.returncode})
+        records.append({'users': users, 'folder': str(folder), 'exit_code': result.returncode,
+                        'process_count': 3, 'workers_per_process': 20})
         (ROOT / 'results' / 'capacity-suite.json').write_text(json.dumps(records, indent=2), encoding='utf-8')
         print(f"DONE {users}: exit={result.returncode}; jobs={data['completed']}/{data['created']}; failed={data['failed']}", flush=True)
         # A threshold failure is a measured result, not a reason to hide higher levels.
