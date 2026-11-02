@@ -1,0 +1,3 @@
+results/
+accounts*.json
+__pycache__/
