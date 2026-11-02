@@ -2,7 +2,45 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cacheKey, isEmergencyMessage } from "./chat.js";
+import chatRouter, { cacheKey, isEmergencyMessage } from "./chat.js";
+import express from "express";
+import { signToken } from "../middleware/auth.js";
+import jobsRouter from "./jobs.js";
+
+test("job polling does not consume chat quota and both chat routes remain limited", async () => {
+  const oldSecret = process.env.JWT_SECRET;
+  process.env.JWT_SECRET = "chat-limiter-regression-test";
+  const app = express();
+  app.use(express.json());
+  app.use("/api", chatRouter);
+  app.get("/api/jobs/:id", (req, res) => res.json({ state: "running" }));
+  app.use("/api/jobs", jobsRouter);
+  const server = app.listen(0, "127.0.0.1");
+  await new Promise(resolve => server.once("listening", resolve));
+  const url = `http://127.0.0.1:${server.address().port}`;
+  const headers = { Authorization: `Bearer ${signToken("polling-regression")}`, "Content-Type": "application/json" };
+  const limit = Number(process.env.CHAT_RATE_MAX) || 15;
+  try {
+    for (let i = 0; i < limit + 5; i++) {
+      assert.equal((await fetch(`${url}/api/jobs/test`, { headers })).status, 200);
+    }
+    for (let i = 0; i < limit; i++) {
+      const path = i % 2 ? "/chat/stream" : "/chat";
+      assert.equal((await fetch(`${url}/api${path}`, { method: "POST", headers, body: "{}" })).status, 400);
+    }
+    const blocked = await fetch(`${url}/api/chat`, { method: "POST", headers, body: "{}" });
+    assert.equal(blocked.status, 429);
+    assert.ok(Number(blocked.headers.get("Retry-After")) > 0);
+    assert.equal((await fetch(`${url}/api/chat/stream`, { method: "POST", headers, body: "{}" })).status, 429);
+    assert.equal((await fetch(`${url}/api/jobs/test`, { headers })).status, 200);
+    assert.equal((await fetch(`${url}/api/jobs`, { method: "POST", headers, body: "{}" })).status, 429);
+    assert.equal((await fetch(`${url}/api/jobs/test`)).status, 401);
+  } finally {
+    await new Promise(resolve => server.close(resolve));
+    if (oldSecret === undefined) delete process.env.JWT_SECRET;
+    else process.env.JWT_SECRET = oldSecret;
+  }
+});
 
 const history = [{ role: "user", content: "Earlier question" }];
 const key = (user, location) =>

@@ -2,7 +2,7 @@
 
 import crypto from "crypto";
 import { Router } from "express";
-import rateLimit, { ipKeyGenerator } from "express-rate-limit";
+import { answerSubmissionLimiter as chatLimiter } from "../middleware/request_limits.js";
 import { db, newId, toMessage, toSession } from "../db.js";
 import { cacheGet, cacheSet } from "../cache.js";
 import { authMiddleware } from "../middleware/auth.js";
@@ -103,14 +103,6 @@ async function addAssistantReply(sessionId, response) {
 
 
 
-const chatLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: Number(process.env.CHAT_RATE_MAX) || 15,
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.userId || ipKeyGenerator(req.ip),
-  message: { ok: false, error: "rate limit exceeded, please slow down" },
-});
 
 
 
@@ -179,10 +171,9 @@ async function checkedOwnKeys(req, res) {
 }
 
 router.use(authMiddleware);
-router.use(chatLimiter);
 
 
-router.post("/chat", async (req, res) => {
+router.post("/chat", chatLimiter, async (req, res) => {
   const { sessionId, message } = req.body;
 
   if (!sessionId) {
@@ -347,7 +338,7 @@ router.post("/chat", async (req, res) => {
 });
 
 
-router.post("/chat/stream", async (req, res) => {
+router.post("/chat/stream", chatLimiter, async (req, res) => {
   const { sessionId, message } = req.body;
 
   if (!sessionId) {

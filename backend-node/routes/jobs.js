@@ -2,6 +2,7 @@
 
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.js";
+import { answerSubmissionLimiter } from "../middleware/request_limits.js";
 import { audit } from "../middleware/audit.js";
 import { dispatchWebhooks } from "./webhooks.js";
 import { providerSettings, selectedKeys } from "../provider_settings.js";
@@ -20,6 +21,7 @@ router.use(authMiddleware);
 
 router.post(
   "/",
+  answerSubmissionLimiter,
   audit("job.submit", (req) => ({ type: "job" })),
   async (req, res) => {
     try {
