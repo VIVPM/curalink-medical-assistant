@@ -72,6 +72,8 @@ A single question cannot establish meaningful tail latency; 150 correlated quest
 
 ## Execution history and limits
 
-Only P001 has had a live pilot on this revision: one JSON-parsing failure, then a successful retry with Gemini 3.5 Flash-Lite. The successful retry took 29.82 seconds, with application TTFT 28.36 seconds. Its earlier safety scores were diagnostic extras, not results for the designated 20 safety cases. Old S*/C* captures belong to the superseded dataset and must not be combined with P*/PC* results.
+The full 150-question Gemini evaluation has local ignored artifacts in the full-150 capture directory under `artifacts/`: 150/150 captured and scored, with LLM-judged quality and safety results in `summary.json` and per-case scores in `scores.jsonl`. These are valid **LLM-judged** results; human review is not a prerequisite for reporting them. The same Gemini generation model served both nominal tier labels, so this run cannot establish small-versus-large model quality. Independent clinical review is required before calling the dataset or results clinically validated. Old S*/C* captures belong to the superseded dataset and must not be combined with P*/PC* results.
 
-The full 150-question evaluation has not run. No service restart or full run is authorized by implementation/cleanup requests. Independent clinical review, frozen dynamic references and interpretation of results remain necessary; this harness does not establish clinical readiness or backend privacy enforcement.
+The frozen routing-label audit and saved HF comparison are documented in `ROUTING_AUDIT.md`. The HF answers are not yet LLM-judged. Judging them requires a separately approved paid run. Neither the existing scores nor the routing audit establishes clinical readiness or backend privacy enforcement.
+
+The focused Node/Python guard fix and its saved, **code-level** 150-case recheck are documented in `ROUTING_RECHECK.md`. That replay uses prior inputs and route decisions; it is not a new end-to-end answer run.

@@ -136,13 +136,23 @@ export function cacheKey(userId, disease, intent, location, message, history = [
 }
 
 export function isEmergencyMessage(message) {
-  const text = message || "";
-  return [
-    /\b(overdose|suicidal|kill myself|self[- ]harm|anaphylaxis)\b/i,
-    /\b(?:can't|cannot|unable to)\s+breathe\b/i,
-    /\b(?:chest pain|severe bleeding|stroke symptoms|unconscious|seizure)\b.*\b(?:now|currently|right now)\b/i,
-    /\b(?:now|currently|right now)\b.*\b(?:chest pain|severe bleeding|stroke symptoms|unconscious|seizure)\b/i,
-  ].some((pattern) => pattern.test(text));
+  const text = String(message || "").toLowerCase().replaceAll("’", "'")
+    .replace(/"[^"\n]*"|“[^”\n]*”|‘[^’\n]*’/g, " ")
+    .replace(/(^|[^\w])'(?:[^'\n]|'(?=\w))*'(?!\w)/g, "$1 ");
+  const symptom = "(?:trouble breathing|difficulty breathing|struggling to breathe|barely breathe|chest pain|chest pressure|severe bleeding|bleeding heavily|(?:a )?swollen tongue|tongue swelling)";
+  const negated = new RegExp(`\\b(?:no|not having|don't have|do not have|without)\\s+(?:any\\s+)?${symptom}(?:\\s+or\\s+${symptom})*`, "g");
+  const urgent = /\b(?:overdose|suicidal|kill myself|self[- ]harm|anaphylaxis|can't breathe|cannot breathe|unable to breathe|trouble breathing|difficulty breathing|struggling to breathe|barely breathe|extremely breathless|bleeding heavily|severe bleeding|unconscious|unresponsive|(?:tongue|throat)\s+(?:is\s+|has\s+been\s+)?(?:swelling|swollen)|(?:swollen|swelling)\s+(?:tongue|throat))\b/;
+  for (let clause of text.split(/[.!?;\n]+/)) {
+    if (/^\s*(?:hypothetically|for a story|suppose|imagine|what if|if someone|if a person|if i|what are the signs|what are symptoms)\b/.test(clause)) continue;
+    clause = clause.replace(negated, " ")
+      .replace(/\b(?:am|is|are|was|were)\s+not\s+(?:struggling to breathe|bleeding heavily|swelling|suicidal|unconscious|unresponsive|having\s+(?:a\s+)?(?:seizure|trouble breathing|difficulty breathing))/g, " ")
+      .replace(/\b(?:did|do|does|have|has)\s+not\s+(?:overdose|overdosed)\b/g, " ")
+      .replace(/\b(?:tongue|throat)\s+is\s+not\s+(?:swelling|swollen)/g, " ");
+    if (urgent.test(clause)) return true;
+    if (/\b(?:chest pain|chest pressure|pressure in (?:my |the )?chest|stroke symptoms|seizure)\b/.test(clause)
+        && /\b(?:now|currently|right now|crushing|sweating|jaw)\b/.test(clause)) return true;
+  }
+  return false;
 }
 
 function emergencyResponse() {

@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 
 from stages.query_router import classify_query
+from routing import immediate_response
 
 
 def jev_response(route="rag", tier="8b", topic="session"):
@@ -83,6 +84,52 @@ class QueryRouterTests(unittest.IsolatedAsyncioTestCase):
             decision = await classify_query("Question", {}, [])
         self.assertEqual(decision.model_tier, "70b")
         self.assertNotIn("sensitive", decision.model_dump_json())
+
+    def test_existing_preprovider_urgent_boundary(self):
+        urgent = [
+            "I have crushing chest pain and am struggling to breathe right now.",
+            "My child has a swollen tongue and is having trouble breathing.",
+            "I have chest pressure going into my jaw and I am sweating.",
+            "Someone here is bleeding heavily after an injury right now.",
+        ]
+        for question in urgent:
+            with self.subTest(question=question):
+                self.assertEqual(immediate_response(question, [])[0], "emergency")
+        for question in ("What are the signs of chest pain?", "I do not have chest pain."):
+            with self.subTest(question=question):
+                self.assertIsNone(immediate_response(question, []))
+
+    def test_missing_prior_reference_clarifies_before_jev(self):
+        self.assertEqual(immediate_response("Should I take the one you mentioned?", [])[0], "clarification")
+        self.assertEqual(immediate_response("What did that trial you showed me say?", [])[0], "clarification")
+
+    def test_observed_urgent_phrasings_are_intercepted(self):
+        for question in (
+            "I can barely breathe and my prescribed rescue inhaler is not helping. What should I do now?",
+            "Their tongue is swelling and they are struggling to breathe right now.",
+        ):
+            with self.subTest(question=question):
+                self.assertEqual(immediate_response(question, [])[0], "emergency")
+
+    def test_urgent_words_in_negated_quoted_or_hypothetical_text_do_not_intercept(self):
+        for question in (
+            "I do not have trouble breathing or chest pain now.",
+            "My tongue is not swelling and I am not struggling to breathe.",
+            "I am not suicidal and I did not overdose.",
+            "My child is not unconscious and is not having trouble breathing.",
+            'The study quotes "I can barely breathe"; explain the quote.',
+            "The paper says 'I cannot breathe'; explain it.",
+            "Hypothetically, what if someone's tongue is swelling?",
+            "If someone had trouble breathing, what would you do?",
+            "What are the signs of severe bleeding?",
+        ):
+            with self.subTest(question=question):
+                self.assertIsNone(immediate_response(question, []))
+
+    def test_real_symptom_after_quoted_text_still_intercepts(self):
+        question = 'The article says "I cannot breathe". My child is struggling to breathe now.'
+        self.assertEqual(immediate_response(question, [])[0], "emergency")
+        self.assertEqual(immediate_response("I can barely breathe and imagine it might be asthma.", [])[0], "emergency")
 
 
 if __name__ == "__main__":

@@ -41,17 +41,51 @@ def _message_response(message: str) -> dict:
     }
 
 
+_SYMPTOM = r"(?:trouble breathing|difficulty breathing|struggling to breathe|barely breathe|chest pain|chest pressure|severe bleeding|bleeding heavily|(?:a )?swollen tongue|tongue swelling)"
+_URGENT = re.compile(
+    r"\b(?:overdose|suicidal|kill myself|self[- ]harm|anaphylaxis|can't breathe|cannot breathe|unable to breathe|"
+    r"trouble breathing|difficulty breathing|struggling to breathe|barely breathe|extremely breathless|"
+    r"bleeding heavily|severe bleeding|unconscious|unresponsive|"
+    r"(?:tongue|throat)\s+(?:is\s+|has\s+been\s+)?(?:swelling|swollen)|"
+    r"(?:swollen|swelling)\s+(?:tongue|throat))\b"
+)
+_CHEST = re.compile(r"\b(?:chest pain|chest pressure|pressure in (?:my |the )?chest)\b")
+_HYPOTHETICAL = re.compile(
+    r"^\s*(?:hypothetically|for a story|suppose|imagine|what if|if someone|if a person|if i|what are the signs|what are symptoms)\b"
+)
+_NEW_PATIENT_FACT = tuple(map(re.compile, (
+    r"\b(?:i|we|he|she|they)\s+(?:need|use|am using|are using)\s+.{0,35}\bmore(?: often)?\b",
+    r"\b(?:my|his|her|their|our)\s+\w+(?:\s+\w+){0,5}\s+(?:has|have|is|are)\s+(?:gotten|become|been|getting)?\s*(?:worse|worsening|more frequent)\b",
+    r"\b(?:i|we|he|she|they)\s+(?:started|developed)\s+(?:(?:a|an|the|my|our)\s+)?(?:new|different)\b",
+    r"\b(?:i|we|he|she|they)\s+(?:now|recently|lately)\s+(?:have|has|developed|started)\b",
+    r"\b(?:it|my|his|her|their)\s+(?:is|has been)\s+(?:now|recently|lately)\s+(?:waking|keeping)\s+(?:me|him|her|them)\b",
+)))
+
+
+def _active_urgent_clause(user_message: str) -> bool:
+    text = user_message.lower().replace("’", "'")
+    text = re.sub(r'"[^"\n]*"|“[^”\n]*”|‘[^’\n]*’|(?<!\w)\'(?:[^\'\n]|\'(?=\w))*\'(?!\w)', " ", text)
+    for clause in re.split(r"[.!?;\n]+", text):
+        if _HYPOTHETICAL.search(clause):
+            continue
+        clause = re.sub(rf"\b(?:no|not having|don't have|do not have|without)\s+(?:any\s+)?{_SYMPTOM}(?:\s+or\s+{_SYMPTOM})*", " ", clause)
+        clause = re.sub(r"\b(?:am|is|are|was|were)\s+not\s+(?:struggling to breathe|bleeding heavily|swelling|suicidal|unconscious|unresponsive|having\s+(?:a\s+)?(?:seizure|trouble breathing|difficulty breathing))", " ", clause)
+        clause = re.sub(r"\b(?:did|do|does|have|has)\s+not\s+(?:overdose|overdosed)\b", " ", clause)
+        clause = re.sub(r"\b(?:tongue|throat)\s+is\s+not\s+(?:swelling|swollen)", " ", clause)
+        if _URGENT.search(clause) or (_CHEST.search(clause) and re.search(r"\b(?:now|crushing|sweating|jaw)\b", clause)):
+            return True
+    return False
+
+
+def _reports_new_patient_fact(user_message: str) -> bool:
+    text = user_message.lower().replace("’", "'")
+    return any(pattern.search(text) for pattern in _NEW_PATIENT_FACT)
+
+
 def immediate_response(user_message: str, history: list[dict]) -> tuple[Literal["emergency", "clarification"], str] | None:
     """Handle explicit urgent symptoms and absent references before any provider call."""
     text = user_message.lower().replace("’", "'")
-    # Hypothetical education is not a report of a current emergency.
-    hypothetical = bool(re.search(r"\b(?:hypothetically|for a story|what are the signs|what are symptoms)\b", text))
-    symptom_text = re.sub(r"\b(?:no|not having|don't have|do not have)\s+(?:any\s+)?(?:chest pain|chest pressure|trouble breathing|difficulty breathing|severe bleeding)\b", "", text)
-    breathing = bool(re.search(r"\b(?:can't breathe|cannot breathe|unable to breathe|trouble breathing|difficulty breathing|extremely breathless)\b", symptom_text))
-    chest = bool(re.search(r"\b(?:chest pain|chest pressure|pressure in (?:my |the )?chest)\b", symptom_text))
-    red_flag = (breathing or (chest and bool(re.search(r"\b(?:now|crushing|sweating|jaw)\b", text)))
-                or bool(re.search(r"\b(?:bleeding heavily|severe bleeding|unconscious|unresponsive)\b", symptom_text)))
-    if red_flag and not hypothetical:
+    if _active_urgent_clause(user_message):
         return ("emergency", "This could be a medical emergency. Call your local emergency number now and follow the dispatcher's instructions. Do not wait for research results or your next appointment. I cannot diagnose the cause here.")
     reference = bool(re.search(r"\b(?:that trial|that study|the (?:medicine|drug|treatment|one) you (?:mentioned|recommended)|trial you showed)\b", text))
     if reference and not any(m.get("role") == "assistant" and m.get("content", "").strip() for m in history):
@@ -74,6 +108,9 @@ async def route_request(user_message: str, static_context: dict, history: list[d
     if budget is not None and decision is None:
         budget.consume_text(json.dumps({"intake": static_context, "history": history, "question": user_message}))
     decision = decision or await classify_query(user_message, static_context, history)
+    if decision.route == "conversation" and _reports_new_patient_fact(user_message):
+        decision.route = "rag"
+        decision.fallback = "new_patient_fact"
     context = dict(static_context)
     if decision.topic == "new_topic":
         context.update(disease="", intent="")

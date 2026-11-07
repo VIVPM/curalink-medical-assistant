@@ -80,6 +80,45 @@ class RoutedRequestTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(routed.response["insights"][0]["source_details"][0]["url"], "https://pubmed.ncbi.nlm.nih.gov/123/")
         self.assertFalse(routed.response["pipelineMeta"]["routing"]["retrieval_used"])
 
+    async def test_new_or_worsening_patient_facts_bypass_history_only(self):
+        questions = (
+            "It is now waking me at night and I need the inhaler more. Should I get reviewed?",
+            "My pain has gotten worse since yesterday. What should I do?",
+            "I started a new medicine yesterday. Does it change that advice?",
+        )
+        with patch("routing.routing_enabled", return_value=True), patch(
+            "routing.classify_query", AsyncMock(return_value=RoutingDecision(route="conversation", model_tier="8b"))
+        ), patch("routing.run_reasoner") as reasoner:
+            for question in questions:
+                with self.subTest(question=question):
+                    routed = await route_request(question, self.form, research_history(), self.base)
+                    self.assertEqual(routed.decision.route, "rag")
+                    self.assertEqual(routed.decision.fallback, "new_patient_fact")
+                    self.assertIsNone(routed.response)
+        reasoner.assert_not_called()
+
+    async def test_discussion_of_old_facts_can_stay_history_only(self):
+        output = {"overview": "The saved study reported improved symptoms.", "insights": [],
+                  "trials": [], "recommendations": [], "abstain_reason": None}
+        with patch("routing.routing_enabled", return_value=True), patch(
+            "routing.classify_query", AsyncMock(return_value=RoutingDecision(route="conversation"))
+        ), patch("routing.run_reasoner", AsyncMock(return_value=SimpleNamespace(llm_output=output))):
+            routed = await route_request("Summarize what you said about worsening symptoms.",
+                                         self.form, research_history(), self.base)
+        self.assertEqual(routed.decision.route, "conversation")
+
+    async def test_saved_history_only_decision_is_overridden_for_new_fact(self):
+        with patch("routing.routing_enabled", return_value=True), patch("routing.classify_query") as classify, patch(
+            "routing.run_reasoner"
+        ) as reasoner:
+            routed = await route_request("My breathing is getting worse since yesterday.", self.form,
+                                         research_history(), self.base,
+                                         decision=RoutingDecision(route="conversation", model_tier="8b"))
+        self.assertEqual(routed.decision.route, "rag")
+        self.assertEqual(routed.decision.fallback, "new_patient_fact")
+        classify.assert_not_called()
+        reasoner.assert_not_called()
+
     async def test_missing_history_sources_fall_back_to_rag(self):
         with patch("routing.routing_enabled", return_value=True), patch("routing.classify_query", AsyncMock(return_value=RoutingDecision(route="conversation"))):
             routed = await route_request("Explain", self.form, [{"role": "assistant", "content": "Overview only"}], self.base)
