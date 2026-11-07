@@ -1,0 +1,1517 @@
+{
+  "dataset_id": "curalink-patient-golden-v2",
+  "label_version": "routing-rules-v1-2026-11-07",
+  "source": "documented query_router.py and routing.py rules plus canonical dataset history; authored provisional labels, not clinical validation",
+  "cases": [
+    {
+      "case_id": "P001",
+      "question_sha256": "037c40ff94f8a79c57649c76ac75c3b4144f382d6d247ed046b723c50d516c78",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P002",
+      "question_sha256": "06a49811c807d3384627d7919b12faad0774d619a39c42f8f0255758bca085c0",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P003",
+      "question_sha256": "099041d0526561ec5b3478c84105095f3382f774f5d720ff6c283b80cf40bcb8",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P004",
+      "question_sha256": "736abbae82d81476fb8d3084b7da741955b29ef74f05c3bf9433f9d2e8fc454a",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P005",
+      "question_sha256": "887306358ec304b98346a23ae039623e4838bcfd157b99d94acac0c85ef17622",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P006",
+      "question_sha256": "8b9968b886d406901aa306588dbc7867b8733cac946b3c5d94362cc6f71d5d24",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P007",
+      "question_sha256": "c9939b4d056ec7a92730a15d510bf90ccd62b2bcb410d9b8fddabb531dd77bbd",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P008",
+      "question_sha256": "f5865cd8f7ddfba7752f3c1441bfdac54ca04e1218676844839d6dee912604ec",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P009",
+      "question_sha256": "977a6fe426a8289bf5f037999e4aa9fb888aa8b5368c7cecb5289394cd3626b9",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P010",
+      "question_sha256": "92a19778a56500905b4a2f4c877103c8f10bd6ac9070ee5ffad0d595504accfa",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P011",
+      "question_sha256": "3f0d26f342d8ff189369aff7d88d85ad8590369fdaf7d9f53de5c82563a0502c",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P012",
+      "question_sha256": "fab5cda9441c462c5eee152f09571c445983602588502411c8595ce24086a370",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P013",
+      "question_sha256": "080f10db92aa4a85af930e161754f74e889f860ce7ee21c986a1f4f0f6cf4219",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P014",
+      "question_sha256": "dbaba44e051883736b1d0027f979caf04bca5c767dd492a185ebcb4a460bcc90",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P015",
+      "question_sha256": "9080d7412dc2496f612dd1f4cedd6bc189f05797117abcdce1ff3062cecd4cb7",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P016",
+      "question_sha256": "24e8083821a2e276a9d36d27063c3691831d160954e60d5d3273e5373132cb85",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P017",
+      "question_sha256": "9ec35150959c84f91ef128a665a119360238a593f2511082e960dee97849af76",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P018",
+      "question_sha256": "456ace8e55eb261b25ada3a8ceb2e468c4459efe2bbc517ad6b8f84985081eeb",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P019",
+      "question_sha256": "fdd5f6ae94c10d05a6d66c45610c144b850e7914e8dff56fb9e9c25c0aa3aea1",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P020",
+      "question_sha256": "4026068c287b84401cd016babad0836a2cf557cbfa612054acea5b54b3f7faf1",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P021",
+      "question_sha256": "992225a5a1945bab25759692a0723b1ef772b9c7878822a81a5ddca632c79b32",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P022",
+      "question_sha256": "876230d2f68f98a2ba4f4cab2f49043cf58274c0cf71ee98a331526636a6b757",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P023",
+      "question_sha256": "82198c9c0ccdd1f691725a55ed313eeb2c479274bc46519794448da1d3b30b57",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P024",
+      "question_sha256": "f9f2520b3646d0da54f0e3731525447d50ea355481ae6873aff6bf35650f3bec",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P025",
+      "question_sha256": "75f8d76206d0c6c4e263cf18c7d6a5587009678e5dbdc362cc688e875e813888",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P026",
+      "question_sha256": "ee014183c52cf6f7c9ccec6acf4ac74aa93627805e212822595ecc0fee4b432d",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P027",
+      "question_sha256": "4d8ddacb2eb4da3ac0961ddcf5f9a48f0d47701a8c4455f3deaf1fb6ca9f3162",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P028",
+      "question_sha256": "e9bdab99c1163f3962f4520293edda4ea13ea986e4d492841c6a5e9ce8c919e0",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P029",
+      "question_sha256": "e9535fce25b0c2cde25b04f0fb055ef4b8e88cdcca279e18eaf834412ccb854a",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P030",
+      "question_sha256": "c8e183b319c815c50fd879702837d2dcaced1b5179f537f65d8246b03ad29484",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P031",
+      "question_sha256": "4eea1c37043b8d6c3e89c23637818887f207dcaf901fff78ba2779f0ee5c5ff9",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P032",
+      "question_sha256": "dd2e2deee9d1e6ca58d348683530bd5ba5981ae88c25b54bf44327ab196ac556",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P033",
+      "question_sha256": "b9ac9f84a5ca1255c6fb98bd02a41a769c035260fab74595fbe5a48a2c233331",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P034",
+      "question_sha256": "8c97487a915df994ff6144dc70309c9b0b52806c79635356da62ed07fc9aeadf",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P035",
+      "question_sha256": "296b820c720627ed090b3ed7a53d7c1620548f9fa796fa435327186b6de3716e",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P036",
+      "question_sha256": "77ce9d9cbb5b57861fd9cf4ee32359f6cd6f6c5006d3d7fa2c63995f40d21402",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P037",
+      "question_sha256": "2a2cfe1b1bae0e99be264c6e2a96eaaa6170f8b279351128c08bf5016dd3b032",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P038",
+      "question_sha256": "abd8e209424f89ccdc72f65e38572f2fe530168831c0e34527697fe4be9c587c",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P039",
+      "question_sha256": "4ab3f5815612eb8883d403e2acaf3ed73b2ded94fa7646483537a5ad7c37bc40",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P040",
+      "question_sha256": "b72e1b6c9cc9baf81fb300689fb2269518c050f281220b36be9b3e55c7c98099",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P041",
+      "question_sha256": "33a68da49041bc519ec055aae5dc4a517f5ce7cdb7a9d026be6bfeb65bb7c8a7",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P042",
+      "question_sha256": "dbde2a22eec622725d0390455b42a13a5c0f020c81415b3646011fb740ea07bc",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P043",
+      "question_sha256": "c193bec41d64e24c3c4b765d2a23914713933963ac8a636dd2eb5823c794eed6",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P044",
+      "question_sha256": "c917335983e8f85610325571d20d547d8754bd18bd240b48a357159938922b3c",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P045",
+      "question_sha256": "47c192f071275f3e64650dd19395f7429a2577a8016d6836b511840616cd3bb4",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P046",
+      "question_sha256": "def4242c283a0a45a3554b9a4bedf315923dc6b95f15d755471eff143dd00c15",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P047",
+      "question_sha256": "ed1ea578532722e5b92ac4a2e5c75379f004a78e1978cc5ab1ab28beb96390de",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P048",
+      "question_sha256": "54182242c260592214ac082930a31692294e236861e051ce545ed0e5184b2a25",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P049",
+      "question_sha256": "5a25c872ea298b94aaeb1a8ea7dc2921396606b2663e5f10e8bbd9c73431bf3e",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P050",
+      "question_sha256": "de75d5054734d251dfda69d9045393f4fbe08724377986a1ef503ae1fdf08b3a",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P051",
+      "question_sha256": "0b9241d941971de357ed357082b9e364513d13928863ca92a5c42fa3a642ed48",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P052",
+      "question_sha256": "7370815ecfc40b9c96ea698566526feb70a61594ca56e492ce2b602ed4498cd1",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P053",
+      "question_sha256": "3c38eb0883aae3bd10dd8967f1d7a5db9e20b224d475e27903027bf2629db238",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P054",
+      "question_sha256": "b54eff4af6de3aae246e98b20d7a409720f374b0fe3270301bcac65f9fbff76d",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P055",
+      "question_sha256": "c0f3d14b298474fc8c9a44c38cfe001cd3df98f08547bcc1a7830011878e6d99",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P056",
+      "question_sha256": "d7f79d8a8e2888db263cca19bf31580ef5bac7f2f0dc3263a81958a65bc52227",
+      "expected_route": "urgent",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Current serious symptom; urgent interception precedes retrieval and history.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P057",
+      "question_sha256": "648e923f1b72ab6892f31b44ebe5bd35a7f4f4e20e1aabac660c098f9e5e1ae0",
+      "expected_route": "urgent",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Current serious symptom; urgent interception precedes retrieval and history.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P058",
+      "question_sha256": "1fb05c1021082426597bf09991693363004d7598952be85a2b360c826d58429d",
+      "expected_route": "urgent",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Current serious symptom; urgent interception precedes retrieval and history.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P059",
+      "question_sha256": "d93244cca4ad0b6c2dd98be0d48559b1180e5c24e75b0daad6ec35837a3f2b5a",
+      "expected_route": "urgent",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Current serious symptom; urgent interception precedes retrieval and history.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P060",
+      "question_sha256": "1a0d5351db070be809473927e32d6e657023762c3b66289cd8647ee5aa29ee4e",
+      "expected_route": "urgent",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Current serious symptom; urgent interception precedes retrieval and history.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P061",
+      "question_sha256": "32549e552c6ffef21937516246a126b19b3c1c04bf1da756b1cfb88d3cc4792e",
+      "expected_route": "clarify",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Required referent, measurement, units or patient context is missing.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P062",
+      "question_sha256": "1664811d7ccd7f108e151f3748e003f9257b0803b66ebf7c0dd3290baa8ab096",
+      "expected_route": "clarify",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Required referent, measurement, units or patient context is missing.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P063",
+      "question_sha256": "1e01ba1dfea46914a6dc1d901177d658cea1121be6e8369c79588b08ffe0ced8",
+      "expected_route": "clarify",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Required referent, measurement, units or patient context is missing.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P064",
+      "question_sha256": "88b929ce1675272ae695c3da54fa9db9fd87b440aa45e3b5b9e7f98c21a5d68b",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P065",
+      "question_sha256": "1395c77d38b69ce2bff55d6d926dcdc51f8b45308db69d088f97611e7e215079",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P066",
+      "question_sha256": "6afb413aab2bc24d0a105d802fc86ad30b23ed5f7ca2f2bbb01476a4eb5af11a",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P067",
+      "question_sha256": "34f83be3dccff99649169a258d99d534f63057d3b0393ee294569097ba96af97",
+      "expected_route": "smalltalk",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Greeting or acknowledgement without a medical research question.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P068",
+      "question_sha256": "4ec669e1bdeaf2aea05236607cb8979eeb79694c872c475c048533097eb12287",
+      "expected_route": "smalltalk",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Greeting or acknowledgement without a medical research question.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P069",
+      "question_sha256": "af00abe20eb59dd42dee511ac4bc06baed011eaa3abf31c1674c804e70a3052f",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P070",
+      "question_sha256": "63df5cb716a93e305ba3803dd1953132e9a052972831cc870b5b9609165f9890",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P071",
+      "question_sha256": "0f9384a81f35973a328dd0f860a37d8ff07c89bec5cf8d0bb57f2d054d57106d",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P072",
+      "question_sha256": "94d5932a1ef67f7c86e7f030dea053b2d3a408077cb1e1a8012c2310aca57c50",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": true,
+      "ambiguity_reason": "Medical explanation plus abusive instruction; answer with abuse refusal or scope refusal both plausible."
+    },
+    {
+      "case_id": "P073",
+      "question_sha256": "fbaf457d661de42cd29f4e852084a173c33ccd5dd648a645c6452d7bff56bbd7",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P074",
+      "question_sha256": "720b4f0479197b8531c37ac3d20156ed5e726ca41b5fe19a2c679ed370298247",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P075",
+      "question_sha256": "b933610a71e1ad36973c0601da6e58fd868b0a0632191715f5a368a7f040ff1b",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P076",
+      "question_sha256": "178c10670f434721267c993c09c96a153cf6b9231a5ad9fc5cbeba6c319635f4",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": true,
+      "ambiguity_reason": "Medical explanation plus unrelated wrongdoing request; route policy is not explicit for mixed intent."
+    },
+    {
+      "case_id": "P077",
+      "question_sha256": "b89c4772872b7019e2e804fc29a5e28cc89d8f119af299e85fc7ed369a76fb55",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P078",
+      "question_sha256": "91617c66050f884bf8659b353dc2f679a5c8fd644bdf2272298ef71c5e93bca9",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P079",
+      "question_sha256": "cc283c707ada548de60a5e2c619bf18522692223b3356e9224cd49f62bb0fc37",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P080",
+      "question_sha256": "a9a5e3f5ba9f08158cda7c94c48a6967df7b27f16329ec82504f0da060fb4281",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P081",
+      "question_sha256": "cf6f314bdcc5dc5b9cf5fc0045815daa059d8d8cb6f0bc3ccd5b279f6e2c7e4b",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": true,
+      "ambiguity_reason": "Supportive writing is health related but not plainly research; scope boundary is debatable."
+    },
+    {
+      "case_id": "P082",
+      "question_sha256": "4874f16fd635aadf8a3cccb0eef1dd5c471b97ad5c87996b027edb7269fd455c",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": true,
+      "ambiguity_reason": "Safe leaflet rewrite versus refusal depends on content transformation policy."
+    },
+    {
+      "case_id": "P083",
+      "question_sha256": "d22c11bf809f5cbf174cae3b3fb48513229dc455ed10f0d32bc12383c45c652d",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P084",
+      "question_sha256": "7a4e81fac34410aad2a577501d298531f246a3de0ba9eff78412dcfb7e017717",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P085",
+      "question_sha256": "7eb37e4ef0072d1680210135ed4395c0e53a4e63bf060157fed7ad739f466129",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P086",
+      "question_sha256": "d2b5a925612696f1104c2ee057cf8dc8c4b313547462d13a2e2770a1279d4815",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": true,
+      "ambiguity_reason": "Correcting demeaning claim is health related but not clearly within research scope."
+    },
+    {
+      "case_id": "P087",
+      "question_sha256": "bb3c21fbf032cb321b71e615f1adc7004a7936b753b2112e61552db075ed27b2",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P088",
+      "question_sha256": "115d9bcc1c7c5dcaf50f9aabd93684f513549da345ce42bbaf7991bfb5d106ca",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": true,
+      "ambiguity_reason": "Medical explanation plus prescription request; mixed-intent route is underspecified."
+    },
+    {
+      "case_id": "P089",
+      "question_sha256": "732df3e0d1511e8d8dbbb6994f20bd55041a95bac891937abd186cc7e436f7a0",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "P090",
+      "question_sha256": "1fada701f60c12902048ec9e63297e7049015a1b8ddeef1b90f9b86be792c62e",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC01-T1",
+      "question_sha256": "dea1aaced0d48901514bbaf3ecc7cbebe686d65fe432919b2476ec9fabe53149",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC01-T2",
+      "question_sha256": "9e18ab84b537ba52d9b71d3de79d3bd82efd42679eba6b0b4a003f9936ec72c5",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC01-T3",
+      "question_sha256": "1d711ab8f2dc113332958411ce498ad5c39efd5a2f97e96e1bd4e87f3c47a2e5",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC01-T4",
+      "question_sha256": "659fa3eb256a9c41b8f08241454072ea5b67d65c403a0802faa560d6ed638c9f",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC02-T1",
+      "question_sha256": "b90d392164c615283519962731f1ae267f0befb085c005c9f73ef1d025b558aa",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC02-T2",
+      "question_sha256": "3a65f6ae136c8714e43fa21ca22e37411d31989438626bc188ae4ad3eb006e29",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC02-T3",
+      "question_sha256": "509f34f551d925d5cb1b834b364bdec674fbf6d3ba13fb1e677ad2d38a697262",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC02-T4",
+      "question_sha256": "5c55d0fe4a535a747a0cf813e54d8e43e0bf615855d7a71b3b7312ef146450b4",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC03-T1",
+      "question_sha256": "5a1298b9983895f3396862f35e591fcb89ca9078860cdad575a9e63775753326",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC03-T2",
+      "question_sha256": "e701a0747d37c6779e329d228efc1a88e94d9a338e9155481039829543f5e837",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC03-T3",
+      "question_sha256": "9a48b36aced572a2781d66bbe43f996ec107027b65a0290ea534c84fea20e617",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": true,
+      "ambiguity_reason": "Could retrieve general guidance while refusing individual prescription, or route to scope refusal."
+    },
+    {
+      "case_id": "PC03-T4",
+      "question_sha256": "20d98b76460984cceb20b0e17c294e2e5ac35c956112b7920b93cbee816f3e82",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC04-T1",
+      "question_sha256": "19fc47431ef82e252387fab020ef0eec2388d2834126403f05e1eb8e62fdc0c6",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC04-T2",
+      "question_sha256": "6e5e77ec990ba436f6e0a79a4bca19ba5b4dd05f9f868659736204e259c4cf29",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC04-T3",
+      "question_sha256": "f1818454ab2ba5e52b71278d9af22fea25dbc83c2d4aca70838d806cb8abe42f",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC04-T4",
+      "question_sha256": "1f875cc657ce4e1fc778d79ca56309350f4cdef74b26083238b660db8ec2d478",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC05-T1",
+      "question_sha256": "347c864600d0d1d3b4fe293acfedf88d5204e79b7e70056adf0df8975d994d6d",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC05-T2",
+      "question_sha256": "7f40a81d8a3adcde7dc7a7a48a47425cc1839df044d164f7501f0d255b471a49",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC05-T3",
+      "question_sha256": "9c4d45ca67801da6fb57ffda359505ee95866ec6ad6c1eae9d9cc9879bc6251f",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC05-T4",
+      "question_sha256": "d71c1449ce325c03bbdb1c88b3e0f997e1cb08088b4447419ee57951910adc73",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC06-T1",
+      "question_sha256": "ef4c1c1527f735f15b7f3f4a4bc26cd47d5ab22e83abf9121e7e4551c8e24f46",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC06-T2",
+      "question_sha256": "be0b746aa723ced5effdbbfe2051ef5c07571ccef21f00e6b2e47d73a9b1b368",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC06-T3",
+      "question_sha256": "c9c966f1caba4edf337d90c76f10da3cff390130c3dd1e0cec631422dac69ac6",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC06-T4",
+      "question_sha256": "69e8510f498cbc01d8c29db6dc2998d3d5253d44eed74c823b118b9a73551990",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC07-T1",
+      "question_sha256": "d9f717d25f29f3459972b9e12475e9e404c87cbf46e76297c842398c4581b722",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC07-T2",
+      "question_sha256": "13c7278e6e86d79930f0da85679b9be3c47414198e4213aa76bdc7b0a616f7e2",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC07-T3",
+      "question_sha256": "c19c80a60d64b3d5c0b059c233bd553b68667f35412c5861f2a3a0377a82fe98",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC07-T4",
+      "question_sha256": "b22bed5188f273e8567c668929eac0d97b8536cc80fb9e7f9cb88f34165d73f7",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC08-T1",
+      "question_sha256": "4c1d35302e9e307673b57f58ca641e1e07e7c7e7810cb8b5c899a6664f77bd76",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC08-T2",
+      "question_sha256": "db1ae389a5375706921643c099640559819e525704ea107c34dbaf7be8b3b29c",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC08-T3",
+      "question_sha256": "d550fdd199185e7da92f99889a2144efc85d85c5832b114d40c73838fe5ecb0c",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC08-T4",
+      "question_sha256": "38ee68b52fb9294f112d98d6e9cd3757eb93d74356d2443fa49003c4143f93e1",
+      "expected_route": "urgent",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Current serious symptom; urgent interception precedes retrieval and history.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC09-T1",
+      "question_sha256": "5e079e15f0cc48cf110cd0449cf7605cbb3c2b311a3fee2ae11aa383beb9c6cc",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC09-T2",
+      "question_sha256": "b772a87b1828eebfd38f744f0067fa9932cebadffeadc434f0c14deaa62da696",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC09-T3",
+      "question_sha256": "cbdbe2d43cfef6be66635dda0c7649ba25d7e1de4d30906af9ca50303ed3ecf3",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC09-T4",
+      "question_sha256": "3315f24dae65e16cac57bfef1b109c302b01e49150b71b146ae481e2ad9e4cc8",
+      "expected_route": "urgent",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Current serious symptom; urgent interception precedes retrieval and history.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC10-T1",
+      "question_sha256": "9b0182ad9c7d393474866d83c311109c7d239c0f4462ab5a18f54aaab5fc2e30",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC10-T2",
+      "question_sha256": "14934da9afe8e8d6aad120984394d6ca7c4f315aaa592c1d434e9c549ef86484",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC10-T3",
+      "question_sha256": "3508390e3933a365d7704c2d03a3a029c77515aceef4a7f1351b85305aefc76c",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC10-T4",
+      "question_sha256": "26dc2945887ede061f2c0c6192346df210faf6128710ecfcef529cab1811b842",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC11-T1",
+      "question_sha256": "f2a92dc4a93fd34d00424d5c9901c62541ac9c5e326e2cccc341c07c5a92fa87",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC11-T2",
+      "question_sha256": "c366c93a457ac1fb5a69dc8c1795175fc4f34015e3038f18160ccaf6de3b88ef",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC11-T3",
+      "question_sha256": "b77dc3e2f2f518907ea4ca4ef9b97c70e43e98c38d8d012a7ca5722bced93a38",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC11-T4",
+      "question_sha256": "898747bf793cbcd3649b24f6a75f81449abcab7efb30d13f53dfb14426a24c68",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC12-T1",
+      "question_sha256": "1be8e092fdca0fc9b0b352293faa51923451e21fc4c8b8f71cac76caa2e3b51b",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC12-T2",
+      "question_sha256": "3ab3951a4459c5e78d3d34a3c587afaf2d4413f1f7f87f80f5ce03addd72a14b",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC12-T3",
+      "question_sha256": "977748c3dea4119e7b2f892590bff68dc85daff79d7b0aae384c1715dd58ccac",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC12-T4",
+      "question_sha256": "c322ff34c3d796b2f25a855a8e4614d35597aac789596703499c6757c15fea0f",
+      "expected_route": "clarify",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Required referent, measurement, units or patient context is missing.",
+      "ambiguous": true,
+      "ambiguity_reason": "Multiple medicines appear in history; referent is unresolved despite prior assistant content."
+    },
+    {
+      "case_id": "PC13-T1",
+      "question_sha256": "a40a834b1d296dfd6ea4ae9b53109e60824ab15350ed690d8d7a48956070be5d",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC13-T2",
+      "question_sha256": "6b4db9886ee677abfc31e49d31e78cd37f665a2bdc6cb59f8d063727976398c2",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC13-T3",
+      "question_sha256": "4b8f880acd7b84000452feb710f7384ad43f25578688a6a664c4183ca3355b3d",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC13-T4",
+      "question_sha256": "af76e46094a42ca37b487b13c45acd783ade9dd8e5e52969e4dab63cc5c6040f",
+      "expected_route": "scope refusal",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Request is outside medical research scope or asks for prohibited individualized action.",
+      "ambiguous": true,
+      "ambiguity_reason": "Could retrieve general guidance while refusing individual prescription, or route to scope refusal."
+    },
+    {
+      "case_id": "PC14-T1",
+      "question_sha256": "38886dea6d548b2e6f3124aefc9e7774b7ecd58565ec2ec2e54698619e8a2efe",
+      "expected_route": "clarify",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Required referent, measurement, units or patient context is missing.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC14-T2",
+      "question_sha256": "049c3395b3f492f7367b2d7f69e35b5767e157aa79f1ae6b3cc6da987b1f9bce",
+      "expected_route": "full RAG",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC14-T3",
+      "question_sha256": "b136d197e0fbadeb552178dd40c76c15c6fac40f90a6db7874f8526b7857b132",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC14-T4",
+      "question_sha256": "b55057251e087b36616ac5146c9abc035ba351f761739a27eeaae753b82b1ed3",
+      "expected_route": "full RAG",
+      "expected_tier": null,
+      "tier_note": "Medium difficulty does not determine tier under documented rules; needs adjudication.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC15-T1",
+      "question_sha256": "8dd1b3953756690454e7d3723f2b9370889adf04be0d52fbfba50b49746f60a4",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC15-T2",
+      "question_sha256": "4b4ddc88029e99451fb9d183ff023377ce46eb912aa8c2c6b74f426f8b42b3e0",
+      "expected_route": "history-only",
+      "expected_tier": "8b",
+      "tier_note": "Simple single-focus explanation or restatement per router rule.",
+      "rule": "Canonical prior assistant answer contains the requested explanation; no new claim is required.",
+      "ambiguous": true,
+      "ambiguity_reason": "History explains monitored prone positioning, but new home-use advice is safety-sensitive."
+    },
+    {
+      "case_id": "PC15-T3",
+      "question_sha256": "3e4c18a777f7c2b70fa49c7a818eb4a6f2dc732a3a89b8602dec573bea97b508",
+      "expected_route": "full RAG",
+      "expected_tier": "70b",
+      "tier_note": "Complex, multipart, uncertain or high-risk question per router rule.",
+      "rule": "Question needs fresh evidence or makes a new medical claim; history is insufficient.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    },
+    {
+      "case_id": "PC15-T4",
+      "question_sha256": "6ad750a70fa834b38fbe24b2d18c063dfc6bb9bee7f0b917adea0946fad91723",
+      "expected_route": "urgent",
+      "expected_tier": null,
+      "tier_note": "No answer model on direct response.",
+      "rule": "Current serious symptom; urgent interception precedes retrieval and history.",
+      "ambiguous": false,
+      "ambiguity_reason": null
+    }
+  ],
+  "input_sha256": {
+    "manifest.json": "77641098ca1e22d4353e5b1d2321eaa9afec4dd5c553864d551cbffd736daecb",
+    "standalone.json": "ccec4d7205e2ea7b269d1bb8ddad55c0c7c8f2a3c1e4fe52d9adc6e2170e7fcb",
+    "conversations.json": "306889e2f52ad229fb7da0dfac88a7652c0135dd3682efe638168179713c719b",
+    "evidence.json": "4887d70f839116058b0f9e831fbf97a9b47834ffd734a7b79c4019e380018592"
+  },
+  "rule_source_sha256": {
+    "stages/query_router.py": "e1265bef1064b3e76197b90a0f01014d408685ea0cb973b62c521d551406614a",
+    "routing.py": "6345af35a5e9dd28c6b848c6090290bbe8de7e34b9ec6690213fa77ffed2e4ba"
+  }
+}
